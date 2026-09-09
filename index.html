@@ -1,0 +1,3452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BAZZ Cold Storage & Logistics Management System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            cold: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0284c7',
+              600: '#0369a1',
+              700: '#075985',
+              800: '#0c4a6e',
+              900: '#082f49',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @media print {
+      body * {
+        visibility: hidden !important;
+      }
+      #printModalContent, #printModalContent * {
+        visibility: visible !important;
+      }
+      #printModalContent {
+        position: fixed !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 12mm !important;
+        background: white !important;
+        color: black !important;
+        box-shadow: none !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      @page {
+        size: A4 portrait;
+        margin: 8mm;
+      }
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col font-sans antialiased">
+
+  <!-- Top Navigation Header -->
+  <header class="bg-slate-900 text-white sticky top-0 z-40 shadow-lg border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Brand identity -->
+        <div class="flex items-center space-x-3">
+          <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-cyan-400 via-sky-500 to-blue-600 flex items-center justify-center font-black text-white text-xl shadow-lg shadow-sky-500/20">
+            ❄
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="font-black text-xl tracking-tight text-white">BAZZ</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30 uppercase tracking-wide">Cold Chain Plant</span>
+            </div>
+            <p class="text-[11px] text-slate-400 font-medium hidden sm:block">Abohar - Fazilka Bypass, Punjab • Plant & Gate Pass Portal</p>
+          </div>
+        </div>
+
+        <!-- Telemetry sensors -->
+        <div class="hidden lg:flex items-center space-x-3 text-xs font-mono">
+          <div class="bg-slate-800/90 border border-slate-700/70 px-2.5 py-1 rounded-lg flex items-center space-x-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="text-slate-400">CH-1 (GF/1F):</span>
+            <span class="text-cyan-300 font-bold">3.4°C</span>
+          </div>
+          <div class="bg-slate-800/90 border border-slate-700/70 px-2.5 py-1 rounded-lg flex items-center space-x-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="text-slate-400">CH-2 (GF/1F):</span>
+            <span class="text-cyan-300 font-bold">4.0°C</span>
+          </div>
+          <div class="bg-slate-800/90 border border-slate-700/70 px-2.5 py-1 rounded-lg flex items-center space-x-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="text-slate-400">CH-3 (GF/1F):</span>
+            <span class="text-cyan-300 font-bold">2.1°C</span>
+          </div>
+          <div class="bg-slate-800/90 border border-slate-700/70 px-2.5 py-1 rounded-lg flex items-center space-x-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="text-slate-400">CH-4 (GF/1F):</span>
+            <span class="text-cyan-300 font-bold">0.9°C</span>
+          </div>
+        </div>
+
+        <!-- User profile & Quick action / Logout -->
+        <div class="flex items-center space-x-2 sm:space-x-3">
+          <div id="userBadgeContainer" class="flex items-center space-x-2 bg-slate-800/80 py-1 px-2.5 rounded-xl border border-slate-700 text-xs">
+            <span id="roleIndicator" class="h-2 w-2 rounded-full bg-emerald-400"></span>
+            <div class="text-left leading-tight">
+              <span id="activeUserName" class="font-bold text-slate-100 block">Admin User</span>
+              <span id="activeUserRole" class="text-[10px] text-cyan-400 font-mono uppercase font-semibold">ADMINISTRATOR</span>
+            </div>
+          </div>
+          <button onclick="logoutUser()" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition" title="Log Out">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab navigation bar (Filtered dynamically based on role) -->
+    <div class="bg-slate-950/90 border-t border-slate-800 px-4 sm:px-6 lg:px-8">
+      <div id="navTabsContainer" class="max-w-7xl mx-auto flex space-x-2 sm:space-x-4 overflow-x-auto custom-scrollbar text-xs sm:text-sm font-medium py-1">
+        <!-- Injected via renderNavigation() -->
+      </div>
+    </div>
+  </header>
+
+  <!-- Login Modal / Overlay (When not authenticated) -->
+  <div id="loginOverlay" class="fixed inset-0 z-50 bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full border border-slate-200 overflow-hidden">
+      <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-sky-950 p-6 text-white text-center">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-400 to-blue-600 mx-auto flex items-center justify-center text-3xl font-black shadow-lg shadow-cyan-500/30 mb-3">
+          ❄
+        </div>
+        <h2 class="text-xl font-extrabold tracking-tight">BAZZ Cold Storage Portal</h2>
+        <p class="text-xs text-slate-300 mt-1">Multi-Role Gate Pass & Inventory System</p>
+      </div>
+
+      <div class="p-6 space-y-4 text-sm">
+        <div class="space-y-1">
+          <label class="font-bold text-xs text-slate-700 uppercase">Username / Mobile No.</label>
+          <input type="text" id="loginUsernameInput" placeholder="admin or mobile number" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-cyan-500 focus:outline-none text-slate-900">
+        </div>
+        <div class="space-y-1">
+          <label class="font-bold text-xs text-slate-700 uppercase">Password</label>
+          <input type="password" id="loginPasswordInput" placeholder="Enter password" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-cyan-500 focus:outline-none text-slate-900">
+        </div>
+
+        <button onclick="handleLoginSubmit()" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold shadow-md hover:shadow-cyan-500/20 transition text-sm">
+          Secure Login →
+        </button>
+
+        <!-- Fast Demo Switchers -->
+        <div class="pt-3 border-t border-slate-100">
+          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-2 text-center">Quick Demo 1-Click Access</span>
+          <div class="grid grid-cols-3 gap-2 text-xs">
+            <button onclick="quickLoginAs('admin')" class="py-2 px-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-center transition">
+              👑 Admin
+            </button>
+            <button onclick="quickLoginAs('staff')" class="py-2 px-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-center transition">
+              🛠️ Staff
+            </button>
+            <button onclick="quickLoginAs('customer')" class="py-2 px-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-center transition">
+              👤 Customer
+            </button>
+          </div>
+          <p class="text-[10px] text-slate-400 text-center mt-2">Admin Credentials: <strong class="text-slate-600 font-mono">admin / Csetia@1122</strong></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+
+    <!-- TAB: DASHBOARD OVERVIEW -->
+    <div id="view-dashboard" class="tab-view space-y-6">
+      
+      <!-- High Level Statistics Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 text-xs font-bold uppercase">
+            <span>Total Stored Stock</span>
+            <span class="p-1.5 rounded-lg bg-emerald-50 text-emerald-600">📥</span>
+          </div>
+          <div class="mt-2 text-2xl sm:text-3xl font-black font-mono text-slate-900" id="dashMetricStored">0</div>
+          <span class="text-[11px] text-slate-400">Total Nugs / Units inward</span>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 text-xs font-bold uppercase">
+            <span>Dispatched Outward</span>
+            <span class="p-1.5 rounded-lg bg-blue-50 text-blue-600">📤</span>
+          </div>
+          <div class="mt-2 text-2xl sm:text-3xl font-black font-mono text-slate-900" id="dashMetricOutward">0</div>
+          <span class="text-[11px] text-slate-400">Nugs delivered to mandis</span>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border-2 border-cyan-500 bg-cyan-50/20 shadow-sm">
+          <div class="flex items-center justify-between text-cyan-900 text-xs font-bold uppercase">
+            <span>Live Chamber Balance</span>
+            <span class="p-1.5 rounded-lg bg-cyan-100 text-cyan-700">❄️</span>
+          </div>
+          <div class="mt-2 text-2xl sm:text-3xl font-black font-mono text-cyan-800" id="dashMetricNet">0</div>
+          <span class="text-[11px] text-cyan-700 font-semibold">Active Nugs inside chambers</span>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 text-xs font-bold uppercase">
+            <span>Total Outstanding Rent</span>
+            <span class="p-1.5 rounded-lg bg-amber-50 text-amber-600">₹</span>
+          </div>
+          <div class="mt-2 text-2xl sm:text-3xl font-black font-mono text-amber-700" id="dashMetricOutstanding">₹0</div>
+          <span class="text-[11px] text-slate-400">Rent & Labour receivables</span>
+        </div>
+      </div>
+
+      <!-- Quick Action Controls & Chamber Status Bar -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h3 class="font-black text-slate-900 text-base">BAZZ Quick Gate & Inventory Actions</h3>
+          <p class="text-xs text-slate-500">Issue receiving gate passes, outward clearance slips, and register cold storage parties.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="openPartyModal()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold flex items-center space-x-1.5 transition shadow-sm">
+            <span>+ Add Party</span>
+          </button>
+          <button onclick="openInwardModal()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center space-x-1.5 transition shadow-sm">
+            <span>+ Inward Slip</span>
+          </button>
+          <button onclick="openOutwardModal()" class="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center space-x-1.5 transition shadow-sm">
+            <span>+ Outward Slip</span>
+          </button>
+          <button onclick="openPaymentModal()" class="px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold flex items-center space-x-1.5 transition shadow-sm">
+            <span>+ Record Payment</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Chamber Allocations Matrix -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="dashboardChamberGrid">
+        <!-- Dynamic Chamber cards injected -->
+      </div>
+
+      <!-- Recent Transactions Combined Preview -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Latest Inward Slips -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+            <span class="font-bold text-xs text-slate-800 uppercase flex items-center space-x-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+              <span>Recent Inward Receiving Slips</span>
+            </span>
+            <button onclick="switchTab('inwardList')" class="text-xs text-cyan-600 font-semibold hover:underline">View All</button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-100 text-slate-600 font-semibold border-b border-slate-200">
+                <tr>
+                  <th class="py-2.5 px-3">Slip #</th>
+                  <th class="py-2.5 px-3">Party</th>
+                  <th class="py-2.5 px-3">Product</th>
+                  <th class="py-2.5 px-3 text-right">Qty (Nugs)</th>
+                  <th class="py-2.5 px-3 text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody id="dashInwardTableBody" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Latest Outward Slips -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+            <span class="font-bold text-xs text-slate-800 uppercase flex items-center space-x-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+              <span>Recent Outward Dispatches</span>
+            </span>
+            <button onclick="switchTab('outwardList')" class="text-xs text-blue-600 font-semibold hover:underline">View All</button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-100 text-slate-600 font-semibold border-b border-slate-200">
+                <tr>
+                  <th class="py-2.5 px-3">Slip #</th>
+                  <th class="py-2.5 px-3">Party</th>
+                  <th class="py-2.5 px-3">Receiver</th>
+                  <th class="py-2.5 px-3 text-right">Dispatched</th>
+                  <th class="py-2.5 px-3 text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody id="dashOutwardTableBody" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- TAB: PARTY DIRECTORY & MANAGEMENT -->
+    <div id="view-parties" class="tab-view hidden space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+        <div>
+          <h2 class="text-lg font-black text-slate-900">Cold Storage Customer & Party Directory</h2>
+          <p class="text-xs text-slate-500">Manage registered growers, merchants, and automatic login access.</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <input type="text" id="partySearchInput" oninput="renderPartiesTable()" placeholder="Search Name, Phone, Place..." class="text-xs rounded-xl border border-slate-300 px-3 py-2 w-48 sm:w-64 focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+          <button onclick="openPartyModal()" class="px-3.5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold shadow-sm transition">
+            + Add New Party
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200 uppercase">
+              <tr>
+                <th class="py-3 px-3">Party Name & Place</th>
+                <th class="py-3 px-3">Mobile & Alt Phone</th>
+                <th class="py-3 px-3">Marka / Code</th>
+                <th class="py-3 px-3">Auto Portal Login</th>
+                <th class="py-3 px-3 text-right">Live Stock</th>
+                <th class="py-3 px-3 text-right">Net Balance</th>
+                <th class="py-3 px-3 text-center">Status</th>
+                <th class="py-3 px-3 text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="partiesTableBody" class="divide-y divide-slate-100 font-sans">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: INWARD SLIPS & RECEIVING GATE PASSES -->
+    <div id="view-inwardList" class="tab-view hidden space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+        <div>
+          <h2 class="text-lg font-black text-slate-900">Inward Receiving Slips & Gate Passes</h2>
+          <p class="text-xs text-slate-500">Official goods deposit certificates with rent and labour valuation.</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <input type="text" id="inwardSearchInput" oninput="renderInwardTable()" placeholder="Search Slip, Party, Product, Vehicle..." class="text-xs rounded-xl border border-slate-300 px-3 py-2 w-48 sm:w-64 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          <button onclick="openInwardModal()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-sm transition">
+            + New Inward Slip
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200 uppercase">
+              <tr>
+                <th class="py-3 px-3">Slip & GP #</th>
+                <th class="py-3 px-3">Date & Time</th>
+                <th class="py-3 px-3">Party Name</th>
+                <th class="py-3 px-3">Product & Packaging</th>
+                <th class="py-3 px-3 text-right">Qty (Nugs)</th>
+                <th class="py-3 px-3">Chamber</th>
+                <th class="py-3 px-3 text-right">Rent/Mo + Labour</th>
+                <th class="py-3 px-3">Vehicle & Driver</th>
+                <th class="py-3 px-3 text-center">Slip Actions</th>
+              </tr>
+            </thead>
+            <tbody id="inwardTableBody" class="divide-y divide-slate-100">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: OUTWARD DISPATCH SLIPS & GATE PASSES -->
+    <div id="view-outwardList" class="tab-view hidden space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+        <div>
+          <h2 class="text-lg font-black text-slate-900">Outward Dispatch Slips & Gate Passes</h2>
+          <p class="text-xs text-slate-500">Security gate passes with deducted quantities and remaining stock balances.</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <input type="text" id="outwardSearchInput" oninput="renderOutwardTable()" placeholder="Search Slip, Party, Receiver, Vehicle..." class="text-xs rounded-xl border border-slate-300 px-3 py-2 w-48 sm:w-64 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+          <button onclick="openOutwardModal()" class="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-sm transition">
+            + New Outward Dispatch
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200 uppercase">
+              <tr>
+                <th class="py-3 px-3">Outward Slip #</th>
+                <th class="py-3 px-3">Date & Time</th>
+                <th class="py-3 px-3">Party Name</th>
+                <th class="py-3 px-3">Dispatched Items</th>
+                <th class="py-3 px-3 text-right">Total Dispatched</th>
+                <th class="py-3 px-3">Receiver / Driver</th>
+                <th class="py-3 px-3">Vehicle</th>
+                <th class="py-3 px-3 text-center">Slip Actions</th>
+              </tr>
+            </thead>
+            <tbody id="outwardTableBody" class="divide-y divide-slate-100">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: STOCK LEDGER & FINANCIAL STATEMENTS -->
+    <div id="view-ledger" class="tab-view hidden space-y-6">
+      
+      <!-- Party Selector & Master Balances -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-cyan-100 text-cyan-800">Party Ledger</span>
+              <h2 class="text-xl font-black text-slate-900">Total Party Stock & Financial Statement</h2>
+            </div>
+            <p class="text-xs text-slate-500 mt-1">Audit remaining product quantities, automated monthly rent cycles, and payment history.</p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <div class="min-w-[240px]">
+              <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Select Party</label>
+              <select id="ledgerPartySelect" onchange="loadPartyLedger(this.value)" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-cyan-500">
+                <!-- Dynamically populated -->
+              </select>
+            </div>
+            <div class="self-end flex space-x-2">
+              <button onclick="shareLedgerWhatsApp()" class="py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center space-x-1.5 transition">
+                <span>📱 WhatsApp Statement</span>
+              </button>
+              <button onclick="printPartyLedger()" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold flex items-center space-x-1.5 transition">
+                <span>🖨️ Print Statement</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Party Summary Banner -->
+        <div id="ledgerPartyBanner" class="p-4 bg-slate-50 rounded-xl border border-slate-200 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+          <div>
+            <span class="text-slate-400 block uppercase font-mono text-[10px]">Total Inward:</span>
+            <span class="font-mono font-bold text-base text-slate-900" id="ledgerMetricTotalIn">0 Nugs</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block uppercase font-mono text-[10px]">Total Outward:</span>
+            <span class="font-mono font-bold text-base text-blue-600" id="ledgerMetricTotalOut">0 Nugs</span>
+          </div>
+          <div>
+            <span class="text-cyan-800 block uppercase font-mono text-[10px] font-bold">NET STOCK BALANCE:</span>
+            <span class="font-mono font-black text-lg text-cyan-700" id="ledgerMetricNetStock">0 Nugs</span>
+          </div>
+          <div>
+            <span class="text-amber-800 block uppercase font-mono text-[10px] font-bold">OUTSTANDING DUE:</span>
+            <span class="font-mono font-black text-lg text-amber-700" id="ledgerMetricNetDue">₹0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Stock by Product breakdown -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-4 space-y-3">
+        <h3 class="font-bold text-xs uppercase text-slate-700 tracking-wider">Live Stock by Product Type (Remaining in Chambers)</h3>
+        <div id="ledgerProductStockGrid" class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- Dynamic Financial & Stock Ledger Table -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+          <span class="font-bold text-xs text-slate-800 uppercase">Chronological Ledger (Debits, Automated Rent Cycles & Payments)</span>
+          <span class="text-xs text-slate-500 font-mono" id="ledgerTxnCount">0 Entries</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs font-mono">
+            <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+              <tr>
+                <th class="py-2.5 px-3">Date</th>
+                <th class="py-2.5 px-3">Transaction / Description</th>
+                <th class="py-2.5 px-3">Ref / Slip #</th>
+                <th class="py-2.5 px-3 text-right">Inward Qty</th>
+                <th class="py-2.5 px-3 text-right">Outward Qty</th>
+                <th class="py-2.5 px-3 text-right">Stock Bal</th>
+                <th class="py-2.5 px-3 text-right text-rose-700">Debit (Rent/Lbr)</th>
+                <th class="py-2.5 px-3 text-right text-emerald-700">Credit (Paid)</th>
+                <th class="py-2.5 px-3 text-right font-bold text-slate-900">Net Due (₹)</th>
+                <th class="py-2.5 px-3 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody id="ledgerTableBody" class="divide-y divide-slate-100 text-slate-800">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TAB: PAYMENTS MANAGEMENT -->
+    <div id="view-payments" class="tab-view hidden space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+        <div>
+          <h2 class="text-lg font-black text-slate-900">Customer Payment Receipts</h2>
+          <p class="text-xs text-slate-500">Record cash and bank payments received from growers & merchants.</p>
+        </div>
+        <button onclick="openPaymentModal()" class="px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold shadow-sm transition">
+          + Record New Payment
+        </button>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200 uppercase">
+              <tr>
+                <th class="py-3 px-3">Receipt #</th>
+                <th class="py-3 px-3">Date</th>
+                <th class="py-3 px-3">Party Name</th>
+                <th class="py-3 px-3 text-right">Amount Received</th>
+                <th class="py-3 px-3">Payment Mode</th>
+                <th class="py-3 px-3">Bank / Receiver Name</th>
+                <th class="py-3 px-3">Ref / UTR No</th>
+                <th class="py-3 px-3 text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="paymentsTableBody" class="divide-y divide-slate-100 font-mono">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: STAFF ACCOUNTS (ADMIN ONLY) -->
+    <div id="view-staff" class="tab-view hidden space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+        <div>
+          <h2 class="text-lg font-black text-slate-900">Staff Account Management</h2>
+          <p class="text-xs text-slate-500">Create staff credentials for gate keepers and chamber operators.</p>
+        </div>
+        <button onclick="openStaffModal()" class="px-3.5 py-2 rounded-xl bg-cyan-700 hover:bg-cyan-600 text-white text-xs font-bold shadow-sm transition">
+          + Create Staff User
+        </button>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200 uppercase">
+              <tr>
+                <th class="py-3 px-3">Staff Full Name</th>
+                <th class="py-3 px-3">Username</th>
+                <th class="py-3 px-3">Password</th>
+                <th class="py-3 px-3">Contact Mobile</th>
+                <th class="py-3 px-3">Designation / Role</th>
+                <th class="py-3 px-3 text-center">Status</th>
+                <th class="py-3 px-3 text-center">Admin Controls</th>
+              </tr>
+            </thead>
+            <tbody id="staffTableBody" class="divide-y divide-slate-100">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: CUSTOMER SELF-SERVICE PORTAL (FOR CUSTOMER LOGIN) -->
+    <div id="view-customerPortal" class="tab-view hidden space-y-6">
+      
+      <!-- Welcome Banner for Party -->
+      <div class="bg-gradient-to-r from-slate-900 via-sky-950 to-slate-900 text-white p-6 rounded-3xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <span class="px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 font-bold text-xs uppercase tracking-wider border border-cyan-500/30">
+            Customer Self-Service Portal
+          </span>
+          <h2 class="text-2xl font-black mt-2" id="custPortalPartyName">Farmer Name</h2>
+          <p class="text-xs text-slate-300" id="custPortalPartyDetails">Phone: 98140-12345 • Mandi: Old Grain Market, Abohar</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button onclick="shareMyStatementWhatsApp()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center space-x-1.5 shadow-md transition">
+            <span>📱 Share My Statement WhatsApp</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Customer KPI Metrics -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
+          <span class="text-[10px] font-bold text-slate-400 uppercase">Total Deposited:</span>
+          <div class="text-2xl font-black font-mono text-slate-900 mt-1" id="custMetricInward">0 Nugs</div>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
+          <span class="text-[10px] font-bold text-slate-400 uppercase">Total Dispatched:</span>
+          <div class="text-2xl font-black font-mono text-blue-600 mt-1" id="custMetricOutward">0 Nugs</div>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border-2 border-cyan-500 bg-cyan-50/30 shadow-sm">
+          <span class="text-[10px] font-black text-cyan-900 uppercase">NET STOCK IN COLD CHAMBER:</span>
+          <div class="text-3xl font-black font-mono text-cyan-700 mt-1" id="custMetricNet">0 Nugs</div>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
+          <span class="text-[10px] font-bold text-slate-400 uppercase">TOTAL DUES PAYABLE:</span>
+          <div class="text-2xl font-black font-mono text-amber-700 mt-1" id="custMetricDue">₹0</div>
+        </div>
+      </div>
+
+      <!-- Customer Live Product Balance -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-3">
+        <h3 class="font-bold text-xs uppercase text-slate-700">My Stored Products Breakdown</h3>
+        <div id="custProductStockGrid" class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs"></div>
+      </div>
+
+      <!-- Customer Slip and Ledger Accordions -->
+      <div class="space-y-4">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-4 bg-slate-50 border-b border-slate-200 font-bold text-xs uppercase text-slate-800">
+            My Complete Financial Ledger & Rent Cycles
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs font-mono">
+              <thead class="bg-slate-100 text-slate-600 border-b border-slate-200">
+                <tr>
+                  <th class="py-2.5 px-3">Date</th>
+                  <th class="py-2.5 px-3">Particulars</th>
+                  <th class="py-2.5 px-3 text-right">Inward</th>
+                  <th class="py-2.5 px-3 text-right">Outward</th>
+                  <th class="py-2.5 px-3 text-right">Stock Bal</th>
+                  <th class="py-2.5 px-3 text-right text-rose-700">Charges (₹)</th>
+                  <th class="py-2.5 px-3 text-right text-emerald-700">Paid (₹)</th>
+                  <th class="py-2.5 px-3 text-right font-bold">Balance (₹)</th>
+                  <th class="py-2.5 px-3 text-center">Slip</th>
+                </tr>
+              </thead>
+              <tbody id="custLedgerTableBody" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- MODAL: ADD / EDIT PARTY -->
+  <div id="modalParty" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full border border-slate-200 my-8 overflow-hidden">
+      <div class="bg-slate-900 px-6 py-4 flex items-center justify-between text-white">
+        <div class="flex items-center space-x-2">
+          <span class="text-xl">👥</span>
+          <h3 class="font-bold text-base" id="modalPartyTitle">Register New Cold Storage Party</h3>
+        </div>
+        <button onclick="closePartyModal()" class="text-slate-400 hover:text-white font-mono text-lg">✕</button>
+      </div>
+
+      <form id="formParty" onsubmit="handlePartySubmit(event)" class="p-6 space-y-4 text-xs sm:text-sm">
+        <input type="hidden" id="partyEditId">
+        
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Party / Farmer / Merchant Name *</label>
+          <input type="text" id="partyNameInput" required placeholder="e.g. Ramesh Kumar Kinnow Syndicate" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-cyan-500">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Place / City / Village *</label>
+            <input type="text" id="partyPlaceInput" required placeholder="e.g. Abohar, Khuian Sarwar" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-cyan-500">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Primary Mobile (Username) *</label>
+            <input type="text" id="partyPhoneInput" required placeholder="e.g. 9814012345" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-cyan-500 font-mono">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Alternate Phone</label>
+            <input type="text" id="partyAltPhoneInput" placeholder="e.g. 9417088990" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-cyan-500 font-mono">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Party Marka / Stencil Code *</label>
+            <input type="text" id="partyMarkaInput" required placeholder="e.g. RK-77, KIN-01" class="w-full px-3 py-2 border border-slate-300 rounded-xl uppercase font-mono font-bold focus:ring-2 focus:ring-cyan-500">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">GST Number (Optional)</label>
+            <input type="text" id="partyGstInput" placeholder="e.g. 03AAACB4921E1Z8" class="w-full px-3 py-2 border border-slate-300 rounded-xl uppercase font-mono focus:ring-2 focus:ring-cyan-500">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Self-Service Portal Password</label>
+            <input type="text" id="partyPasswordInput" placeholder="Auto-generated if empty" class="w-full px-3 py-2 border border-slate-300 rounded-xl font-mono text-xs focus:ring-2 focus:ring-cyan-500">
+          </div>
+        </div>
+
+        <div class="p-3 bg-sky-50 rounded-xl border border-sky-200 text-xs text-sky-900 leading-relaxed">
+          💡 <strong>Self-Service Auto Credential:</strong> The mobile number automatically becomes the Party Username. Customer can log in and view exclusively their stock, slips, and ledger!
+        </div>
+
+        <div class="flex items-center justify-end space-x-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closePartyModal()" class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 font-medium">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold shadow-md">Save Party & Credentials</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD / EDIT INWARD SLIP & GATE PASS -->
+  <div id="modalInward" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full border border-slate-200 my-8 overflow-hidden">
+      <div class="bg-slate-900 px-6 py-4 flex items-center justify-between text-white border-b border-slate-800">
+        <div class="flex items-center space-x-2">
+          <span class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center font-bold">📥</span>
+          <div>
+            <h3 class="font-bold text-base" id="modalInwardTitle">Generate Inward Receiving Slip & Gate Pass</h3>
+            <p class="text-xs text-slate-400">Record fruit deposit, initial monthly rent calculation, and labour charges</p>
+          </div>
+        </div>
+        <button onclick="closeInwardModal()" class="text-slate-400 hover:text-white font-mono text-lg">✕</button>
+      </div>
+
+      <form id="formInward" onsubmit="handleInwardSubmit(event)" class="p-6 space-y-4 text-xs sm:text-sm">
+        <input type="hidden" id="inwardEditId">
+
+        <!-- Slip and Gate pass IDs & Date/Time -->
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+          <div>
+            <label class="block font-bold text-slate-600 mb-1 text-xs">Inward Slip #</label>
+            <input type="text" id="inwardSlipNo" readonly class="w-full bg-slate-100 border border-slate-300 rounded-lg px-2.5 py-1.5 font-mono font-bold text-slate-800">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-600 mb-1 text-xs">Gate Pass #</label>
+            <input type="text" id="inwardGatePassNo" readonly class="w-full bg-slate-100 border border-slate-300 rounded-lg px-2.5 py-1.5 font-mono font-bold text-emerald-700">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-600 mb-1 text-xs">Inward Date *</label>
+            <input type="date" id="inwardDateInput" required class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 font-mono">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-600 mb-1 text-xs">Time *</label>
+            <input type="time" id="inwardTimeInput" required class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 font-mono">
+          </div>
+        </div>
+
+        <!-- Party Selection with Auto-Filling -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Select Party / Farmer (Auto-fills) *</label>
+            <select id="inwardPartySelect" onchange="onInwardPartyChange(this.value)" required class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 font-medium">
+              <!-- Dynamically populated -->
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Party Mobile & Place</label>
+            <input type="text" id="inwardPartyMetaDisplay" readonly class="w-full bg-slate-100 border border-slate-300 rounded-xl px-3 py-2 text-slate-600">
+          </div>
+        </div>
+
+        <!-- Commodity & Packaging -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Product Type (Type manually) *</label>
+            <input type="text" id="inwardProductType" required placeholder="e.g. Kinnow Grade A, Seed Potato" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 font-semibold">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Packaging Type *</label>
+            <div class="flex space-x-1">
+              <select id="inwardPackagingSelect" onchange="onInwardPackagingChange(this.value)" class="w-full bg-white border border-slate-300 rounded-xl px-2.5 py-2">
+                <option value="Crates">Crates</option>
+                <option value="Plastic Crates (20 kg)">Plastic Crates (20 kg)</option>
+                <option value="Boxes">Boxes</option>
+                <option value="Peti">Peti</option>
+                <option value="Bori">Bori</option>
+                <option value="Jute Bags (50 kg)">Jute Bags (50 kg)</option>
+                <option value="__custom__">+ Custom Type</option>
+              </select>
+              <input type="text" id="inwardPackagingCustom" placeholder="Type" class="hidden w-28 bg-white border border-slate-300 rounded-xl px-2 py-2">
+            </div>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Quantity (Nugs / Units) *</label>
+            <input type="number" id="inwardQty" min="1" required oninput="calculateInwardTotals()" placeholder="e.g. 500" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 font-mono font-bold text-slate-900">
+          </div>
+        </div>
+
+        <!-- Weight & Chamber Selection (Ground & 1st Floor) -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Single Pkg Weight (Kg) *</label>
+            <input type="number" step="0.1" id="inwardSingleWeight" oninput="calculateInwardTotals()" placeholder="e.g. 20.5" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 font-mono">
+            <span id="inwardTotalWeightHint" class="text-[10px] text-slate-500 font-mono mt-0.5 block">Total Wt: 0 kg</span>
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block font-semibold text-slate-700 mb-1">Chamber Number & Floor Level *</label>
+            <select id="inwardChamberNo" required class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 font-medium">
+              <option value="Chamber 1 - Ground Floor">Chamber 1 - Ground Floor (Kinnow Pre-Cooling)</option>
+              <option value="Chamber 1 - 1st Floor">Chamber 1 - 1st Floor (Kinnow Holding)</option>
+              <option value="Chamber 2 - Ground Floor">Chamber 2 - Ground Floor (Citrus & Orange)</option>
+              <option value="Chamber 2 - 1st Floor">Chamber 2 - 1st Floor (Citrus Holding)</option>
+              <option value="Chamber 3 - Ground Floor">Chamber 3 - Ground Floor (Seed Potato Kufri)</option>
+              <option value="Chamber 3 - 1st Floor">Chamber 3 - 1st Floor (Potato Seed Tuber)</option>
+              <option value="Chamber 4 - Ground Floor">Chamber 4 - Ground Floor (Apples / Pear)</option>
+              <option value="Chamber 4 - 1st Floor">Chamber 4 - 1st Floor (Controlled Atmosphere)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Rate, Labour Charges & Total Rent Calculation -->
+        <div class="p-3.5 bg-cyan-50/50 rounded-xl border border-cyan-200 grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-bold text-cyan-900 mb-1 text-xs">Rent / Nug / Month (₹) *</label>
+            <input type="number" step="0.5" id="inwardPricePerNug" min="0" required oninput="calculateInwardTotals()" placeholder="e.g. 15" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 font-mono font-bold">
+            <span id="inwardRentTotalDisplay" class="text-[10px] text-cyan-800 font-mono mt-0.5 block">Rent: ₹0</span>
+          </div>
+          <div>
+            <label class="block font-bold text-cyan-900 mb-1 text-xs">Labour Charge / Nug (₹) *</label>
+            <input type="number" step="0.5" id="inwardLabourPerNug" min="0" required oninput="calculateInwardTotals()" placeholder="e.g. 2" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 font-mono font-bold">
+            <span id="inwardLabourTotalDisplay" class="text-[10px] text-cyan-800 font-mono mt-0.5 block">Labour: ₹0</span>
+          </div>
+          <div>
+            <label class="block font-bold text-cyan-900 mb-1 text-xs">Initial Total Bill (₹)</label>
+            <input type="number" id="inwardTotalBillDisplay" readonly class="w-full bg-cyan-100/80 border border-cyan-300 rounded-lg px-2.5 py-1.5 font-mono font-black text-cyan-900">
+            <span class="text-[10px] text-slate-500 block mt-0.5">Month 1 Rent + Total Labour</span>
+          </div>
+        </div>
+
+        <!-- Transportation & Driver Details -->
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Vehicle Type *</label>
+            <select id="inwardVehicleType" required class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2">
+              <option value="Truck">Truck</option>
+              <option value="Pickup">Pickup / Bolero</option>
+              <option value="Tractor-Trolley">Tractor-Trolley</option>
+              <option value="E-Rickshaw">E-Rickshaw</option>
+              <option value="Rickshaw">Rickshaw</option>
+              <option value="Car / Van">Car / Van</option>
+              <option value="Tempo">Tempo / Chota Hathi</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Vehicle Number *</label>
+            <input type="text" id="inwardVehicleNo" required placeholder="PB-28-AB-1234" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 uppercase font-mono">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Driver Name *</label>
+            <input type="text" id="inwardDriverName" required placeholder="Driver Name" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Driver Mobile *</label>
+            <input type="text" id="inwardDriverPhone" required placeholder="9876543210" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 font-mono">
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end space-x-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeInwardModal()" class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 font-medium">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-md">
+            Save & Generate Inward Slip
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD / EDIT OUTWARD DISPATCH SLIP & GATE PASS (MULTI-PRODUCT) -->
+  <div id="modalOutward" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full border border-slate-200 my-8 overflow-hidden">
+      <div class="bg-slate-900 px-6 py-4 flex items-center justify-between text-white border-b border-slate-800">
+        <div class="flex items-center space-x-2">
+          <span class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 border border-blue-500/40 flex items-center justify-center font-bold">📤</span>
+          <div>
+            <h3 class="font-bold text-base" id="modalOutwardTitle">Generate Outward Dispatch Slip & Gate Pass</h3>
+            <p class="text-xs text-slate-400">Deduct stock balances, verify gate security clearance, and track deliverer</p>
+          </div>
+        </div>
+        <button onclick="closeOutwardModal()" class="text-slate-400 hover:text-white font-mono text-lg">✕</button>
+      </div>
+
+      <form id="formOutward" onsubmit="handleOutwardSubmit(event)" class="p-6 space-y-4 text-xs sm:text-sm">
+        <input type="hidden" id="outwardEditId">
+
+        <!-- Slip No, Gate Pass No & Date Time -->
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+          <div>
+            <label class="block font-bold text-slate-600 mb-1 text-xs">Outward Slip #</label>
+            <input type="text" id="outwardSlipNo" readonly class="w-full bg-slate-100 border border-slate-300 rounded-lg px-2.5 py-1.5 font-mono font-bold text-slate-800">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-600 mb-1 text-xs">Outward GP #</label>
+            <input type="text" id="outwardGatePassNo" readonly class="w-full bg-slate-100 border border-slate-300 rounded-lg px-2.5 py-1.5 font-mono font-bold text-blue-700">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-600 mb-1 text-xs">Dispatch Date *</label>
+            <input type="date" id="outwardDateInput" required class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 font-mono">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-600 mb-1 text-xs">Time *</label>
+            <input type="time" id="outwardTimeInput" required class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 font-mono">
+          </div>
+        </div>
+
+        <!-- Party Selection -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Select Party / Owner *</label>
+            <select id="outwardPartySelect" onchange="onOutwardPartyChange(this.value)" required class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 font-semibold">
+              <!-- Dynamically populated -->
+            </select>
+          </div>
+          <div class="p-3 bg-blue-50/60 rounded-xl border border-blue-200 flex items-center justify-between">
+            <div>
+              <span class="text-[10px] font-bold text-blue-900 uppercase">Total Party Live Stock:</span>
+              <div class="text-lg font-black font-mono text-blue-800" id="outwardPartyStockDisplay">0 Nugs</div>
+            </div>
+            <span class="text-xl">📦</span>
+          </div>
+        </div>
+
+        <!-- Multi-Product Dispatch Table -->
+        <div class="border border-slate-200 rounded-xl overflow-hidden">
+          <div class="bg-slate-100 px-3 py-2 flex items-center justify-between border-b border-slate-200">
+            <span class="font-bold text-xs text-slate-700 uppercase">Products to Dispatch (Multi-Item Support)</span>
+            <button type="button" onclick="addOutwardProductRow()" class="px-2.5 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition">
+              + Add Another Product
+            </button>
+          </div>
+          <div class="p-3 space-y-2" id="outwardProductRowsContainer">
+            <!-- Dynamic multi-product rows injected -->
+          </div>
+        </div>
+
+        <!-- Delivery & Transport Information -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Name of person jo le kr jaa rha h (Receiver) *</label>
+            <input type="text" id="outwardReceiverName" required placeholder="e.g. Jaswant Singh / Surinder Kumar" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Receiver Mobile Number *</label>
+            <input type="text" id="outwardReceiverPhone" required placeholder="e.g. 98140-55443" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 font-mono">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Vehicle Type *</label>
+            <select id="outwardVehicleType" required class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2">
+              <option value="Truck">Truck</option>
+              <option value="Pickup">Pickup / Bolero</option>
+              <option value="Tractor-Trolley">Tractor-Trolley</option>
+              <option value="E-Rickshaw">E-Rickshaw</option>
+              <option value="Rickshaw">Rickshaw</option>
+              <option value="Car / Van">Car / Van</option>
+              <option value="Tempo">Tempo / Chota Hathi</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Vehicle Number *</label>
+            <input type="text" id="outwardVehicleNo" required placeholder="e.g. HR-55-W-2045" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 uppercase font-mono">
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end space-x-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeOutwardModal()" class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 font-medium">Cancel</button>
+          <button type="submit" id="outwardSubmitBtn" class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-md">
+            Issue Outward Dispatch Gate Pass
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: RECORD PAYMENT -->
+  <div id="modalPayment" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full border border-slate-200 my-8 overflow-hidden">
+      <div class="bg-slate-900 px-6 py-4 flex items-center justify-between text-white">
+        <div class="flex items-center space-x-2">
+          <span class="text-xl">💰</span>
+          <h3 class="font-bold text-base" id="modalPaymentTitle">Record Customer Payment</h3>
+        </div>
+        <button onclick="closePaymentModal()" class="text-slate-400 hover:text-white font-mono text-lg">✕</button>
+      </div>
+
+      <form id="formPayment" onsubmit="handlePaymentSubmit(event)" class="p-6 space-y-4 text-xs sm:text-sm">
+        <input type="hidden" id="paymentEditId">
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Select Party *</label>
+          <select id="paymentPartySelect" required class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 font-medium">
+            <!-- Dynamically populated -->
+          </select>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Payment Date *</label>
+            <input type="date" id="paymentDateInput" required class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 font-mono">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Amount Paid (₹) *</label>
+            <input type="number" min="1" step="1" id="paymentAmountInput" required placeholder="e.g. 15000" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 font-mono font-bold text-emerald-700">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Payment Mode *</label>
+            <select id="paymentModeSelect" onchange="onPaymentModeChange(this.value)" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2">
+              <option value="Cash">Cash</option>
+              <option value="Bank Transfer / NEFT">Bank Transfer / NEFT</option>
+              <option value="UPI">UPI / PhonePe / GPay</option>
+              <option value="Cheque">Cheque</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1" id="paymentAccountLabel">Cash Receiver Name *</label>
+            <input type="text" id="paymentAccountName" required placeholder="e.g. Cash Counter / HDFC Bank" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Ref / UTR / Cheque No. (Optional)</label>
+          <input type="text" id="paymentRefInput" placeholder="UTR-12345678" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 font-mono">
+        </div>
+
+        <div class="flex items-center justify-end space-x-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closePaymentModal()" class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 font-medium">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold shadow-md">
+            Save Payment Receipt
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: STAFF USER CREATION / EDIT (ADMIN ONLY) -->
+  <div id="modalStaff" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full border border-slate-200 my-8 overflow-hidden">
+      <div class="bg-slate-900 px-6 py-4 flex items-center justify-between text-white">
+        <div class="flex items-center space-x-2">
+          <span class="text-xl">🛠️</span>
+          <h3 class="font-bold text-base" id="modalStaffTitle">Create Staff Account</h3>
+        </div>
+        <button onclick="closeStaffModal()" class="text-slate-400 hover:text-white font-mono text-lg">✕</button>
+      </div>
+
+      <form id="formStaff" onsubmit="handleStaffSubmit(event)" class="p-6 space-y-4 text-xs sm:text-sm">
+        <input type="hidden" id="staffEditId">
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Staff Full Name *</label>
+          <input type="text" id="staffNameInput" required placeholder="e.g. Kulwinder Singh" class="w-full px-3 py-2 border border-slate-300 rounded-xl">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Username *</label>
+            <input type="text" id="staffUsernameInput" required placeholder="e.g. staff_gate1" class="w-full px-3 py-2 border border-slate-300 rounded-xl font-mono">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Password *</label>
+            <input type="text" id="staffPasswordInput" required placeholder="e.g. bazz@123" class="w-full px-3 py-2 border border-slate-300 rounded-xl font-mono">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Contact Mobile *</label>
+            <input type="text" id="staffPhoneInput" required placeholder="98140-00000" class="w-full px-3 py-2 border border-slate-300 rounded-xl font-mono">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Designation / Role</label>
+            <input type="text" id="staffRoleInput" placeholder="Gate Supervisor / Clerk" class="w-full px-3 py-2 border border-slate-300 rounded-xl">
+          </div>
+        </div>
+
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-600">
+          🔒 <strong>Staff Permissions:</strong> Staff can generate Inward & Outward slips, record payments, and view ledger balances. Staff <strong>CANNOT</strong> edit or delete slips, manage other users, or block accounts.
+        </div>
+
+        <div class="flex items-center justify-end space-x-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeStaffModal()" class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 font-medium">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-cyan-700 hover:bg-cyan-600 text-white font-bold shadow-md">
+            Save Staff User
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: PRINTABLE SLIP & WHATSAPP SHARING VIEWER -->
+  <div id="modalPrintViewer" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full border border-slate-300 my-4 overflow-hidden animate-fadeIn">
+      
+      <!-- Modal Toolbar -->
+      <div class="no-print bg-slate-900 px-6 py-3.5 flex flex-wrap items-center justify-between gap-3 text-white border-b border-slate-800">
+        <div class="flex items-center space-x-2">
+          <span class="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-cyan-500/20 text-cyan-300 uppercase" id="viewerBadge">
+            OFFICIAL SLIP
+          </span>
+          <span class="text-sm font-bold" id="viewerTitle">Document Preview</span>
+        </div>
+
+        <div class="flex items-center space-x-2">
+          <button onclick="shareActiveDocumentWhatsApp()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center space-x-1.5 transition">
+            <span>📱 Share on WhatsApp</span>
+          </button>
+          <button onclick="copyActiveDocumentText()" class="px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold transition">
+            <span>📋 Copy Text</span>
+          </button>
+          <button onclick="window.print()" class="px-3.5 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold flex items-center space-x-1.5 transition">
+            <span>🖨️ Print / PDF</span>
+          </button>
+          <button onclick="closePrintModal()" class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white text-sm font-mono">✕</button>
+        </div>
+      </div>
+
+      <!-- Printable Area -->
+      <div id="printModalContent" class="p-6 sm:p-10 bg-white text-slate-900 text-sm">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONFIRM ACTION / DELETE MODAL (No native confirm()) -->
+  <div id="modalConfirm" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center space-y-4 border border-slate-200">
+      <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 mx-auto flex items-center justify-center text-xl font-bold" id="confirmIcon">
+        ⚠️
+      </div>
+      <div>
+        <h3 class="font-black text-slate-900 text-base" id="confirmTitle">Confirm Action</h3>
+        <p class="text-xs text-slate-500 mt-1" id="confirmMessage">Are you sure you want to proceed?</p>
+      </div>
+      <div class="flex items-center justify-center space-x-3 pt-2">
+        <button onclick="closeConfirmModal(false)" class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 text-xs font-bold">
+          Cancel
+        </button>
+        <button id="confirmExecuteBtn" onclick="executeConfirmedAction()" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold">
+          Proceed
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toastNotification" class="fixed bottom-5 right-5 z-50 transform transition-all duration-300 translate-y-24 opacity-0 pointer-events-none">
+    <div class="bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl border border-slate-700 flex items-center space-x-3 text-xs sm:text-sm">
+      <span id="toastIcon">✓</span>
+      <span id="toastMsg" class="font-semibold">Notification message</span>
+    </div>
+  </div>
+
+  <!-- SCRIPT CONTROLLER -->
+  <script>
+    /*
+     * BAZZ Cold Storage Management System & Gate Pass Portal
+     * Pure JavaScript Controller with LocalStorage Persistence
+     */
+
+    const STORAGE_KEY = 'BAZZ_COLD_STORAGE_SYSTEM_DB_V2';
+
+    // Application state
+    let appData = {
+      parties: [],
+      inwards: [],
+      outwards: [],
+      payments: [],
+      staff: [],
+      currentUser: null, // role: 'admin' | 'staff' | 'customer'
+      currentTab: 'dashboard'
+    };
+
+    let activeDocForPrint = null;
+    let pendingConfirmAction = null;
+
+    // Seed realistic Abohar Punjab initial data
+    const INITIAL_SEED = {
+      parties: [
+        {
+          id: 'P01',
+          name: 'Ramesh Kumar & Sons Kinnow Syndicate',
+          place: 'Old Grain Market, Abohar',
+          phone: '9814012345',
+          altPhone: '9417255667',
+          gst: '03AAACR1234E1Z5',
+          marka: 'RK-77',
+          username: '9814012345',
+          password: 'BAZZ@2345',
+          blocked: false,
+          createdAt: '2026-01-20'
+        },
+        {
+          id: 'P02',
+          name: 'Malwa Citrus Traders & Exporters',
+          place: 'New Fruit Mandi, Abohar',
+          phone: '9872267890',
+          altPhone: '9872299881',
+          gst: '03BBBCM5566K1Z9',
+          marka: 'MLW-99',
+          username: '9872267890',
+          password: 'BAZZ@7890',
+          blocked: false,
+          createdAt: '2026-01-22'
+        },
+        {
+          id: 'P03',
+          name: 'Bishnoi Brothers Seed Potato Growers',
+          place: 'Village Sito Guno, Fazilka',
+          phone: '9915078901',
+          altPhone: '',
+          gst: '',
+          marka: 'BSH-01',
+          username: '9915078901',
+          password: 'BAZZ@8901',
+          blocked: false,
+          createdAt: '2026-01-25'
+        }
+      ],
+      staff: [
+        {
+          id: 'ST01',
+          name: 'Sukhdev Singh',
+          username: 'sukhdev',
+          password: 'bazz123',
+          phone: '9876543210',
+          role: 'Day Shift Gate Supervisor',
+          blocked: false
+        }
+      ],
+      inwards: [
+        {
+          id: 'IN-1001',
+          slipNo: 'BAZZ-IN-1001',
+          gatePassNo: 'GP-IN-1001',
+          partyId: 'P01',
+          partyName: 'Ramesh Kumar & Sons Kinnow Syndicate',
+          date: '2026-01-21',
+          time: '09:30',
+          productType: 'Kinnow Grade A (Waxed)',
+          packagingType: 'Plastic Crates (20 kg)',
+          qty: 600,
+          weightPerPkgKg: 20,
+          totalWeightKg: 12000,
+          chamberNo: 'Chamber 1 - Ground Floor',
+          pricePerNugPerMonth: 15,
+          initialRentAmount: 9000,
+          labourPerNug: 2,
+          totalLabourAmount: 1200,
+          totalInitialBill: 10200,
+          vehicleType: 'Truck',
+          vehicleNo: 'PB-28-AB-4567',
+          driverName: 'Balwinder Singh',
+          driverPhone: '9815022334',
+          createdBy: 'admin'
+        },
+        {
+          id: 'IN-1002',
+          slipNo: 'BAZZ-IN-1002',
+          gatePassNo: 'GP-IN-1002',
+          partyId: 'P02',
+          partyName: 'Malwa Citrus Traders & Exporters',
+          date: '2026-01-25',
+          time: '14:15',
+          productType: 'Kinnow Grade B',
+          packagingType: 'Boxes',
+          qty: 800,
+          weightPerPkgKg: 15,
+          totalWeightKg: 12000,
+          chamberNo: 'Chamber 2 - 1st Floor',
+          pricePerNugPerMonth: 12,
+          initialRentAmount: 9600,
+          labourPerNug: 2,
+          totalLabourAmount: 1600,
+          totalInitialBill: 11200,
+          vehicleType: 'Pickup',
+          vehicleNo: 'PB-05-J-8812',
+          driverName: 'Gurmeet Ram',
+          driverPhone: '9417088991',
+          createdBy: 'sukhdev'
+        }
+      ],
+      outwards: [
+        {
+          id: 'OUT-2001',
+          slipNo: 'BAZZ-OUT-2001',
+          gatePassNo: 'GP-OUT-2001',
+          partyId: 'P01',
+          partyName: 'Ramesh Kumar & Sons Kinnow Syndicate',
+          date: '2026-02-10',
+          time: '18:00',
+          receiverName: 'Surinder Kumar (Delhi Azadpur)',
+          receiverPhone: '9811099881',
+          vehicleType: 'Truck',
+          vehicleNo: 'HR-55-W-2045',
+          items: [
+            {
+              productType: 'Kinnow Grade A (Waxed)',
+              packagingType: 'Plastic Crates (20 kg)',
+              previousStock: 600,
+              outwardQty: 200,
+              balanceQty: 400
+            }
+          ],
+          totalDispatched: 200,
+          createdBy: 'admin'
+        }
+      ],
+      payments: [
+        {
+          id: 'PAY-3001',
+          receiptNo: 'RCP-2026-101',
+          partyId: 'P01',
+          partyName: 'Ramesh Kumar & Sons Kinnow Syndicate',
+          date: '2026-02-01',
+          amount: 5000,
+          mode: 'Bank Transfer / NEFT',
+          bankOrCashName: 'HDFC Bank Abohar',
+          refNo: 'NEFT-88992211',
+          createdBy: 'admin'
+        }
+      ]
+    };
+
+    function loadStorage() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          appData = JSON.parse(saved);
+        } else {
+          appData.parties = INITIAL_SEED.parties;
+          appData.staff = INITIAL_SEED.staff;
+          appData.inwards = INITIAL_SEED.inwards;
+          appData.outwards = INITIAL_SEED.outwards;
+          appData.payments = INITIAL_SEED.payments;
+          appData.currentUser = {
+            role: 'admin',
+            name: 'Administrator',
+            username: 'admin'
+          };
+          saveStorage();
+        }
+      } catch (e) {
+        console.error('Storage error, falling back to seed', e);
+        appData.parties = INITIAL_SEED.parties;
+        appData.staff = INITIAL_SEED.staff;
+        appData.inwards = INITIAL_SEED.inwards;
+        appData.outwards = INITIAL_SEED.outwards;
+        appData.payments = INITIAL_SEED.payments;
+        appData.currentUser = { role: 'admin', name: 'Administrator', username: 'admin' };
+      }
+
+      if (!appData.currentUser) {
+        appData.currentUser = { role: 'admin', name: 'Administrator', username: 'admin' };
+      }
+    }
+
+    function saveStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+      } catch (err) {
+        console.warn('Failed to save to localStorage', err);
+      }
+    }
+
+    // Toast Notification helper
+    function showToast(msg, icon = '✓') {
+      const toast = document.getElementById('toastNotification');
+      document.getElementById('toastMsg').innerText = msg;
+      document.getElementById('toastIcon').innerText = icon;
+      toast.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        toast.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 3500);
+    }
+
+    // Custom Confirmation Dialog (Replaces native confirm())
+    function openConfirmModal(title, msg, onConfirm) {
+      document.getElementById('confirmTitle').innerText = title;
+      document.getElementById('confirmMessage').innerText = msg;
+      pendingConfirmAction = onConfirm;
+      document.getElementById('modalConfirm').classList.remove('hidden');
+    }
+
+    function closeConfirmModal(execute = false) {
+      document.getElementById('modalConfirm').classList.add('hidden');
+      if (!execute) pendingConfirmAction = null;
+    }
+
+    function executeConfirmedAction() {
+      if (typeof pendingConfirmAction === 'function') {
+        pendingConfirmAction();
+      }
+      closeConfirmModal(true);
+    }
+
+    function handleLoginSubmit() {
+      const u = document.getElementById('loginUsernameInput').value.trim();
+      const p = document.getElementById('loginPasswordInput').value.trim();
+
+      // Check Admin
+      if (u === 'admin' && p === 'Csetia@1122') {
+        appData.currentUser = {
+          role: 'admin',
+          username: 'admin',
+          name: 'Administrator (C. Setia)'
+        };
+        finishLogin();
+        return;
+      }
+
+      // Check Staff
+      const foundStaff = appData.staff.find(s => s.username.toLowerCase() === u.toLowerCase() && s.password === p);
+      if (foundStaff) {
+        if (foundStaff.blocked) {
+          showToast('This Staff account is blocked. Contact Admin.', '⚠️');
+          return;
+        }
+        appData.currentUser = {
+          role: 'staff',
+          username: foundStaff.username,
+          name: foundStaff.name
+        };
+        finishLogin();
+        return;
+      }
+
+      // Check Customer (Username = Mobile Number or party username)
+      const foundParty = appData.parties.find(pt => (pt.phone === u || pt.username === u) && pt.password === p);
+      if (foundParty) {
+        if (foundParty.blocked) {
+          showToast('Your customer account is blocked by cold storage administration.', '⚠️');
+          return;
+        }
+        appData.currentUser = {
+          role: 'customer',
+          username: foundParty.username,
+          name: foundParty.name,
+          partyId: foundParty.id
+        };
+        finishLogin();
+        return;
+      }
+
+      showToast('Invalid credentials. Check username or password.', '❌');
+    }
+
+    function quickLoginAs(role) {
+      if (role === 'admin') {
+        appData.currentUser = { role: 'admin', username: 'admin', name: 'Administrator' };
+      } else if (role === 'staff') {
+        const s = appData.staff[0] || { username: 'sukhdev', name: 'Sukhdev Singh' };
+        appData.currentUser = { role: 'staff', username: s.username, name: s.name };
+      } else if (role === 'customer') {
+        const p = appData.parties[0];
+        if (p) {
+          appData.currentUser = { role: 'customer', username: p.username, name: p.name, partyId: p.id };
+        }
+      }
+      finishLogin();
+    }
+
+    function finishLogin() {
+      document.getElementById('loginOverlay').classList.add('hidden');
+      saveStorage();
+      updateUserUI();
+      if (appData.currentUser.role === 'customer') {
+        switchTab('customerPortal');
+      } else {
+        switchTab('dashboard');
+      }
+      showToast(`Logged in as ${appData.currentUser.name}`);
+    }
+
+    function logoutUser() {
+      appData.currentUser = null;
+      document.getElementById('loginUsernameInput').value = '';
+      document.getElementById('loginPasswordInput').value = '';
+      document.getElementById('loginOverlay').classList.remove('hidden');
+      saveStorage();
+    }
+
+    function updateUserUI() {
+      const user = appData.currentUser;
+      if (!user) {
+        document.getElementById('loginOverlay').classList.remove('hidden');
+        return;
+      }
+
+      document.getElementById('activeUserName').innerText = user.name;
+      const roleBadge = document.getElementById('activeUserRole');
+      const dot = document.getElementById('roleIndicator');
+
+      if (user.role === 'admin') {
+        roleBadge.innerText = 'ADMINISTRATOR';
+        roleBadge.className = 'text-[10px] text-amber-400 font-mono uppercase font-bold';
+        dot.className = 'h-2 w-2 rounded-full bg-amber-400';
+      } else if (user.role === 'staff') {
+        roleBadge.innerText = 'GATE STAFF';
+        roleBadge.className = 'text-[10px] text-cyan-400 font-mono uppercase font-bold';
+        dot.className = 'h-2 w-2 rounded-full bg-cyan-400';
+      } else {
+        roleBadge.innerText = 'PORTAL CLIENT';
+        roleBadge.className = 'text-[10px] text-emerald-400 font-mono uppercase font-bold';
+        dot.className = 'h-2 w-2 rounded-full bg-emerald-400';
+      }
+
+      renderNavigation();
+    }
+
+    function renderNavigation() {
+      const user = appData.currentUser;
+      const container = document.getElementById('navTabsContainer');
+      if (!user) return;
+
+      let tabs = [];
+      if (user.role === 'admin') {
+        tabs = [
+          { id: 'dashboard', label: 'Dashboard Overview', icon: '📊' },
+          { id: 'parties', label: 'Parties & Passwords', icon: '👥' },
+          { id: 'inwardList', label: 'Inward Receiving Slips', icon: '📥' },
+          { id: 'outwardList', label: 'Outward Gate Passes', icon: '📤' },
+          { id: 'ledger', label: 'Party Ledger & Stock', icon: '⚖️' },
+          { id: 'payments', label: 'Payment Receipts', icon: '💰' },
+          { id: 'staff', label: 'Staff Accounts', icon: '🛠️' }
+        ];
+      } else if (user.role === 'staff') {
+        tabs = [
+          { id: 'dashboard', label: 'Dashboard Overview', icon: '📊' },
+          { id: 'parties', label: 'Party Directory', icon: '👥' },
+          { id: 'inwardList', label: 'Inward Receiving Slips', icon: '📥' },
+          { id: 'outwardList', label: 'Outward Gate Passes', icon: '📤' },
+          { id: 'ledger', label: 'Party Ledger & Stock', icon: '⚖️' },
+          { id: 'payments', label: 'Payment Receipts', icon: '💰' }
+        ];
+      } else if (user.role === 'customer') {
+        tabs = [
+          { id: 'customerPortal', label: 'My Cold Storage Portal', icon: '❄️' }
+        ];
+      }
+
+      container.innerHTML = tabs.map(tab => `
+        <button onclick="switchTab('${tab.id}')" id="tabBtn-${tab.id}" class="tab-button py-2.5 px-3 border-b-2 ${appData.currentTab === tab.id ? 'border-cyan-400 text-cyan-400 font-bold' : 'border-transparent text-slate-400 hover:text-slate-200'} whitespace-nowrap flex items-center space-x-1.5 transition">
+          <span>${tab.icon}</span>
+          <span>${tab.label}</span>
+        </button>
+      `).join('');
+    }
+
+    function switchTab(tabId) {
+      appData.currentTab = tabId;
+      document.querySelectorAll('.tab-view').forEach(v => v.classList.add('hidden'));
+
+      const target = document.getElementById(`view-${tabId}`);
+      if (target) target.classList.remove('hidden');
+
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('border-cyan-400', 'text-cyan-400', 'font-bold');
+        btn.classList.add('border-transparent', 'text-slate-400');
+      });
+
+      const activeBtn = document.getElementById(`tabBtn-${tabId}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('border-transparent', 'text-slate-400');
+        activeBtn.classList.add('border-cyan-400', 'text-cyan-400', 'font-bold');
+      }
+
+      // Trigger respective data renders
+      if (tabId === 'dashboard') renderDashboard();
+      if (tabId === 'parties') renderPartiesTable();
+      if (tabId === 'inwardList') renderInwardTable();
+      if (tabId === 'outwardList') renderOutwardTable();
+      if (tabId === 'ledger') renderLedgerView();
+      if (tabId === 'payments') renderPaymentsTable();
+      if (tabId === 'staff') renderStaffTable();
+      if (tabId === 'customerPortal') renderCustomerPortal();
+    }
+
+    /*
+     * DYNAMIC MONTHLY RENT ENGINE:
+     * - Month 1 rent + labour charges recorded upon inward date.
+     * - If goods are kept for a single day into the next cycle, full month rent is added.
+     * - Next month start date: if received on Jan 21, next month starts on Feb 22, then Mar 22, etc.
+     * - Subsequent month rent is calculated solely on the un-dispatched balance stock of that lot!
+     */
+    function computePartyFinancialsAndStock(partyId) {
+      const partyInwards = appData.inwards.filter(i => i.partyId === partyId);
+      const partyOutwards = appData.outwards.filter(o => o.partyId === partyId);
+      const partyPayments = appData.payments.filter(p => p.partyId === partyId);
+
+      // 1. Calculate stock balances per product
+      const productMap = {}; // { 'Kinnow Grade A': { inward: 600, outward: 200, net: 400, packaging: 'Plastic Crates' } }
+
+      partyInwards.forEach(inw => {
+        const pKey = inw.productType.trim();
+        if (!productMap[pKey]) {
+          productMap[pKey] = {
+            productType: pKey,
+            packagingType: inw.packagingType,
+            chamberNo: inw.chamberNo,
+            inward: 0,
+            outward: 0,
+            net: 0
+          };
+        }
+        productMap[pKey].inward += Number(inw.qty || 0);
+      });
+
+      partyOutwards.forEach(outw => {
+        (outw.items || []).forEach(it => {
+          const pKey = it.productType.trim();
+          if (!productMap[pKey]) {
+            productMap[pKey] = {
+              productType: pKey,
+              packagingType: it.packagingType,
+              chamberNo: '',
+              inward: 0,
+              outward: 0,
+              net: 0
+            };
+          }
+          productMap[pKey].outward += Number(it.outwardQty || 0);
+        });
+      });
+
+      let totalInwardNugs = 0;
+      let totalOutwardNugs = 0;
+      Object.keys(productMap).forEach(k => {
+        productMap[k].net = Math.max(0, productMap[k].inward - productMap[k].outward);
+        totalInwardNugs += productMap[k].inward;
+        totalOutwardNugs += productMap[k].outward;
+      });
+      const netStockNugs = Math.max(0, totalInwardNugs - totalOutwardNugs);
+
+      // 2. Build Chronological Financial Ledger
+      const ledgerEvents = [];
+
+      // Add Inwards (Initial Month Rent + Initial Labour)
+      partyInwards.forEach(inw => {
+        ledgerEvents.push({
+          date: inw.date,
+          sortTime: new Date(`${inw.date}T${inw.time || '00:00'}`).getTime(),
+          type: 'INWARD_INITIAL',
+          title: `Inward Deposit: ${inw.productType} (${inw.qty} Nugs)`,
+          refNo: inw.slipNo,
+          inwardQty: Number(inw.qty),
+          outwardQty: 0,
+          debit: Number(inw.totalInitialBill || (Number(inw.initialRentAmount || 0) + Number(inw.totalLabourAmount || 0))),
+          credit: 0,
+          note: `Chamber: ${inw.chamberNo} • Month 1 Rent (₹${inw.initialRentAmount}) + Labour (₹${inw.totalLabourAmount})`,
+          raw: inw
+        });
+
+        // Compute Automated Subsequent Month Rent Cycles
+        // Target simulated current date for cold storage accounting:
+        const today = new Date();
+        const inwardDate = new Date(inw.date);
+
+        // Find how many months have elapsed from inward date
+        let cycleIndex = 1;
+        while (true) {
+          // Next cycle starts 1 month + 1 day after milestone (e.g. 21 Jan -> 22 Feb)
+          const nextCycleDate = new Date(inwardDate);
+          nextCycleDate.setMonth(nextCycleDate.getMonth() + cycleIndex);
+          nextCycleDate.setDate(nextCycleDate.getDate() + 1);
+
+          if (nextCycleDate > today) break;
+
+          // Compute remaining stock of this product up to this milestone date
+          // Deduct any outward dispatches that occurred before this cycle date
+          let dispatchedBeforeCycle = 0;
+          partyOutwards.forEach(outw => {
+            const outwDate = new Date(outw.date);
+            if (outwDate <= nextCycleDate) {
+              (outw.items || []).forEach(it => {
+                if (it.productType.trim() === inw.productType.trim()) {
+                  dispatchedBeforeCycle += Number(it.outwardQty || 0);
+                }
+              });
+            }
+          });
+
+          const balanceAtCycle = Math.max(0, Number(inw.qty) - dispatchedBeforeCycle);
+
+          if (balanceAtCycle > 0) {
+            const cycleRent = balanceAtCycle * Number(inw.pricePerNugPerMonth || 15);
+            const cycleDateStr = nextCycleDate.toISOString().slice(0, 10);
+
+            ledgerEvents.push({
+              date: cycleDateStr,
+              sortTime: nextCycleDate.getTime(),
+              type: 'RENT_CYCLE',
+              title: `Auto Rent Cycle #${cycleIndex + 1}: ${inw.productType}`,
+              refNo: `CYCLE-${inw.slipNo}-M${cycleIndex + 1}`,
+              inwardQty: 0,
+              outwardQty: 0,
+              debit: cycleRent,
+              credit: 0,
+              note: `Monthly storage on remaining balance of ${balanceAtCycle} Nugs @ ₹${inw.pricePerNugPerMonth}/mo`,
+              raw: inw
+            });
+          }
+
+          cycleIndex++;
+          if (cycleIndex > 24) break; // guard
+        }
+      });
+
+      // Add Outwards (Stock reduction)
+      partyOutwards.forEach(outw => {
+        let itemsDesc = (outw.items || []).map(it => `${it.productType} (-${it.outwardQty})`).join(', ');
+        ledgerEvents.push({
+          date: outw.date,
+          sortTime: new Date(`${outw.date}T${outw.time || '12:00'}`).getTime(),
+          type: 'OUTWARD_DISPATCH',
+          title: `Outward Dispatch: ${itemsDesc}`,
+          refNo: outw.slipNo,
+          inwardQty: 0,
+          outwardQty: Number(outw.totalDispatched || 0),
+          debit: 0,
+          credit: 0,
+          note: `Gate Pass: ${outw.gatePassNo} • Taken by: ${outw.receiverName} (${outw.vehicleNo})`,
+          raw: outw
+        });
+      });
+
+      // Add Payments (Credits)
+      partyPayments.forEach(pay => {
+        ledgerEvents.push({
+          date: pay.date,
+          sortTime: new Date(`${pay.date}T12:00`).getTime(),
+          type: 'PAYMENT_RECEIVED',
+          title: `Payment Received: ${pay.mode}`,
+          refNo: pay.receiptNo,
+          inwardQty: 0,
+          outwardQty: 0,
+          debit: 0,
+          credit: Number(pay.amount || 0),
+          note: `Bank/Cash: ${pay.bankOrCashName} ${pay.refNo ? '(Ref: ' + pay.refNo + ')' : ''}`,
+          raw: pay
+        });
+      });
+
+      // Sort chronologically ascending
+      ledgerEvents.sort((a, b) => a.sortTime - b.sortTime);
+
+      // Compute running stock & running balance
+      let runningStock = 0;
+      let runningNetDue = 0;
+
+      ledgerEvents.forEach(ev => {
+        runningStock += (ev.inwardQty - ev.outwardQty);
+        runningNetDue += (ev.debit - ev.credit);
+        ev.stockAfter = runningStock;
+        ev.balanceAfter = runningNetDue;
+      });
+
+      return {
+        partyId,
+        totalInwardNugs,
+        totalOutwardNugs,
+        netStockNugs,
+        productBreakdown: Object.values(productMap),
+        ledger: ledgerEvents,
+        totalDebits: ledgerEvents.reduce((s, x) => s + x.debit, 0),
+        totalCredits: ledgerEvents.reduce((s, x) => s + x.credit, 0),
+        netOutstanding: runningNetDue
+      };
+    }
+
+    function renderDashboard() {
+      let totalStored = 0;
+      let totalOut = 0;
+      let totalDue = 0;
+
+      appData.inwards.forEach(i => totalStored += Number(i.qty || 0));
+      appData.outwards.forEach(o => totalOut += Number(o.totalDispatched || 0));
+
+      appData.parties.forEach(p => {
+        const stats = computePartyFinancialsAndStock(p.id);
+        totalDue += stats.netOutstanding;
+      });
+
+      const netStock = Math.max(0, totalStored - totalOut);
+
+      document.getElementById('dashMetricStored').innerText = totalStored.toLocaleString('en-IN');
+      document.getElementById('dashMetricOutward').innerText = totalOut.toLocaleString('en-IN');
+      document.getElementById('dashMetricNet').innerText = netStock.toLocaleString('en-IN');
+      document.getElementById('dashMetricOutstanding').innerText = `₹${totalDue.toLocaleString('en-IN')}`;
+
+      // Chamber cards
+      const chamberList = [
+        { id: 1, name: 'Chamber 1', gf: 'Kinnow Rapid Pre-Cooling', ff: 'Citrus Pre-Cooling Holding', cap: 25000 },
+        { id: 2, name: 'Chamber 2', gf: 'Citrus Long-term Storage', ff: 'Orange & Malta Racks', cap: 30000 },
+        { id: 3, name: 'Chamber 3', gf: 'Kufri Seed Potato Ground', ff: 'Certified Seed Storage', cap: 20000 },
+        { id: 4, name: 'Chamber 4', gf: 'Controlled Atmosphere (Apple)', ff: 'Fruit Multi-Tier Racks', cap: 15000 }
+      ];
+
+      const chGrid = document.getElementById('dashboardChamberGrid');
+      chGrid.innerHTML = chamberList.map(ch => {
+        let chQty = 0;
+        appData.inwards.filter(i => (i.chamberNo || '').includes(`Chamber ${ch.id}`)).forEach(i => chQty += Number(i.qty || 0));
+        // deduct outwards estimated proportionally
+        const pct = Math.min(100, Math.round((chQty / ch.cap) * 100));
+
+        return `
+          <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-xs text-slate-800">${ch.name}</span>
+              <span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-sky-100 text-sky-800">${pct}% Full</span>
+            </div>
+            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+              <div class="bg-sky-600 h-full rounded-full" style="width: ${pct}%"></div>
+            </div>
+            <div class="text-[11px] text-slate-500 space-y-0.5">
+              <div>GF: <span class="text-slate-700 font-medium">${ch.gf}</span></div>
+              <div>1F: <span class="text-slate-700 font-medium">${ch.ff}</span></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Recent Inwards
+      const recentIn = [...appData.inwards].reverse().slice(0, 5);
+      const inTbody = document.getElementById('dashInwardTableBody');
+      if (recentIn.length === 0) {
+        inTbody.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-slate-400">No inward slips recorded yet.</td></tr>`;
+      } else {
+        inTbody.innerHTML = recentIn.map(i => `
+          <tr class="hover:bg-slate-50">
+            <td class="py-2.5 px-3 font-mono font-bold text-slate-800">${i.slipNo}</td>
+            <td class="py-2.5 px-3 font-medium text-slate-800 truncate max-w-[120px]">${i.partyName}</td>
+            <td class="py-2.5 px-3 text-slate-600">${i.productType}</td>
+            <td class="py-2.5 px-3 text-right font-mono font-bold text-emerald-600">+${i.qty}</td>
+            <td class="py-2.5 px-3 text-center">
+              <button onclick="viewOfficialDocument('INWARD', '${i.id}')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-[11px] font-semibold">View</button>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      // Recent Outwards
+      const recentOut = [...appData.outwards].reverse().slice(0, 5);
+      const outTbody = document.getElementById('dashOutwardTableBody');
+      if (recentOut.length === 0) {
+        outTbody.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-slate-400">No outward dispatches recorded yet.</td></tr>`;
+      } else {
+        outTbody.innerHTML = recentOut.map(o => `
+          <tr class="hover:bg-slate-50">
+            <td class="py-2.5 px-3 font-mono font-bold text-slate-800">${o.slipNo}</td>
+            <td class="py-2.5 px-3 font-medium text-slate-800 truncate max-w-[120px]">${o.partyName}</td>
+            <td class="py-2.5 px-3 text-slate-600">${o.receiverName}</td>
+            <td class="py-2.5 px-3 text-right font-mono font-bold text-blue-600">-${o.totalDispatched}</td>
+            <td class="py-2.5 px-3 text-center">
+              <button onclick="viewOfficialDocument('OUTWARD', '${o.id}')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-[11px] font-semibold">View</button>
+            </td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    function renderPartiesTable() {
+      const q = (document.getElementById('partySearchInput')?.value || '').toLowerCase();
+      const tbody = document.getElementById('partiesTableBody');
+      const isAdmin = appData.currentUser?.role === 'admin';
+
+      const filtered = appData.parties.filter(p => 
+        p.name.toLowerCase().includes(q) ||
+        p.place.toLowerCase().includes(q) ||
+        p.phone.includes(q) ||
+        p.marka.toLowerCase().includes(q)
+      );
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="py-6 text-center text-slate-400">No matching parties found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(p => {
+        const stats = computePartyFinancialsAndStock(p.id);
+        return `
+          <tr class="hover:bg-slate-50/80 transition">
+            <td class="py-3 px-3">
+              <span class="font-bold text-slate-900 block">${p.name}</span>
+              <span class="text-[11px] text-slate-500">${p.place}</span>
+            </td>
+            <td class="py-3 px-3 font-mono">
+              <div>${p.phone}</div>
+              ${p.altPhone ? `<div class="text-[10px] text-slate-400">Alt: ${p.altPhone}</div>` : ''}
+            </td>
+            <td class="py-3 px-3 font-mono font-bold text-cyan-800">${p.marka}</td>
+            <td class="py-3 px-3 font-mono text-[11px]">
+              <div class="text-slate-700">User: <strong class="text-slate-900">${p.username}</strong></div>
+              <div class="text-slate-500">Pwd: <strong class="text-slate-700">${p.password}</strong></div>
+            </td>
+            <td class="py-3 px-3 text-right font-mono font-bold text-cyan-700 text-sm">
+              ${stats.netStockNugs.toLocaleString()} Nugs
+            </td>
+            <td class="py-3 px-3 text-right font-mono font-black ${stats.netOutstanding > 0 ? 'text-amber-600' : 'text-emerald-600'}">
+              ₹${stats.netOutstanding.toLocaleString('en-IN')}
+            </td>
+            <td class="py-3 px-3 text-center">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${p.blocked ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'}">
+                ${p.blocked ? 'BLOCKED' : 'ACTIVE'}
+              </span>
+            </td>
+            <td class="py-3 px-3 text-center whitespace-nowrap space-x-1">
+              <button onclick="openPartyLedgerDirect('${p.id}')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-semibold">Ledger</button>
+              ${isAdmin ? `
+                <button onclick="editParty('${p.id}')" class="px-2 py-1 bg-cyan-50 hover:bg-cyan-100 text-cyan-700 rounded text-xs font-semibold">Edit</button>
+                <button onclick="toggleBlockParty('${p.id}')" class="px-2 py-1 ${p.blocked ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'} rounded text-xs font-semibold">
+                  ${p.blocked ? 'Unblock' : 'Block'}
+                </button>
+                <button onclick="confirmDeleteParty('${p.id}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded text-xs font-semibold">Delete</button>
+              ` : `
+                <span class="text-[10px] text-slate-400 italic">Staff View</span>
+              `}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function openPartyModal(editId = null) {
+      document.getElementById('formParty').reset();
+      document.getElementById('partyEditId').value = '';
+      document.getElementById('modalPartyTitle').innerText = 'Register New Cold Storage Party';
+
+      if (editId) {
+        const p = appData.parties.find(x => x.id === editId);
+        if (p) {
+          document.getElementById('partyEditId').value = p.id;
+          document.getElementById('partyNameInput').value = p.name;
+          document.getElementById('partyPlaceInput').value = p.place;
+          document.getElementById('partyPhoneInput').value = p.phone;
+          document.getElementById('partyAltPhoneInput').value = p.altPhone || '';
+          document.getElementById('partyMarkaInput').value = p.marka;
+          document.getElementById('partyGstInput').value = p.gst || '';
+          document.getElementById('partyPasswordInput').value = p.password;
+          document.getElementById('modalPartyTitle').innerText = 'Edit Party & Credentials';
+        }
+      }
+
+      document.getElementById('modalParty').classList.remove('hidden');
+    }
+
+    function closePartyModal() {
+      document.getElementById('modalParty').classList.add('hidden');
+    }
+
+    function handlePartySubmit(e) {
+      e.preventDefault();
+      const editId = document.getElementById('partyEditId').value;
+      const phone = document.getElementById('partyPhoneInput').value.trim();
+      const password = document.getElementById('partyPasswordInput').value.trim() || `BAZZ@${phone.slice(-4) || '1234'}`;
+
+      if (editId) {
+        // Admin Edit
+        if (appData.currentUser.role !== 'admin') {
+          showToast('Only Admin is authorized to edit parties.', '⚠️');
+          return;
+        }
+        const p = appData.parties.find(x => x.id === editId);
+        if (p) {
+          p.name = document.getElementById('partyNameInput').value.trim();
+          p.place = document.getElementById('partyPlaceInput').value.trim();
+          p.phone = phone;
+          p.altPhone = document.getElementById('partyAltPhoneInput').value.trim();
+          p.marka = document.getElementById('partyMarkaInput').value.trim().toUpperCase();
+          p.gst = document.getElementById('partyGstInput').value.trim().toUpperCase();
+          p.username = phone; // mobile is username
+          p.password = password;
+          showToast(`Party ${p.name} updated successfully!`);
+        }
+      } else {
+        // Create new
+        const newParty = {
+          id: 'P' + (appData.parties.length + 1).toString().padStart(2, '0'),
+          name: document.getElementById('partyNameInput').value.trim(),
+          place: document.getElementById('partyPlaceInput').value.trim(),
+          phone: phone,
+          altPhone: document.getElementById('partyAltPhoneInput').value.trim(),
+          marka: document.getElementById('partyMarkaInput').value.trim().toUpperCase(),
+          gst: document.getElementById('partyGstInput').value.trim().toUpperCase(),
+          username: phone,
+          password: password,
+          blocked: false,
+          createdAt: new Date().toISOString().slice(0, 10)
+        };
+        appData.parties.push(newParty);
+        showToast(`Party ${newParty.name} registered! Login ID: ${newParty.username}`);
+      }
+
+      saveStorage();
+      closePartyModal();
+      renderPartiesTable();
+      renderDashboard();
+    }
+
+    function editParty(id) {
+      openPartyModal(id);
+    }
+
+    function toggleBlockParty(id) {
+      if (appData.currentUser.role !== 'admin') {
+        showToast('Only Admin can block/unblock accounts.', '⚠️');
+        return;
+      }
+      const p = appData.parties.find(x => x.id === id);
+      if (p) {
+        p.blocked = !p.blocked;
+        saveStorage();
+        renderPartiesTable();
+        showToast(`Party ${p.name} is now ${p.blocked ? 'BLOCKED' : 'UNBLOCKED'}`);
+      }
+    }
+
+    function confirmDeleteParty(id) {
+      if (appData.currentUser.role !== 'admin') {
+        showToast('Only Admin can delete parties.', '⚠️');
+        return;
+      }
+      const p = appData.parties.find(x => x.id === id);
+      openConfirmModal(
+        'Delete Party Record',
+        `Are you sure you want to permanently delete "${p?.name}"? All associated slips remain in audit trail.`,
+        () => {
+          appData.parties = appData.parties.filter(x => x.id !== id);
+          saveStorage();
+          renderPartiesTable();
+          renderDashboard();
+          showToast(`Party deleted.`);
+        }
+      );
+    }
+
+    function openInwardModal(editId = null) {
+      document.getElementById('formInward').reset();
+      document.getElementById('inwardEditId').value = '';
+      document.getElementById('modalInwardTitle').innerText = 'Generate Inward Receiving Slip & Gate Pass';
+
+      // Populate parties dropdown
+      const partySel = document.getElementById('inwardPartySelect');
+      partySel.innerHTML = appData.parties.map(p => `
+        <option value="${p.id}">${p.name} (${p.place})</option>
+      `).join('');
+
+      // Auto-set Date & Time
+      const now = new Date();
+      document.getElementById('inwardDateInput').value = now.toISOString().slice(0, 10);
+      document.getElementById('inwardTimeInput').value = now.toTimeString().slice(0, 5);
+
+      if (editId) {
+        if (appData.currentUser.role !== 'admin') {
+          showToast('Only Admin can edit slips.', '⚠️');
+          return;
+        }
+        const item = appData.inwards.find(x => x.id === editId);
+        if (item) {
+          document.getElementById('inwardEditId').value = item.id;
+          document.getElementById('inwardSlipNo').value = item.slipNo;
+          document.getElementById('inwardGatePassNo').value = item.gatePassNo;
+          document.getElementById('inwardDateInput').value = item.date;
+          document.getElementById('inwardTimeInput').value = item.time || '09:00';
+          document.getElementById('inwardPartySelect').value = item.partyId;
+          document.getElementById('inwardProductType').value = item.productType;
+          document.getElementById('inwardPackagingSelect').value = item.packagingType;
+          document.getElementById('inwardQty').value = item.qty;
+          document.getElementById('inwardSingleWeight').value = item.weightPerPkgKg;
+          document.getElementById('inwardChamberNo').value = item.chamberNo;
+          document.getElementById('inwardPricePerNug').value = item.pricePerNugPerMonth;
+          document.getElementById('inwardLabourPerNug').value = item.labourPerNug;
+          document.getElementById('inwardVehicleType').value = item.vehicleType;
+          document.getElementById('inwardVehicleNo').value = item.vehicleNo;
+          document.getElementById('inwardDriverName').value = item.driverName;
+          document.getElementById('inwardDriverPhone').value = item.driverPhone;
+          document.getElementById('modalInwardTitle').innerText = 'Edit Inward Slip (Admin Mode)';
+        }
+      } else {
+        const nextNum = (appData.inwards.length + 1001).toString();
+        document.getElementById('inwardSlipNo').value = `BAZZ-IN-${nextNum}`;
+        document.getElementById('inwardGatePassNo').value = `GP-IN-${nextNum}`;
+        document.getElementById('inwardPricePerNug').value = '15';
+        document.getElementById('inwardLabourPerNug').value = '2';
+      }
+
+      onInwardPartyChange(document.getElementById('inwardPartySelect').value);
+      calculateInwardTotals();
+      document.getElementById('modalInward').classList.remove('hidden');
+    }
+
+    function closeInwardModal() {
+      document.getElementById('modalInward').classList.add('hidden');
+    }
+
+    function onInwardPartyChange(partyId) {
+      const p = appData.parties.find(x => x.id === partyId);
+      if (p) {
+        document.getElementById('inwardPartyMetaDisplay').value = `Mob: ${p.phone} • Marka: ${p.marka} • Mandi: ${p.place}`;
+      }
+    }
+
+    function onInwardPackagingChange(val) {
+      const customField = document.getElementById('inwardPackagingCustom');
+      if (val === '__custom__') {
+        customField.classList.remove('hidden');
+        customField.required = true;
+      } else {
+        customField.classList.add('hidden');
+        customField.required = false;
+      }
+    }
+
+    function calculateInwardTotals() {
+      const qty = parseFloat(document.getElementById('inwardQty').value) || 0;
+      const singleWt = parseFloat(document.getElementById('inwardSingleWeight').value) || 0;
+      const rentPerNug = parseFloat(document.getElementById('inwardPricePerNug').value) || 0;
+      const labourPerNug = parseFloat(document.getElementById('inwardLabourPerNug').value) || 0;
+
+      const totalWeightKg = qty * singleWt;
+      document.getElementById('inwardTotalWeightHint').innerText = `Total Wt: ${totalWeightKg.toLocaleString()} kg (${(totalWeightKg / 100).toFixed(2)} Quintals)`;
+
+      const goodsRent = qty * rentPerNug;
+      const totalLabour = qty * labourPerNug;
+      const initialTotal = goodsRent + totalLabour;
+
+      document.getElementById('inwardRentTotalDisplay').innerText = `Month 1 Rent: ₹${goodsRent.toLocaleString('en-IN')}`;
+      document.getElementById('inwardLabourTotalDisplay').innerText = `Total Labour: ₹${totalLabour.toLocaleString('en-IN')} (${qty} × ₹${labourPerNug})`;
+      document.getElementById('inwardTotalBillDisplay').value = initialTotal;
+    }
+
+    function handleInwardSubmit(e) {
+      e.preventDefault();
+      const editId = document.getElementById('inwardEditId').value;
+      const partyId = document.getElementById('inwardPartySelect').value;
+      const party = appData.parties.find(p => p.id === partyId);
+
+      let packaging = document.getElementById('inwardPackagingSelect').value;
+      if (packaging === '__custom__') {
+        packaging = document.getElementById('inwardPackagingCustom').value.trim() || 'Custom';
+      }
+
+      const qty = parseInt(document.getElementById('inwardQty').value, 10);
+      const singleWt = parseFloat(document.getElementById('inwardSingleWeight').value) || 0;
+      const pricePerNug = parseFloat(document.getElementById('inwardPricePerNug').value) || 0;
+      const labourPerNug = parseFloat(document.getElementById('inwardLabourPerNug').value) || 0;
+      const initialRent = qty * pricePerNug;
+      const totalLabour = qty * labourPerNug;
+      const totalBill = initialRent + totalLabour;
+
+      if (editId) {
+        if (appData.currentUser.role !== 'admin') {
+          showToast('Only Admin can edit slips.', '⚠️');
+          return;
+        }
+        const item = appData.inwards.find(x => x.id === editId);
+        if (item) {
+          item.partyId = partyId;
+          item.partyName = party.name;
+          item.date = document.getElementById('inwardDateInput').value;
+          item.time = document.getElementById('inwardTimeInput').value;
+          item.productType = document.getElementById('inwardProductType').value.trim();
+          item.packagingType = packaging;
+          item.qty = qty;
+          item.weightPerPkgKg = singleWt;
+          item.totalWeightKg = qty * singleWt;
+          item.chamberNo = document.getElementById('inwardChamberNo').value;
+          item.pricePerNugPerMonth = pricePerNug;
+          item.initialRentAmount = initialRent;
+          item.labourPerNug = labourPerNug;
+          item.totalLabourAmount = totalLabour;
+          item.totalInitialBill = totalBill;
+          item.vehicleType = document.getElementById('inwardVehicleType').value;
+          item.vehicleNo = document.getElementById('inwardVehicleNo').value.toUpperCase().trim();
+          item.driverName = document.getElementById('inwardDriverName').value.trim();
+          item.driverPhone = document.getElementById('inwardDriverPhone').value.trim();
+          showToast(`Inward Slip ${item.slipNo} updated!`);
+          viewOfficialDocument('INWARD', item.id);
+        }
+      } else {
+        const newInward = {
+          id: 'IN-' + Date.now().toString().slice(-6),
+          slipNo: document.getElementById('inwardSlipNo').value,
+          gatePassNo: document.getElementById('inwardGatePassNo').value,
+          partyId: partyId,
+          partyName: party.name,
+          date: document.getElementById('inwardDateInput').value,
+          time: document.getElementById('inwardTimeInput').value,
+          productType: document.getElementById('inwardProductType').value.trim(),
+          packagingType: packaging,
+          qty: qty,
+          weightPerPkgKg: singleWt,
+          totalWeightKg: qty * singleWt,
+          chamberNo: document.getElementById('inwardChamberNo').value,
+          pricePerNugPerMonth: pricePerNug,
+          initialRentAmount: initialRent,
+          labourPerNug: labourPerNug,
+          totalLabourAmount: totalLabour,
+          totalInitialBill: totalBill,
+          vehicleType: document.getElementById('inwardVehicleType').value,
+          vehicleNo: document.getElementById('inwardVehicleNo').value.toUpperCase().trim(),
+          driverName: document.getElementById('inwardDriverName').value.trim(),
+          driverPhone: document.getElementById('inwardDriverPhone').value.trim(),
+          createdBy: appData.currentUser.username
+        };
+        appData.inwards.push(newInward);
+        showToast(`Inward Slip ${newInward.slipNo} & Gate Pass Created!`);
+        viewOfficialDocument('INWARD', newInward.id);
+      }
+
+      saveStorage();
+      closeInwardModal();
+      renderInwardTable();
+      renderDashboard();
+    }
+
+    function renderInwardTable() {
+      const q = (document.getElementById('inwardSearchInput')?.value || '').toLowerCase();
+      const tbody = document.getElementById('inwardTableBody');
+      const isAdmin = appData.currentUser?.role === 'admin';
+
+      const filtered = appData.inwards.filter(i => 
+        i.slipNo.toLowerCase().includes(q) ||
+        i.gatePassNo.toLowerCase().includes(q) ||
+        i.partyName.toLowerCase().includes(q) ||
+        i.productType.toLowerCase().includes(q) ||
+        i.vehicleNo.toLowerCase().includes(q)
+      );
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="py-6 text-center text-slate-400">No inward slips found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = [...filtered].reverse().map(i => `
+        <tr class="hover:bg-slate-50/80 transition">
+          <td class="py-3 px-3">
+            <span class="font-mono font-bold text-slate-900 block">${i.slipNo}</span>
+            <span class="font-mono text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 inline-block">${i.gatePassNo}</span>
+          </td>
+          <td class="py-3 px-3 font-mono text-[11px] text-slate-600">
+            <div>${i.date}</div>
+            <div class="text-[10px] text-slate-400">${i.time}</div>
+          </td>
+          <td class="py-3 px-3 font-semibold text-slate-900">${i.partyName}</td>
+          <td class="py-3 px-3">
+            <div class="font-semibold text-slate-800">${i.productType}</div>
+            <div class="text-[10px] text-slate-500">${i.packagingType} (${i.weightPerPkgKg} kg/unit)</div>
+          </td>
+          <td class="py-3 px-3 text-right font-mono font-bold text-emerald-600 text-sm">
+            +${i.qty}
+          </td>
+          <td class="py-3 px-3 text-[11px] text-slate-700 font-medium">
+            ${i.chamberNo}
+          </td>
+          <td class="py-3 px-3 text-right font-mono text-[11px]">
+            <div class="font-bold text-slate-900">₹${(i.totalInitialBill || 0).toLocaleString('en-IN')}</div>
+            <div class="text-[10px] text-slate-400">₹${i.pricePerNugPerMonth}/mo + ₹${i.labourPerNug} Lbr</div>
+          </td>
+          <td class="py-3 px-3 font-mono text-[11px]">
+            <div>${i.vehicleType} • ${i.vehicleNo}</div>
+            <div class="text-[10px] text-slate-500">${i.driverName} (${i.driverPhone})</div>
+          </td>
+          <td class="py-3 px-3 text-center whitespace-nowrap space-x-1">
+            <button onclick="viewOfficialDocument('INWARD', '${i.id}')" class="px-2 py-1 bg-cyan-50 hover:bg-cyan-100 text-cyan-800 rounded font-semibold text-xs">View Slip</button>
+            ${isAdmin ? `
+              <button onclick="openInwardModal('${i.id}')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded font-semibold text-xs">Edit</button>
+              <button onclick="confirmDeleteInward('${i.id}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded font-semibold text-xs">Delete</button>
+            ` : ''}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function confirmDeleteInward(id) {
+      if (appData.currentUser.role !== 'admin') {
+        showToast('Only Admin can delete inward slips.', '⚠️');
+        return;
+      }
+      const item = appData.inwards.find(x => x.id === id);
+      openConfirmModal(
+        'Delete Inward Slip',
+        `Are you sure you want to delete ${item?.slipNo}? This will re-calculate party stock and ledger balances.`,
+        () => {
+          appData.inwards = appData.inwards.filter(x => x.id !== id);
+          saveStorage();
+          renderInwardTable();
+          renderDashboard();
+          showToast(`Inward Slip deleted.`);
+        }
+      );
+    }
+
+    function openOutwardModal(editId = null) {
+      document.getElementById('formOutward').reset();
+      document.getElementById('outwardEditId').value = '';
+      document.getElementById('modalOutwardTitle').innerText = 'Generate Outward Dispatch Slip & Gate Pass';
+
+      // Populate parties
+      const partySel = document.getElementById('outwardPartySelect');
+      partySel.innerHTML = appData.parties.map(p => `
+        <option value="${p.id}">${p.name} (${p.place})</option>
+      `).join('');
+
+      const now = new Date();
+      document.getElementById('outwardDateInput').value = now.toISOString().slice(0, 10);
+      document.getElementById('outwardTimeInput').value = now.toTimeString().slice(0, 5);
+
+      if (editId) {
+        if (appData.currentUser.role !== 'admin') {
+          showToast('Only Admin can edit outward slips.', '⚠️');
+          return;
+        }
+        const outw = appData.outwards.find(x => x.id === editId);
+        if (outw) {
+          document.getElementById('outwardEditId').value = outw.id;
+          document.getElementById('outwardSlipNo').value = outw.slipNo;
+          document.getElementById('outwardGatePassNo').value = outw.gatePassNo;
+          document.getElementById('outwardDateInput').value = outw.date;
+          document.getElementById('outwardTimeInput').value = outw.time || '10:00';
+          document.getElementById('outwardPartySelect').value = outw.partyId;
+          document.getElementById('outwardReceiverName').value = outw.receiverName;
+          document.getElementById('outwardReceiverPhone').value = outw.receiverPhone;
+          document.getElementById('outwardVehicleType').value = outw.vehicleType;
+          document.getElementById('outwardVehicleNo').value = outw.vehicleNo;
+          document.getElementById('modalOutwardTitle').innerText = 'Edit Outward Slip (Admin Mode)';
+        }
+      } else {
+        const nextNum = (appData.outwards.length + 2001).toString();
+        document.getElementById('outwardSlipNo').value = `BAZZ-OUT-${nextNum}`;
+        document.getElementById('outwardGatePassNo').value = `GP-OUT-${nextNum}`;
+      }
+
+      onOutwardPartyChange(document.getElementById('outwardPartySelect').value);
+      document.getElementById('modalOutward').classList.remove('hidden');
+    }
+
+    function closeOutwardModal() {
+      document.getElementById('modalOutward').classList.add('hidden');
+    }
+
+    function onOutwardPartyChange(partyId) {
+      const stats = computePartyFinancialsAndStock(partyId);
+      document.getElementById('outwardPartyStockDisplay').innerText = `${stats.netStockNugs.toLocaleString()} Nugs`;
+
+      // Clear and populate initial product row
+      const container = document.getElementById('outwardProductRowsContainer');
+      container.innerHTML = '';
+      addOutwardProductRow(partyId);
+    }
+
+    function addOutwardProductRow(partyId = null) {
+      if (!partyId) {
+        partyId = document.getElementById('outwardPartySelect').value;
+      }
+      const stats = computePartyFinancialsAndStock(partyId);
+      const availableProducts = stats.productBreakdown.filter(p => p.net > 0);
+
+      const container = document.getElementById('outwardProductRowsContainer');
+      const rowIndex = container.children.length;
+
+      if (availableProducts.length === 0) {
+        container.innerHTML = `
+          <div class="p-3 bg-rose-50 text-rose-700 text-xs rounded-lg text-center font-bold">
+            ⚠️ Selected Party has 0 available stock in cold chambers! Cannot issue outward pass.
+          </div>
+        `;
+        document.getElementById('outwardSubmitBtn').disabled = true;
+        return;
+      }
+      document.getElementById('outwardSubmitBtn').disabled = false;
+
+      const row = document.createElement('div');
+      row.className = 'outward-product-row p-2.5 bg-slate-50 border border-slate-200 rounded-xl grid grid-cols-1 sm:grid-cols-12 gap-2 items-center text-xs';
+      row.innerHTML = `
+        <div class="sm:col-span-5">
+          <label class="font-semibold text-slate-600 block mb-0.5">Select Stored Product</label>
+          <select onchange="updateRowProductStock(this)" class="row-prod-select w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 font-medium">
+            ${availableProducts.map(p => `
+              <option value="${p.productType}" data-avail="${p.net}" data-pack="${p.packagingType}">${p.productType} (${p.net} in stock)</option>
+            `).join('')}
+          </select>
+        </div>
+        <div class="sm:col-span-3">
+          <label class="font-semibold text-slate-600 block mb-0.5">Dispatched Qty *</label>
+          <input type="number" min="1" oninput="validateRowQty(this)" required placeholder="Qty" class="row-prod-qty w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 font-mono font-bold">
+        </div>
+        <div class="sm:col-span-3 font-mono text-[11px] leading-tight">
+          <div class="text-slate-500">Avail: <strong class="row-avail-text text-slate-800">${availableProducts[0]?.net || 0}</strong></div>
+          <div class="text-blue-700 font-bold">Left: <span class="row-balance-text">0</span></div>
+        </div>
+        <div class="sm:col-span-1 text-right">
+          ${rowIndex > 0 ? `
+            <button type="button" onclick="this.closest('.outward-product-row').remove()" class="p-1.5 text-rose-500 hover:bg-rose-50 rounded font-bold">✕</button>
+          ` : ''}
+        </div>
+      `;
+
+      container.appendChild(row);
+      updateRowProductStock(row.querySelector('.row-prod-select'));
+    }
+
+    function updateRowProductStock(selectEl) {
+      const row = selectEl.closest('.outward-product-row');
+      const opt = selectEl.options[selectEl.selectedIndex];
+      const avail = parseInt(opt.getAttribute('data-avail'), 10) || 0;
+      row.querySelector('.row-avail-text').innerText = avail;
+
+      const qtyInput = row.querySelector('.row-prod-qty');
+      qtyInput.max = avail;
+      validateRowQty(qtyInput);
+    }
+
+    function validateRowQty(inputEl) {
+      const row = inputEl.closest('.outward-product-row');
+      const max = parseInt(inputEl.max, 10) || 0;
+      const val = parseInt(inputEl.value, 10) || 0;
+      const balanceEl = row.querySelector('.row-balance-text');
+
+      if (val > max) {
+        inputEl.classList.add('border-rose-500', 'text-rose-600');
+        balanceEl.innerText = 'Exceeded!';
+        balanceEl.classList.add('text-rose-600');
+      } else {
+        inputEl.classList.remove('border-rose-500', 'text-rose-600');
+        const rem = max - val;
+        balanceEl.innerText = `${rem} nugs`;
+        balanceEl.classList.remove('text-rose-600');
+      }
+    }
+
+    function handleOutwardSubmit(e) {
+      e.preventDefault();
+      const editId = document.getElementById('outwardEditId').value;
+      const partyId = document.getElementById('outwardPartySelect').value;
+      const party = appData.parties.find(p => p.id === partyId);
+
+      const rowEls = document.querySelectorAll('.outward-product-row');
+      const items = [];
+      let totalDispatched = 0;
+
+      for (const row of rowEls) {
+        const sel = row.querySelector('.row-prod-select');
+        const opt = sel.options[sel.selectedIndex];
+        const prodName = opt.value;
+        const packType = opt.getAttribute('data-pack') || 'Crates';
+        const prevAvail = parseInt(opt.getAttribute('data-avail'), 10) || 0;
+        const outQty = parseInt(row.querySelector('.row-prod-qty').value, 10) || 0;
+
+        if (outQty <= 0) {
+          showToast(`Please enter a valid quantity for ${prodName}`, '⚠️');
+          return;
+        }
+
+        if (outQty > prevAvail) {
+          showToast(`Quantity ${outQty} exceeds available stock of ${prevAvail} for ${prodName}!`, '❌');
+          return;
+        }
+
+        const balQty = prevAvail - outQty;
+        totalDispatched += outQty;
+
+        items.push({
+          productType: prodName,
+          packagingType: packType,
+          previousStock: prevAvail,
+          outwardQty: outQty,
+          balanceQty: balQty
+        });
+      }
+
+      if (items.length === 0) {
+        showToast('No products specified for outward delivery!', '⚠️');
+        return;
+      }
+
+      if (editId) {
+        if (appData.currentUser.role !== 'admin') {
+          showToast('Only Admin can edit outward slips.', '⚠️');
+          return;
+        }
+        const outw = appData.outwards.find(x => x.id === editId);
+        if (outw) {
+          outw.partyId = partyId;
+          outw.partyName = party.name;
+          outw.date = document.getElementById('outwardDateInput').value;
+          outw.time = document.getElementById('outwardTimeInput').value;
+          outw.receiverName = document.getElementById('outwardReceiverName').value.trim();
+          outw.receiverPhone = document.getElementById('outwardReceiverPhone').value.trim();
+          outw.vehicleType = document.getElementById('outwardVehicleType').value;
+          outw.vehicleNo = document.getElementById('outwardVehicleNo').value.toUpperCase().trim();
+          outw.items = items;
+          outw.totalDispatched = totalDispatched;
+          showToast(`Outward Slip ${outw.slipNo} updated!`);
+          viewOfficialDocument('OUTWARD', outw.id);
+        }
+      } else {
+        const newOutward = {
+          id: 'OUT-' + Date.now().toString().slice(-6),
+          slipNo: document.getElementById('outwardSlipNo').value,
+          gatePassNo: document.getElementById('outwardGatePassNo').value,
+          partyId: partyId,
+          partyName: party.name,
+          date: document.getElementById('outwardDateInput').value,
+          time: document.getElementById('outwardTimeInput').value,
+          receiverName: document.getElementById('outwardReceiverName').value.trim(),
+          receiverPhone: document.getElementById('outwardReceiverPhone').value.trim(),
+          vehicleType: document.getElementById('outwardVehicleType').value,
+          vehicleNo: document.getElementById('outwardVehicleNo').value.toUpperCase().trim(),
+          items: items,
+          totalDispatched: totalDispatched,
+          createdBy: appData.currentUser.username
+        };
+        appData.outwards.push(newOutward);
+        showToast(`Outward Gate Pass ${newOutward.gatePassNo} Issued!`);
+        viewOfficialDocument('OUTWARD', newOutward.id);
+      }
+
+      saveStorage();
+      closeOutwardModal();
+      renderOutwardTable();
+      renderDashboard();
+    }
+
+    function renderOutwardTable() {
+      const q = (document.getElementById('outwardSearchInput')?.value || '').toLowerCase();
+      const tbody = document.getElementById('outwardTableBody');
+      const isAdmin = appData.currentUser?.role === 'admin';
+
+      const filtered = appData.outwards.filter(o => 
+        o.slipNo.toLowerCase().includes(q) ||
+        o.gatePassNo.toLowerCase().includes(q) ||
+        o.partyName.toLowerCase().includes(q) ||
+        o.receiverName.toLowerCase().includes(q) ||
+        o.vehicleNo.toLowerCase().includes(q)
+      );
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="py-6 text-center text-slate-400">No outward slips found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = [...filtered].reverse().map(o => {
+        const itemDesc = (o.items || []).map(i => `${i.productType} (-${i.outwardQty}, bal: ${i.balanceQty})`).join('<br>');
+        return `
+          <tr class="hover:bg-slate-50/80 transition">
+            <td class="py-3 px-3">
+              <span class="font-mono font-bold text-slate-900 block">${o.slipNo}</span>
+              <span class="font-mono text-[10px] text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200 inline-block">${o.gatePassNo}</span>
+            </td>
+            <td class="py-3 px-3 font-mono text-[11px] text-slate-600">
+              <div>${o.date}</div>
+              <div class="text-[10px] text-slate-400">${o.time}</div>
+            </td>
+            <td class="py-3 px-3 font-semibold text-slate-900">${o.partyName}</td>
+            <td class="py-3 px-3 text-[11px] text-slate-700 leading-snug">${itemDesc}</td>
+            <td class="py-3 px-3 text-right font-mono font-bold text-blue-600 text-sm">-${o.totalDispatched}</td>
+            <td class="py-3 px-3 text-xs">
+              <div class="font-semibold text-slate-800">${o.receiverName}</div>
+              <div class="text-[10px] text-slate-500 font-mono">${o.receiverPhone}</div>
+            </td>
+            <td class="py-3 px-3 font-mono text-[11px]">${o.vehicleType} • ${o.vehicleNo}</td>
+            <td class="py-3 px-3 text-center whitespace-nowrap space-x-1">
+              <button onclick="viewOfficialDocument('OUTWARD', '${o.id}')" class="px-2 py-1 bg-cyan-50 hover:bg-cyan-100 text-cyan-800 rounded font-semibold text-xs">View Pass</button>
+              ${isAdmin ? `
+                <button onclick="openOutwardModal('${o.id}')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded font-semibold text-xs">Edit</button>
+                <button onclick="confirmDeleteOutward('${o.id}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded font-semibold text-xs">Delete</button>
+              ` : ''}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function confirmDeleteOutward(id) {
+      if (appData.currentUser.role !== 'admin') {
+        showToast('Only Admin can delete outward gate passes.', '⚠️');
+        return;
+      }
+      const item = appData.outwards.find(x => x.id === id);
+      openConfirmModal(
+        'Delete Outward Gate Pass',
+        `Are you sure you want to delete outward slip ${item?.slipNo}? Stored quantities will be restored back to the party's stock.`,
+        () => {
+          appData.outwards = appData.outwards.filter(x => x.id !== id);
+          saveStorage();
+          renderOutwardTable();
+          renderDashboard();
+          showToast(`Outward Slip deleted.`);
+        }
+      );
+    }
+
+    function renderLedgerView() {
+      const sel = document.getElementById('ledgerPartySelect');
+      sel.innerHTML = appData.parties.map(p => `
+        <option value="${p.id}">${p.name} (${p.place})</option>
+      `).join('');
+
+      const firstId = sel.value || appData.parties[0]?.id;
+      if (firstId) {
+        loadPartyLedger(firstId);
+      }
+    }
+
+    function openPartyLedgerDirect(partyId) {
+      switchTab('ledger');
+      document.getElementById('ledgerPartySelect').value = partyId;
+      loadPartyLedger(partyId);
+    }
+
+    function loadPartyLedger(partyId) {
+      const stats = computePartyFinancialsAndStock(partyId);
+      const party = appData.parties.find(p => p.id === partyId);
+      if (!party) return;
+
+      document.getElementById('ledgerMetricTotalIn').innerText = `${stats.totalInwardNugs.toLocaleString()} Nugs`;
+      document.getElementById('ledgerMetricTotalOut').innerText = `${stats.totalOutwardNugs.toLocaleString()} Nugs`;
+      document.getElementById('ledgerMetricNetStock').innerText = `${stats.netStockNugs.toLocaleString()} Nugs`;
+      document.getElementById('ledgerMetricNetDue').innerText = `₹${stats.netOutstanding.toLocaleString('en-IN')}`;
+
+      // Product breakdown grid
+      const prodGrid = document.getElementById('ledgerProductStockGrid');
+      if (stats.productBreakdown.length === 0) {
+        prodGrid.innerHTML = `<div class="col-span-3 text-slate-400 text-xs py-2">No product intake recorded yet.</div>`;
+      } else {
+        prodGrid.innerHTML = stats.productBreakdown.map(pb => `
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/80 flex items-center justify-between">
+            <div>
+              <div class="font-bold text-slate-900">${pb.productType}</div>
+              <div class="text-[10px] text-slate-500">${pb.packagingType} ${pb.chamberNo ? '• ' + pb.chamberNo : ''}</div>
+            </div>
+            <div class="text-right">
+              <div class="font-mono font-bold text-sm ${pb.net > 0 ? 'text-cyan-700' : 'text-slate-400'}">${pb.net} Nugs</div>
+              <div class="text-[10px] text-slate-400">In: ${pb.inward} | Out: ${pb.outward}</div>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Ledger Table
+      const tbody = document.getElementById('ledgerTableBody');
+      document.getElementById('ledgerTxnCount').innerText = `${stats.ledger.length} Chronological Entries`;
+
+      if (stats.ledger.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10" class="py-8 text-center text-slate-400 font-sans">No transactions recorded for ${party.name}.</td></tr>`;
+        return;
+      }
+
+      const isAdmin = appData.currentUser?.role === 'admin';
+      tbody.innerHTML = [...stats.ledger].reverse().map(item => `
+        <tr class="hover:bg-slate-50/80 transition">
+          <td class="py-2.5 px-3 whitespace-nowrap text-slate-600">${item.date}</td>
+          <td class="py-2.5 px-3">
+            <span class="font-bold text-slate-900 block font-sans">${item.title}</span>
+            <span class="text-[10px] text-slate-500 font-sans">${item.note}</span>
+          </td>
+          <td class="py-2.5 px-3 font-bold text-slate-700">${item.refNo}</td>
+          <td class="py-2.5 px-3 text-right text-emerald-600 font-bold">${item.inwardQty > 0 ? '+' + item.inwardQty : '-'}</td>
+          <td class="py-2.5 px-3 text-right text-blue-600 font-bold">${item.outwardQty > 0 ? '-' + item.outwardQty : '-'}</td>
+          <td class="py-2.5 px-3 text-right font-black text-slate-900">${item.stockAfter}</td>
+          <td class="py-2.5 px-3 text-right text-rose-700 font-bold">${item.debit > 0 ? '₹' + item.debit.toLocaleString('en-IN') : '-'}</td>
+          <td class="py-2.5 px-3 text-right text-emerald-700 font-bold">${item.credit > 0 ? '₹' + item.credit.toLocaleString('en-IN') : '-'}</td>
+          <td class="py-2.5 px-3 text-right font-black ${item.balanceAfter > 0 ? 'text-amber-700' : 'text-emerald-700'}">
+            ₹${item.balanceAfter.toLocaleString('en-IN')}
+          </td>
+          <td class="py-2.5 px-3 text-center">
+            ${item.raw?.id ? `
+              <button onclick="viewOfficialDocument('${item.type.startsWith('IN') ? 'INWARD' : item.type.startsWith('OUT') ? 'OUTWARD' : 'PAYMENT'}', '${item.raw.id}')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-[10px] font-bold font-sans">
+                Voucher
+              </button>
+            ` : '-'}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderPaymentsTable() {
+      const tbody = document.getElementById('paymentsTableBody');
+      const isAdmin = appData.currentUser?.role === 'admin';
+
+      if (appData.payments.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="py-6 text-center text-slate-400">No payment receipts on record.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = [...appData.payments].reverse().map(p => `
+        <tr class="hover:bg-slate-50/80 transition">
+          <td class="py-3 px-3 font-bold text-slate-900">${p.receiptNo}</td>
+          <td class="py-3 px-3 text-slate-600">${p.date}</td>
+          <td class="py-3 px-3 font-bold font-sans text-slate-800">${p.partyName}</td>
+          <td class="py-3 px-3 text-right font-bold text-emerald-600 text-sm">₹${Number(p.amount).toLocaleString('en-IN')}</td>
+          <td class="py-3 px-3">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 font-sans">${p.mode}</span>
+          </td>
+          <td class="py-3 px-3 font-sans text-slate-700">${p.bankOrCashName}</td>
+          <td class="py-3 px-3 text-slate-500">${p.refNo || '-'}</td>
+          <td class="py-3 px-3 text-center whitespace-nowrap space-x-1 font-sans">
+            <button onclick="viewOfficialDocument('PAYMENT', '${p.id}')" class="px-2 py-1 bg-cyan-50 hover:bg-cyan-100 text-cyan-800 rounded font-semibold text-xs">Receipt</button>
+            ${isAdmin ? `
+              <button onclick="confirmDeletePayment('${p.id}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded font-semibold text-xs">Delete</button>
+            ` : ''}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function openPaymentModal() {
+      document.getElementById('formPayment').reset();
+      document.getElementById('paymentDateInput').value = new Date().toISOString().slice(0, 10);
+      const sel = document.getElementById('paymentPartySelect');
+      sel.innerHTML = appData.parties.map(p => `
+        <option value="${p.id}">${p.name} (${p.place})</option>
+      `).join('');
+      onPaymentModeChange('Cash');
+      document.getElementById('modalPayment').classList.remove('hidden');
+    }
+
+    function closePaymentModal() {
+      document.getElementById('modalPayment').classList.add('hidden');
+    }
+
+    function onPaymentModeChange(mode) {
+      const lbl = document.getElementById('paymentAccountLabel');
+      const input = document.getElementById('paymentAccountName');
+      if (mode === 'Cash') {
+        lbl.innerText = 'Cash Receiver Name *';
+        input.placeholder = 'e.g. Counter Cashier / Sukhdev Singh';
+      } else {
+        lbl.innerText = 'Bank / UPI App Name *';
+        input.placeholder = 'e.g. HDFC Bank Abohar / PhonePe';
+      }
+    }
+
+    function handlePaymentSubmit(e) {
+      e.preventDefault();
+      const partyId = document.getElementById('paymentPartySelect').value;
+      const party = appData.parties.find(p => p.id === partyId);
+
+      const nextNo = (appData.payments.length + 101).toString();
+      const newPayment = {
+        id: 'PAY-' + Date.now().toString().slice(-6),
+        receiptNo: `RCP-2026-${nextNo}`,
+        partyId: partyId,
+        partyName: party.name,
+        date: document.getElementById('paymentDateInput').value,
+        amount: parseFloat(document.getElementById('paymentAmountInput').value) || 0,
+        mode: document.getElementById('paymentModeSelect').value,
+        bankOrCashName: document.getElementById('paymentAccountName').value.trim(),
+        refNo: document.getElementById('paymentRefInput').value.trim(),
+        createdBy: appData.currentUser.username
+      };
+
+      appData.payments.push(newPayment);
+      saveStorage();
+      closePaymentModal();
+      renderPaymentsTable();
+      renderDashboard();
+      showToast(`Payment of ₹${newPayment.amount} recorded for ${party.name}!`);
+      viewOfficialDocument('PAYMENT', newPayment.id);
+    }
+
+    function confirmDeletePayment(id) {
+      if (appData.currentUser.role !== 'admin') {
+        showToast('Only Admin can delete payment records.', '⚠️');
+        return;
+      }
+      const item = appData.payments.find(x => x.id === id);
+      openConfirmModal(
+        'Delete Payment Receipt',
+        `Delete payment receipt ${item?.receiptNo} of ₹${item?.amount}? Outstanding balance will increase accordingly.`,
+        () => {
+          appData.payments = appData.payments.filter(x => x.id !== id);
+          saveStorage();
+          renderPaymentsTable();
+          renderDashboard();
+          showToast('Payment record removed.');
+        }
+      );
+    }
+
+    function renderStaffTable() {
+      const tbody = document.getElementById('staffTableBody');
+      const isAdmin = appData.currentUser?.role === 'admin';
+
+      tbody.innerHTML = appData.staff.map(s => `
+        <tr class="hover:bg-slate-50">
+          <td class="py-3 px-3 font-bold text-slate-900">${s.name}</td>
+          <td class="py-3 px-3 font-mono text-cyan-800 font-bold">${s.username}</td>
+          <td class="py-3 px-3 font-mono text-slate-500">${s.password}</td>
+          <td class="py-3 px-3 font-mono">${s.phone}</td>
+          <td class="py-3 px-3">${s.role}</td>
+          <td class="py-3 px-3 text-center">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${s.blocked ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'}">
+              ${s.blocked ? 'BLOCKED' : 'ACTIVE'}
+            </span>
+          </td>
+          <td class="py-3 px-3 text-center whitespace-nowrap space-x-1">
+            ${isAdmin ? `
+              <button onclick="editStaff('${s.id}')" class="px-2 py-1 bg-cyan-50 hover:bg-cyan-100 text-cyan-700 rounded text-xs font-semibold">Edit</button>
+              <button onclick="toggleBlockStaff('${s.id}')" class="px-2 py-1 ${s.blocked ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'} rounded text-xs font-semibold">
+                ${s.blocked ? 'Unblock' : 'Block'}
+              </button>
+              <button onclick="confirmDeleteStaff('${s.id}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded text-xs font-semibold">Delete</button>
+            ` : '<span class="text-xs text-slate-400">Admin Only</span>'}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function openStaffModal(editId = null) {
+      document.getElementById('formStaff').reset();
+      document.getElementById('staffEditId').value = '';
+      document.getElementById('modalStaffTitle').innerText = 'Create Staff Account';
+
+      if (editId) {
+        const s = appData.staff.find(x => x.id === editId);
+        if (s) {
+          document.getElementById('staffEditId').value = s.id;
+          document.getElementById('staffNameInput').value = s.name;
+          document.getElementById('staffUsernameInput').value = s.username;
+          document.getElementById('staffPasswordInput').value = s.password;
+          document.getElementById('staffPhoneInput').value = s.phone;
+          document.getElementById('staffRoleInput').value = s.role;
+          document.getElementById('modalStaffTitle').innerText = 'Edit Staff Account';
+        }
+      }
+
+      document.getElementById('modalStaff').classList.remove('hidden');
+    }
+
+    function closeStaffModal() {
+      document.getElementById('modalStaff').classList.add('hidden');
+    }
+
+    function handleStaffSubmit(e) {
+      e.preventDefault();
+      if (appData.currentUser.role !== 'admin') {
+        showToast('Only Admin can manage staff.', '⚠️');
+        return;
+      }
+
+      const editId = document.getElementById('staffEditId').value;
+      if (editId) {
+        const s = appData.staff.find(x => x.id === editId);
+        if (s) {
+          s.name = document.getElementById('staffNameInput').value.trim();
+          s.username = document.getElementById('staffUsernameInput').value.trim().toLowerCase();
+          s.password = document.getElementById('staffPasswordInput').value.trim();
+          s.phone = document.getElementById('staffPhoneInput').value.trim();
+          s.role = document.getElementById('staffRoleInput').value.trim();
+          showToast(`Staff account ${s.username} updated.`);
+        }
+      } else {
+        const newStaff = {
+          id: 'ST' + (appData.staff.length + 1).toString().padStart(2, '0'),
+          name: document.getElementById('staffNameInput').value.trim(),
+          username: document.getElementById('staffUsernameInput').value.trim().toLowerCase(),
+          password: document.getElementById('staffPasswordInput').value.trim(),
+          phone: document.getElementById('staffPhoneInput').value.trim(),
+          role: document.getElementById('staffRoleInput').value.trim() || 'Cold Storage Clerk',
+          blocked: false
+        };
+        appData.staff.push(newStaff);
+        showToast(`Staff ${newStaff.name} created! Username: ${newStaff.username}`);
+      }
+
+      saveStorage();
+      closeStaffModal();
+      renderStaffTable();
+    }
+
+    function editStaff(id) {
+      openStaffModal(id);
+    }
+
+    function toggleBlockStaff(id) {
+      if (appData.currentUser.role !== 'admin') {
+        showToast('Only Admin can block staff.', '⚠️');
+        return;
+      }
+      const s = appData.staff.find(x => x.id === id);
+      if (s) {
+        s.blocked = !s.blocked;
+        saveStorage();
+        renderStaffTable();
+        showToast(`Staff ${s.name} is now ${s.blocked ? 'BLOCKED' : 'ACTIVE'}`);
+      }
+    }
+
+    function confirmDeleteStaff(id) {
+      if (appData.currentUser.role !== 'admin') {
+        showToast('Only Admin can delete staff.', '⚠️');
+        return;
+      }
+      const s = appData.staff.find(x => x.id === id);
+      openConfirmModal(
+        'Delete Staff Account',
+        `Delete account for ${s?.name}? They will lose gate access immediately.`,
+        () => {
+          appData.staff = appData.staff.filter(x => x.id !== id);
+          saveStorage();
+          renderStaffTable();
+          showToast('Staff removed.');
+        }
+      );
+    }
+
+    function renderCustomerPortal() {
+      const user = appData.currentUser;
+      if (!user || user.role !== 'customer') return;
+
+      const party = appData.parties.find(p => p.id === user.partyId);
+      if (!party) return;
+
+      document.getElementById('custPortalPartyName').innerText = party.name;
+      document.getElementById('custPortalPartyDetails').innerText = `Primary Mobile: ${party.phone} • Mandi: ${party.place} • Marka: ${party.marka}`;
+
+      const stats = computePartyFinancialsAndStock(party.id);
+
+      document.getElementById('custMetricInward').innerText = `${stats.totalInwardNugs.toLocaleString()} Nugs`;
+      document.getElementById('custMetricOutward').innerText = `${stats.totalOutwardNugs.toLocaleString()} Nugs`;
+      document.getElementById('custMetricNet').innerText = `${stats.netStockNugs.toLocaleString()} Nugs`;
+      document.getElementById('custMetricDue').innerText = `₹${stats.netOutstanding.toLocaleString('en-IN')}`;
+
+      // Customer Products
+      const prodGrid = document.getElementById('custProductStockGrid');
+      if (stats.productBreakdown.length === 0) {
+        prodGrid.innerHTML = `<div class="text-slate-400 text-xs py-2">No product intake recorded.</div>`;
+      } else {
+        prodGrid.innerHTML = stats.productBreakdown.map(p => `
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
+            <div>
+              <div class="font-bold text-slate-900">${p.productType}</div>
+              <div class="text-[11px] text-slate-500">${p.packagingType}</div>
+            </div>
+            <div class="text-right">
+              <div class="font-mono font-bold text-sm text-cyan-700">${p.net} Nugs</div>
+              <div class="text-[10px] text-slate-400">Total Inward: ${p.inward}</div>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Customer Ledger
+      const tbody = document.getElementById('custLedgerTableBody');
+      if (stats.ledger.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="py-6 text-center text-slate-400">No account entries yet.</td></tr>`;
+      } else {
+        tbody.innerHTML = [...stats.ledger].reverse().map(item => `
+          <tr class="hover:bg-slate-50">
+            <td class="py-2.5 px-3 whitespace-nowrap text-slate-600">${item.date}</td>
+            <td class="py-2.5 px-3">
+              <span class="font-bold text-slate-900 font-sans block">${item.title}</span>
+              <span class="text-[10px] text-slate-500 font-sans">${item.note}</span>
+            </td>
+            <td class="py-2.5 px-3 text-right text-emerald-600 font-bold">${item.inwardQty > 0 ? '+' + item.inwardQty : '-'}</td>
+            <td class="py-2.5 px-3 text-right text-blue-600 font-bold">${item.outwardQty > 0 ? '-' + item.outwardQty : '-'}</td>
+            <td class="py-2.5 px-3 text-right font-black text-slate-800">${item.stockAfter}</td>
+            <td class="py-2.5 px-3 text-right text-rose-700 font-bold">${item.debit > 0 ? '₹' + item.debit.toLocaleString('en-IN') : '-'}</td>
+            <td class="py-2.5 px-3 text-right text-emerald-700 font-bold">${item.credit > 0 ? '₹' + item.credit.toLocaleString('en-IN') : '-'}</td>
+            <td class="py-2.5 px-3 text-right font-black ${item.balanceAfter > 0 ? 'text-amber-700' : 'text-emerald-700'}">₹${item.balanceAfter.toLocaleString('en-IN')}</td>
+            <td class="py-2.5 px-3 text-center">
+              ${item.raw?.id ? `
+                <button onclick="viewOfficialDocument('${item.type.startsWith('IN') ? 'INWARD' : item.type.startsWith('OUT') ? 'OUTWARD' : 'PAYMENT'}', '${item.raw.id}')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-[10px] font-bold font-sans">
+                  View
+                </button>
+              ` : '-'}
+            </td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    function viewOfficialDocument(type, id) {
+      let item = null;
+      if (type === 'INWARD') {
+        item = appData.inwards.find(x => x.id === id);
+      } else if (type === 'OUTWARD') {
+        item = appData.outwards.find(x => x.id === id);
+      } else if (type === 'PAYMENT') {
+        item = appData.payments.find(x => x.id === id);
+      }
+
+      if (!item) return;
+
+      activeDocForPrint = { type, item };
+      const badge = document.getElementById('viewerBadge');
+      const title = document.getElementById('viewerTitle');
+
+      if (type === 'INWARD') {
+        badge.innerText = 'INWARD RECEIVING GATE PASS';
+        badge.className = 'px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-emerald-500/20 text-emerald-400 uppercase';
+        title.innerText = `${item.slipNo} / ${item.gatePassNo}`;
+      } else if (type === 'OUTWARD') {
+        badge.innerText = 'OUTWARD DISPATCH GATE PASS';
+        badge.className = 'px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-blue-500/20 text-blue-400 uppercase';
+        title.innerText = `${item.slipNo} / ${item.gatePassNo}`;
+      } else {
+        badge.innerText = 'PAYMENT RECEIPT VOUCHER';
+        badge.className = 'px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-amber-500/20 text-amber-400 uppercase';
+        title.innerText = item.receiptNo;
+      }
+
+      renderPrintDocumentHTML();
+      document.getElementById('modalPrintViewer').classList.remove('hidden');
+    }
+
+    function closePrintModal() {
+      document.getElementById('modalPrintViewer').classList.add('hidden');
+    }
+
+    function renderPrintDocumentHTML() {
+      if (!activeDocForPrint) return;
+      const { type, item } = activeDocForPrint;
+      const container = document.getElementById('printModalContent');
+
+      let bodyHTML = '';
+
+      if (type === 'INWARD') {
+        bodyHTML = `
+          <div class="border-2 border-slate-900 p-6 rounded-2xl relative space-y-4 bg-white text-slate-900 font-sans">
+            
+            <!-- Header Letterhead -->
+            <div class="text-center border-b-2 border-slate-900 pb-3">
+              <div class="flex items-center justify-center space-x-2">
+                <span class="text-2xl font-black tracking-tight text-slate-900">BAZZ COLD STORAGE & PRE-COOLING SYSTEM</span>
+              </div>
+              <p class="text-xs font-semibold text-slate-700">Abohar - Fazilka Bypass Highway, Abohar, Dist. Fazilka, Punjab - 152116</p>
+              <p class="text-[11px] text-slate-500 font-mono">GSTIN: 03AAACB4921E1Z8 • Phone: +91 98765-43210, 01634-224455</p>
+              
+              <div class="mt-2">
+                <span class="inline-block px-4 py-1 rounded bg-emerald-800 text-white font-extrabold text-sm uppercase tracking-widest">
+                  INWARD GOODS RECEIVING SLIP & SECURITY GATE PASS (IGP)
+                </span>
+              </div>
+            </div>
+
+            <!-- Identifiers Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-300 text-xs font-mono">
+              <div>
+                <span class="text-slate-500 block text-[10px] uppercase">Slip Number:</span>
+                <strong class="text-slate-900 text-sm">${item.slipNo}</strong>
+              </div>
+              <div>
+                <span class="text-slate-500 block text-[10px] uppercase">Gate Pass #:</span>
+                <strong class="text-emerald-700 text-sm">${item.gatePassNo}</strong>
+              </div>
+              <div>
+                <span class="text-slate-500 block text-[10px] uppercase">Date & Time:</span>
+                <span class="text-slate-800 font-semibold">${item.date} ${item.time || ''}</span>
+              </div>
+              <div>
+                <span class="text-slate-500 block text-[10px] uppercase">Allocated Chamber:</span>
+                <strong class="text-slate-900">${item.chamberNo}</strong>
+              </div>
+            </div>
+
+            <!-- Party Details -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs border border-slate-200 rounded-xl p-3">
+              <div>
+                <h4 class="font-bold text-slate-900 uppercase text-[11px] border-b border-slate-200 pb-1 mb-1">Depositor / Farmer / Party</h4>
+                <p class="font-bold text-slate-900 text-sm">${item.partyName}</p>
+                <p class="text-slate-600">Contact: <strong>${item.driverPhone || 'On Record'}</strong></p>
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-900 uppercase text-[11px] border-b border-slate-200 pb-1 mb-1">Vehicle & Driver Details</h4>
+                <p class="font-bold text-slate-900 text-sm">${item.vehicleType} - ${item.vehicleNo}</p>
+                <p class="text-slate-600">Driver: ${item.driverName} (${item.driverPhone})</p>
+              </div>
+            </div>
+
+            <!-- Goods Breakdown Table -->
+            <div class="border border-slate-300 rounded-xl overflow-hidden">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-100 border-b border-slate-300 font-bold text-slate-800">
+                  <tr>
+                    <th class="py-2.5 px-3">Product Description</th>
+                    <th class="py-2.5 px-3">Packaging Type</th>
+                    <th class="py-2.5 px-3 text-right">Unit Weight</th>
+                    <th class="py-2.5 px-3 text-right">Total Quantity</th>
+                    <th class="py-2.5 px-3 text-right">Monthly Rent Rate</th>
+                    <th class="py-2.5 px-3 text-right">Total Initial Bill</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 font-medium text-slate-800">
+                  <tr>
+                    <td class="py-2.5 px-3 font-bold text-sm">${item.productType}</td>
+                    <td class="py-2.5 px-3">${item.packagingType}</td>
+                    <td class="py-2.5 px-3 text-right font-mono">${item.weightPerPkgKg} kg</td>
+                    <td class="py-2.5 px-3 text-right font-mono font-black text-emerald-700 text-sm">${item.qty} Nugs</td>
+                    <td class="py-2.5 px-3 text-right font-mono">₹${item.pricePerNugPerMonth}/mo</td>
+                    <td class="py-2.5 px-3 text-right font-mono font-black text-sm">₹${(item.totalInitialBill || 0).toLocaleString('en-IN')}</td>
+                  </tr>
+                </tbody>
+                <tfoot class="bg-slate-50 border-t-2 border-slate-300 font-mono text-xs">
+                  <tr>
+                    <td colspan="4" class="py-2 px-3 text-right font-bold uppercase font-sans">Month 1 Rent (₹${item.initialRentAmount}) + Labour Charges (₹${item.totalLabourAmount}):</td>
+                    <td colspan="2" class="py-2 px-3 text-right font-black text-slate-900 text-sm">₹${(item.totalInitialBill || 0).toLocaleString('en-IN')}</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            <!-- Terms & Signatures -->
+            <div class="text-[10px] text-slate-500 leading-tight bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+              <strong>STORAGE RULES:</strong> 1. Goods stored at depositor's risk regarding natural quality deterioration. 2. Storage rent is billed per month. Even for 1 day in a cycle, full month rent applies. Subsequent cycle starts from milestone date for the un-dispatched balance. 3. Clearance only upon surrender of Gate Pass and settlement of dues.
+            </div>
+
+            <div class="grid grid-cols-3 gap-4 pt-6 text-center text-xs">
+              <div class="border-t border-slate-400 pt-1">
+                <span class="font-bold text-slate-800 block">Depositor / Driver</span>
+                <span class="text-[10px] text-slate-400">Signature / Thumb</span>
+              </div>
+              <div class="border-t border-slate-400 pt-1">
+                <span class="font-bold text-slate-800 block">Chamber Incharge</span>
+                <span class="text-[10px] text-slate-400">Verified & Stored</span>
+              </div>
+              <div class="border-t border-slate-400 pt-1">
+                <span class="font-bold text-slate-900 block">For BAZZ Cold Storage</span>
+                <span class="text-[10px] text-slate-400">Authorized Gatekeeper</span>
+              </div>
+            </div>
+
+          </div>
+        `;
+      } else if (type === 'OUTWARD') {
+        const itemRows = (item.items || []).map((it, idx) => `
+          <tr>
+            <td class="py-2 px-3 font-mono">${idx + 1}</td>
+            <td class="py-2 px-3 font-bold text-slate-900">${it.productType}</td>
+            <td class="py-2 px-3">${it.packagingType}</td>
+            <td class="py-2 px-3 text-right font-mono">${it.previousStock}</td>
+            <td class="py-2 px-3 text-right font-mono font-black text-blue-700 text-sm">-${it.outwardQty} Nugs</td>
+            <td class="py-2 px-3 text-right font-mono font-bold text-emerald-700">${it.balanceQty} Nugs</td>
+          </tr>
+        `).join('');
+
+        bodyHTML = `
+          <div class="border-2 border-slate-900 p-6 rounded-2xl relative space-y-4 bg-white text-slate-900 font-sans">
+            
+            <div class="text-center border-b-2 border-slate-900 pb-3">
+              <span class="text-2xl font-black tracking-tight text-slate-900">BAZZ COLD STORAGE & PRE-COOLING SYSTEM</span>
+              <p class="text-xs font-semibold text-slate-700">Abohar - Fazilka Bypass Highway, Abohar, Punjab - 152116</p>
+              
+              <div class="mt-2">
+                <span class="inline-block px-4 py-1 rounded bg-blue-800 text-white font-extrabold text-sm uppercase tracking-widest">
+                  OUTWARD DELIVERY ORDER & SECURITY GATE PASS (OGP)
+                </span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-300 text-xs font-mono">
+              <div>
+                <span class="text-slate-500 block text-[10px] uppercase">Outward Slip #:</span>
+                <strong class="text-slate-900 text-sm">${item.slipNo}</strong>
+              </div>
+              <div>
+                <span class="text-slate-500 block text-[10px] uppercase">Outward Gate Pass:</span>
+                <strong class="text-blue-700 text-sm">${item.gatePassNo}</strong>
+              </div>
+              <div>
+                <span class="text-slate-500 block text-[10px] uppercase">Dispatch Date & Time:</span>
+                <span class="text-slate-800 font-semibold">${item.date} ${item.time || ''}</span>
+              </div>
+              <div>
+                <span class="text-slate-500 block text-[10px] uppercase">Total Dispatched:</span>
+                <strong class="text-blue-700 text-sm font-black">${item.totalDispatched} Nugs</strong>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs border border-slate-200 rounded-xl p-3">
+              <div>
+                <h4 class="font-bold text-slate-900 uppercase text-[11px] border-b border-slate-200 pb-1 mb-1">Party / Account Owner</h4>
+                <p class="font-bold text-slate-900 text-sm">${item.partyName}</p>
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-900 uppercase text-[11px] border-b border-slate-200 pb-1 mb-1">Person Jo Le Kr Jaa Rha H (Bearer)</h4>
+                <p class="font-bold text-slate-900 text-sm">${item.receiverName} (${item.receiverPhone})</p>
+                <p class="text-slate-600 font-mono">Vehicle: <strong>${item.vehicleType} - ${item.vehicleNo}</strong></p>
+              </div>
+            </div>
+
+            <!-- Table of Dispatched Items Showing Previous, Outward and Balance Stock -->
+            <div class="border border-slate-300 rounded-xl overflow-hidden">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-100 border-b border-slate-300 font-bold text-slate-800">
+                  <tr>
+                    <th class="py-2.5 px-3">Sr.</th>
+                    <th class="py-2.5 px-3">Product Description</th>
+                    <th class="py-2.5 px-3">Packaging</th>
+                    <th class="py-2.5 px-3 text-right">Previous Stock</th>
+                    <th class="py-2.5 px-3 text-right">Dispatched Qty</th>
+                    <th class="py-2.5 px-3 text-right">Balance Qty Left</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 font-medium text-slate-800">
+                  ${itemRows}
+                </tbody>
+                <tfoot class="bg-slate-50 border-t-2 border-slate-300 font-mono font-bold">
+                  <tr>
+                    <td colspan="4" class="py-2 px-3 text-right uppercase text-[11px]">Total Nugs Dispatched in this Pass:</td>
+                    <td colspan="2" class="py-2 px-3 text-right font-black text-blue-700 text-sm">${item.totalDispatched} Nugs</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            <div class="grid grid-cols-3 gap-4 pt-6 text-center text-xs">
+              <div class="border-t border-slate-400 pt-1">
+                <span class="font-bold text-slate-800 block">Bearer / Receiver</span>
+                <span class="text-[10px] text-slate-400">Goods Checked & Received</span>
+              </div>
+              <div class="border-t border-slate-400 pt-1">
+                <span class="font-bold text-slate-800 block">Chamber Supervisor</span>
+                <span class="text-[10px] text-slate-400">Stock Deducted</span>
+              </div>
+              <div class="border-t border-slate-400 pt-1">
+                <span class="font-bold text-slate-900 block">Security Main Gate</span>
+                <span class="text-[10px] text-slate-400">Truck Exit Cleared</span>
+              </div>
+            </div>
+
+          </div>
+        `;
+      } else if (type === 'PAYMENT') {
+        bodyHTML = `
+          <div class="border-2 border-slate-900 p-6 rounded-2xl relative space-y-4 bg-white text-slate-900 font-sans max-w-lg mx-auto">
+            
+            <div class="text-center border-b-2 border-slate-900 pb-3">
+              <span class="text-xl font-black tracking-tight text-slate-900">BAZZ COLD STORAGE & LOGISTICS</span>
+              <p class="text-xs text-slate-600">Abohar - Fazilka Bypass, Punjab</p>
+              
+              <div class="mt-2">
+                <span class="inline-block px-4 py-1 rounded bg-amber-700 text-white font-extrabold text-xs uppercase tracking-widest">
+                  OFFICIAL PAYMENT RECEIPT
+                </span>
+              </div>
+            </div>
+
+            <div class="space-y-3 text-xs">
+              <div class="flex justify-between border-b border-slate-100 py-1 font-mono">
+                <span class="text-slate-500">Receipt No:</span>
+                <strong class="text-slate-900">${item.receiptNo}</strong>
+              </div>
+              <div class="flex justify-between border-b border-slate-100 py-1 font-mono">
+                <span class="text-slate-500">Date:</span>
+                <span class="text-slate-800">${item.date}</span>
+              </div>
+              <div class="flex justify-between border-b border-slate-100 py-1">
+                <span class="text-slate-500">Received From:</span>
+                <strong class="text-slate-900">${item.partyName}</strong>
+              </div>
+              <div class="flex justify-between border-b border-slate-100 py-1">
+                <span class="text-slate-500">Payment Mode:</span>
+                <strong class="text-slate-900">${item.mode} (${item.bankOrCashName})</strong>
+              </div>
+              ${item.refNo ? `
+                <div class="flex justify-between border-b border-slate-100 py-1 font-mono">
+                  <span class="text-slate-500">Ref / UTR No:</span>
+                  <span class="text-slate-800">${item.refNo}</span>
+                </div>
+              ` : ''}
+              
+              <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200 flex items-center justify-between mt-2 font-mono">
+                <span class="font-bold text-emerald-900 uppercase">Amount Received:</span>
+                <span class="text-xl font-black text-emerald-700">₹${Number(item.amount).toLocaleString('en-IN')}</span>
+              </div>
+            </div>
+
+            <div class="pt-6 text-center text-xs">
+              <div class="border-t border-slate-400 pt-1 w-48 mx-auto">
+                <span class="font-bold text-slate-900 block">Authorized Cashier</span>
+                <span class="text-[10px] text-slate-400">BAZZ Cold Storage Accounts</span>
+              </div>
+            </div>
+
+          </div>
+        `;
+      }
+
+      container.innerHTML = bodyHTML;
+    }
+
+    function shareActiveDocumentWhatsApp() {
+      if (!activeDocForPrint) return;
+      const { type, item } = activeDocForPrint;
+      let text = '';
+      let targetPhone = '';
+
+      const party = appData.parties.find(p => p.id === item.partyId);
+      if (party) targetPhone = party.phone;
+
+      if (type === 'INWARD') {
+        text = `*BAZZ COLD STORAGE - INWARD GATE PASS*%0A` +
+               `-----------------------------------%0A` +
+               `*Slip No:* ${item.slipNo}%0A` +
+               `*Gate Pass:* ${item.gatePassNo}%0A` +
+               `*Party:* ${item.partyName}%0A` +
+               `*Date:* ${item.date} ${item.time || ''}%0A` +
+               `*Product:* ${item.productType}%0A` +
+               `*Packaging:* ${item.packagingType}%0A` +
+               `*Quantity:* ${item.qty} Nugs%0A` +
+               `*Chamber:* ${item.chamberNo}%0A` +
+               `*Rent Rate:* ₹${item.pricePerNugPerMonth}/mo | *Labour:* ₹${item.labourPerNug}/nug%0A` +
+               `*Month 1 Bill:* ₹${item.totalInitialBill}%0A` +
+               `*Vehicle:* ${item.vehicleType} (${item.vehicleNo})%0A` +
+               `-----------------------------------%0A` +
+               `Abohar-Fazilka Bypass Highway, Punjab`;
+      } else if (type === 'OUTWARD') {
+        let itemsList = (item.items || []).map(i => `• ${i.productType}: -${i.outwardQty} (Bal Left: ${i.balanceQty})`).join('%0A');
+        text = `*BAZZ COLD STORAGE - OUTWARD GATE PASS*%0A` +
+               `-----------------------------------%0A` +
+               `*Slip No:* ${item.slipNo}%0A` +
+               `*Gate Pass:* ${item.gatePassNo}%0A` +
+               `*Party:* ${item.partyName}%0A` +
+               `*Date:* ${item.date} ${item.time || ''}%0A` +
+               `*Bearer (Le kr jaa rha h):* ${item.receiverName} (${item.receiverPhone})%0A` +
+               `*Vehicle:* ${item.vehicleType} (${item.vehicleNo})%0A` +
+               `*Dispatched Items:*%0A${itemsList}%0A` +
+               `*Total Units Dispatched:* ${item.totalDispatched} Nugs%0A` +
+               `-----------------------------------%0A` +
+               `Abohar-Fazilka Bypass Highway, Punjab`;
+      } else if (type === 'PAYMENT') {
+        text = `*BAZZ COLD STORAGE - PAYMENT RECEIPT*%0A` +
+               `-----------------------------------%0A` +
+               `*Receipt No:* ${item.receiptNo}%0A` +
+               `*Party:* ${item.partyName}%0A` +
+               `*Date:* ${item.date}%0A` +
+               `*Amount Received:* ₹${Number(item.amount).toLocaleString('en-IN')}%0A` +
+               `*Mode:* ${item.mode} (${item.bankOrCashName})%0A` +
+               `-----------------------------------%0A` +
+               `Thank you for trusting BAZZ Cold Chain.`;
+      }
+
+      const cleanPhone = targetPhone.replace(/[^0-9]/g, '');
+      const url = cleanPhone ? `https://api.whatsapp.com/send?phone=91${cleanPhone}&text=${text}` : `https://api.whatsapp.com/send?text=${text}`;
+      window.open(url, '_blank');
+    }
+
+    function copyActiveDocumentText() {
+      if (!activeDocForPrint) return;
+      const { type, item } = activeDocForPrint;
+      let rawText = '';
+
+      if (type === 'INWARD') {
+        rawText = `BAZZ COLD STORAGE - INWARD SLIP ${item.slipNo}\n` +
+                  `Gate Pass: ${item.gatePassNo}\n` +
+                  `Party: ${item.partyName}\n` +
+                  `Product: ${item.productType} (${item.qty} Nugs)\n` +
+                  `Chamber: ${item.chamberNo}\n` +
+                  `Initial Bill: Rs. ${item.totalInitialBill}\n` +
+                  `Vehicle: ${item.vehicleNo} | Driver: ${item.driverName}`;
+      } else if (type === 'OUTWARD') {
+        const itemLines = (item.items || []).map(i => `${i.productType}: Dispatched ${i.outwardQty}, Balance: ${i.balanceQty}`).join('\n');
+        rawText = `BAZZ COLD STORAGE - OUTWARD SLIP ${item.slipNo}\n` +
+                  `Gate Pass: ${item.gatePassNo}\n` +
+                  `Party: ${item.partyName}\n` +
+                  `Bearer: ${item.receiverName} (${item.receiverPhone})\n` +
+                  `Vehicle: ${item.vehicleNo}\n` +
+                  `${itemLines}\n` +
+                  `Total Dispatched: ${item.totalDispatched} Nugs`;
+      } else {
+        rawText = `BAZZ COLD STORAGE - RECEIPT ${item.receiptNo}\n` +
+                  `Party: ${item.partyName}\n` +
+                  `Amount: Rs. ${item.amount}\n` +
+                  `Mode: ${item.mode} (${item.bankOrCashName})`;
+      }
+
+      const tempArea = document.createElement('textarea');
+      tempArea.value = rawText;
+      document.body.appendChild(tempArea);
+      tempArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempArea);
+      showToast('Slip details copied to clipboard!');
+    }
+
+    function shareLedgerWhatsApp() {
+      const partyId = document.getElementById('ledgerPartySelect').value;
+      const party = appData.parties.find(p => p.id === partyId);
+      if (!party) return;
+
+      const stats = computePartyFinancialsAndStock(party.id);
+      let productsList = stats.productBreakdown.map(p => `• ${p.productType}: ${p.net} Nugs left`).join('%0A');
+
+      const text = `*BAZZ COLD STORAGE - ACCOUNT STATEMENT*%0A` +
+                   `-----------------------------------%0A` +
+                   `*Party:* ${party.name}%0A` +
+                   `*Mandi:* ${party.place}%0A` +
+                   `*Live Chamber Stock:* ${stats.netStockNugs} Nugs%0A` +
+                   `*Stock Breakdown:*%0A${productsList}%0A` +
+                   `-----------------------------------%0A` +
+                   `*Total Charges:* ₹${stats.totalDebits.toLocaleString('en-IN')}%0A` +
+                   `*Total Paid:* ₹${stats.totalCredits.toLocaleString('en-IN')}%0A` +
+                   `*NET OUTSTANDING DUE:* ₹${stats.netOutstanding.toLocaleString('en-IN')}%0A` +
+                   `-----------------------------------%0A` +
+                   `Abohar-Fazilka Bypass, Punjab`;
+
+      const cleanPhone = party.phone.replace(/[^0-9]/g, '');
+      const url = cleanPhone ? `https://api.whatsapp.com/send?phone=91${cleanPhone}&text=${text}` : `https://api.whatsapp.com/send?text=${text}`;
+      window.open(url, '_blank');
+    }
+
+    function shareMyStatementWhatsApp() {
+      shareLedgerWhatsApp();
+    }
+
+    function printPartyLedger() {
+      window.print();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadStorage();
+      updateUserUI();
+      if (appData.currentUser.role === 'customer') {
+        switchTab('customerPortal');
+      } else {
+        switchTab('dashboard');
+      }
+    });
+  </script>
+</body>
+</html>
