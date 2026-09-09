@@ -46,7 +46,7 @@
         top: 0 !important;
         width: 100% !important;
         margin: 0 !important;
-        padding: 12mm !important;
+        padding: 10mm !important;
         background: white !important;
         color: black !important;
         box-shadow: none !important;
@@ -56,7 +56,7 @@
       }
       @page {
         size: A4 portrait;
-        margin: 8mm;
+        margin: 6mm;
       }
     }
     .custom-scrollbar::-webkit-scrollbar {
@@ -74,7 +74,6 @@
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col font-sans antialiased">
 
-  <!-- Top Navigation Header -->
   <header class="bg-slate-900 text-white sticky top-0 z-40 shadow-lg border-b border-slate-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
@@ -89,43 +88,57 @@
               <span class="font-black text-xl tracking-tight text-white">BAZZ</span>
               <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30 uppercase tracking-wide">Cold Chain Plant</span>
             </div>
-            <p class="text-[11px] text-slate-400 font-medium hidden sm:block">Abohar - Fazilka Bypass, Punjab • Plant & Gate Pass Portal</p>
+            <p class="text-[11px] text-slate-400 font-medium hidden sm:block">Abohar - Fazilka Bypass, Punjab • Cloud Gate Pass & Inventory Portal</p>
           </div>
         </div>
 
         <!-- Telemetry sensors -->
-        <div class="hidden lg:flex items-center space-x-3 text-xs font-mono">
+        <div class="hidden xl:flex items-center space-x-2 text-xs font-mono">
           <div class="bg-slate-800/90 border border-slate-700/70 px-2.5 py-1 rounded-lg flex items-center space-x-1.5">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span class="text-slate-400">CH-1 (GF/1F):</span>
-            <span class="text-cyan-300 font-bold">3.4°C</span>
+            <span class="text-slate-400">CH-1:</span>
+            <span class="text-cyan-300 font-bold">3.2°C</span>
           </div>
           <div class="bg-slate-800/90 border border-slate-700/70 px-2.5 py-1 rounded-lg flex items-center space-x-1.5">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span class="text-slate-400">CH-2 (GF/1F):</span>
+            <span class="text-slate-400">CH-2:</span>
             <span class="text-cyan-300 font-bold">4.0°C</span>
           </div>
           <div class="bg-slate-800/90 border border-slate-700/70 px-2.5 py-1 rounded-lg flex items-center space-x-1.5">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span class="text-slate-400">CH-3 (GF/1F):</span>
+            <span class="text-slate-400">CH-3:</span>
             <span class="text-cyan-300 font-bold">2.1°C</span>
           </div>
           <div class="bg-slate-800/90 border border-slate-700/70 px-2.5 py-1 rounded-lg flex items-center space-x-1.5">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span class="text-slate-400">CH-4 (GF/1F):</span>
+            <span class="text-slate-400">CH-4:</span>
             <span class="text-cyan-300 font-bold">0.9°C</span>
           </div>
         </div>
 
-        <!-- User profile & Quick action / Logout -->
         <div class="flex items-center space-x-2 sm:space-x-3">
+          
+          <!-- Cloud database status badge -->
+          <button onclick="openCloudModal()" id="cloudStatusBtn" class="flex items-center space-x-1.5 bg-slate-800/90 hover:bg-slate-700 px-2.5 py-1 rounded-xl border border-slate-700 text-xs transition" title="Google Sheets Cloud Database Settings">
+            <span id="cloudStatusDot" class="w-2 h-2 rounded-full bg-amber-400"></span>
+            <span id="cloudStatusText" class="font-mono text-[11px] text-slate-300">Local Only</span>
+          </button>
+
+          <!-- Manual cloud sync trigger -->
+          <button onclick="manualCloudSync()" id="btnManualSync" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-400 rounded-xl border border-slate-700 transition text-xs" title="Sync now with Google Sheets">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          </button>
+
+          <!-- User profile badge -->
           <div id="userBadgeContainer" class="flex items-center space-x-2 bg-slate-800/80 py-1 px-2.5 rounded-xl border border-slate-700 text-xs">
             <span id="roleIndicator" class="h-2 w-2 rounded-full bg-emerald-400"></span>
-            <div class="text-left leading-tight">
-              <span id="activeUserName" class="font-bold text-slate-100 block">Admin User</span>
+            <div class="text-left leading-tight hidden sm:block">
+              <span id="activeUserName" class="font-bold text-slate-100 block truncate max-w-[120px]">Admin User</span>
               <span id="activeUserRole" class="text-[10px] text-cyan-400 font-mono uppercase font-semibold">ADMINISTRATOR</span>
             </div>
           </div>
+
+          <!-- Logout button -->
           <button onclick="logoutUser()" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition" title="Log Out">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
           </button>
@@ -133,7 +146,6 @@
       </div>
     </div>
 
-    <!-- Tab navigation bar (Filtered dynamically based on role) -->
     <div class="bg-slate-950/90 border-t border-slate-800 px-4 sm:px-6 lg:px-8">
       <div id="navTabsContainer" class="max-w-7xl mx-auto flex space-x-2 sm:space-x-4 overflow-x-auto custom-scrollbar text-xs sm:text-sm font-medium py-1">
         <!-- Injected via renderNavigation() -->
@@ -141,7 +153,6 @@
     </div>
   </header>
 
-  <!-- Login Modal / Overlay (When not authenticated) -->
   <div id="loginOverlay" class="fixed inset-0 z-50 bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full border border-slate-200 overflow-hidden">
       <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-sky-950 p-6 text-white text-center">
@@ -149,13 +160,13 @@
           ❄
         </div>
         <h2 class="text-xl font-extrabold tracking-tight">BAZZ Cold Storage Portal</h2>
-        <p class="text-xs text-slate-300 mt-1">Multi-Role Gate Pass & Inventory System</p>
+        <p class="text-xs text-slate-300 mt-1">Multi-Role Gate Pass & Google Cloud Database System</p>
       </div>
 
       <div class="p-6 space-y-4 text-sm">
         <div class="space-y-1">
           <label class="font-bold text-xs text-slate-700 uppercase">Username / Mobile No.</label>
-          <input type="text" id="loginUsernameInput" placeholder="admin or mobile number" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-cyan-500 focus:outline-none text-slate-900">
+          <input type="text" id="loginUsernameInput" placeholder="admin or customer mobile number" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-cyan-500 focus:outline-none text-slate-900">
         </div>
         <div class="space-y-1">
           <label class="font-bold text-xs text-slate-700 uppercase">Password</label>
@@ -166,9 +177,9 @@
           Secure Login →
         </button>
 
-        <!-- Fast Demo Switchers -->
+        <!-- Fast demo switchers -->
         <div class="pt-3 border-t border-slate-100">
-          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-2 text-center">Quick Demo 1-Click Access</span>
+          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-2 text-center">1-Click Fast Role Testing</span>
           <div class="grid grid-cols-3 gap-2 text-xs">
             <button onclick="quickLoginAs('admin')" class="py-2 px-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-center transition">
               👑 Admin
@@ -186,7 +197,81 @@
     </div>
   </div>
 
-  <!-- Main Content Container -->
+  <div id="modalCloudSetup" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full border border-slate-200 my-8 overflow-hidden">
+      <div class="bg-slate-900 px-6 py-4 flex items-center justify-between text-white">
+        <div class="flex items-center space-x-2">
+          <span class="text-xl">☁️</span>
+          <h3 class="font-bold text-base">Google Sheets Free Cloud Database Setup</h3>
+        </div>
+        <button onclick="closeCloudModal()" class="text-slate-400 hover:text-white font-mono text-lg">✕</button>
+      </div>
+
+      <div class="p-6 space-y-4 text-xs sm:text-sm">
+        <p class="text-slate-600 leading-relaxed">
+          Sync all parties, inward slips, outward dispatches, payments, and staff to your personal Google Drive in real-time. Works across all mobile phones, PCs, and gate tablets without monthly fees.
+        </p>
+
+        <div class="space-y-1.5">
+          <label class="block font-bold text-slate-700">Google Apps Script Web App URL *</label>
+          <input type="text" id="googleScriptUrlInput" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 font-mono text-xs focus:ring-2 focus:ring-cyan-500">
+          <span class="text-[11px] text-slate-500 block">Enter the URL generated after deploying your Google Apps Script as a public Web App.</span>
+        </div>
+
+        <!-- 30-Second Setup Instructions -->
+        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
+          <h4 class="font-bold text-slate-900 text-xs uppercase flex items-center justify-between">
+            <span>📋 Google Apps Script Code (Copy into Extensions > Apps Script)</span>
+            <button onclick="copyAppsScriptCode()" class="text-cyan-700 font-bold hover:underline lowercase">Copy script code</button>
+          </h4>
+          <textarea id="appsScriptCodeBlock" readonly class="w-full h-28 bg-slate-900 text-cyan-300 font-mono text-[11px] p-2.5 rounded-lg overflow-y-auto">function doGet(e) {
+  var sheet = getOrCreateSheet();
+  var rawData = sheet.getRange("A1").getValue();
+  return ContentService.createTextOutput(rawData ? rawData : "{}")
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  try {
+    var sheet = getOrCreateSheet();
+    var payload = e.postData.contents;
+    sheet.getRange("A1").setValue(payload);
+    sheet.getRange("B1").setValue("Last Synced: " + new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }));
+    return ContentService.createTextOutput(JSON.stringify({ status: "success" }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ status: "error", message: err.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function getOrCreateSheet() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("DB");
+  if (!sheet) { sheet = ss.insertSheet("DB"); }
+  return sheet;
+}</textarea>
+          <ol class="list-decimal list-inside text-[11px] text-slate-600 space-y-1">
+            <li>Create a new spreadsheet at <strong>sheets.google.com</strong> named <em>BAZZ Cold Storage DB</em>.</li>
+            <li>Click <strong>Extensions &gt; Apps Script</strong>, paste the code above, and click <strong>Deploy &gt; New deployment</strong>.</li>
+            <li>Select <strong>Web app</strong>. Execute as: <strong>Me</strong>. Who has access: <strong>Anyone</strong>.</li>
+            <li>Authorize and copy the resulting Web app URL ending in <code>/exec</code> into the input above.</li>
+          </ol>
+        </div>
+
+        <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+          <button onclick="testCloudConnection()" type="button" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs">
+            Test Connection ⚡
+          </button>
+          <div class="flex space-x-2">
+            <button onclick="closeCloudModal()" type="button" class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 font-medium">Close</button>
+            <button onclick="saveCloudConfig()" type="button" class="px-5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold shadow-md">Save & Sync Now</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
 
     <!-- TAB: DASHBOARD OVERVIEW -->
@@ -258,7 +343,6 @@
         <!-- Dynamic Chamber cards injected -->
       </div>
 
-      <!-- Recent Transactions Combined Preview -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         <!-- Latest Inward Slips -->
@@ -315,7 +399,6 @@
 
     </div>
 
-    <!-- TAB: PARTY DIRECTORY & MANAGEMENT -->
     <div id="view-parties" class="tab-view hidden space-y-4">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
         <div>
@@ -353,7 +436,6 @@
       </div>
     </div>
 
-    <!-- TAB: INWARD SLIPS & RECEIVING GATE PASSES -->
     <div id="view-inwardList" class="tab-view hidden space-y-4">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
         <div>
@@ -392,7 +474,6 @@
       </div>
     </div>
 
-    <!-- TAB: OUTWARD DISPATCH SLIPS & GATE PASSES -->
     <div id="view-outwardList" class="tab-view hidden space-y-4">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
         <div>
@@ -430,7 +511,6 @@
       </div>
     </div>
 
-    <!-- TAB: STOCK LEDGER & FINANCIAL STATEMENTS -->
     <div id="view-ledger" class="tab-view hidden space-y-6">
       
       <!-- Party Selector & Master Balances -->
@@ -522,7 +602,6 @@
 
     </div>
 
-    <!-- TAB: PAYMENTS MANAGEMENT -->
     <div id="view-payments" class="tab-view hidden space-y-4">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
         <div>
@@ -557,7 +636,6 @@
       </div>
     </div>
 
-    <!-- TAB: STAFF ACCOUNTS (ADMIN ONLY) -->
     <div id="view-staff" class="tab-view hidden space-y-4">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
         <div>
@@ -591,7 +669,6 @@
       </div>
     </div>
 
-    <!-- TAB: CUSTOMER SELF-SERVICE PORTAL (FOR CUSTOMER LOGIN) -->
     <div id="view-customerPortal" class="tab-view hidden space-y-6">
       
       <!-- Welcome Banner for Party -->
@@ -667,7 +744,6 @@
 
   </main>
 
-  <!-- MODAL: ADD / EDIT PARTY -->
   <div id="modalParty" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full border border-slate-200 my-8 overflow-hidden">
       <div class="bg-slate-900 px-6 py-4 flex items-center justify-between text-white">
@@ -731,7 +807,6 @@
     </div>
   </div>
 
-  <!-- MODAL: ADD / EDIT INWARD SLIP & GATE PASS -->
   <div id="modalInward" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full border border-slate-200 my-8 overflow-hidden">
       <div class="bg-slate-900 px-6 py-4 flex items-center justify-between text-white border-b border-slate-800">
@@ -888,7 +963,6 @@
     </div>
   </div>
 
-  <!-- MODAL: ADD / EDIT OUTWARD DISPATCH SLIP & GATE PASS (MULTI-PRODUCT) -->
   <div id="modalOutward" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full border border-slate-200 my-8 overflow-hidden">
       <div class="bg-slate-900 px-6 py-4 flex items-center justify-between text-white border-b border-slate-800">
@@ -996,7 +1070,6 @@
     </div>
   </div>
 
-  <!-- MODAL: RECORD PAYMENT -->
   <div id="modalPayment" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full border border-slate-200 my-8 overflow-hidden">
       <div class="bg-slate-900 px-6 py-4 flex items-center justify-between text-white">
@@ -1059,7 +1132,6 @@
     </div>
   </div>
 
-  <!-- MODAL: STAFF USER CREATION / EDIT (ADMIN ONLY) -->
   <div id="modalStaff" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full border border-slate-200 my-8 overflow-hidden">
       <div class="bg-slate-900 px-6 py-4 flex items-center justify-between text-white">
@@ -1114,9 +1186,8 @@
     </div>
   </div>
 
-  <!-- MODAL: PRINTABLE SLIP & WHATSAPP SHARING VIEWER -->
   <div id="modalPrintViewer" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full border border-slate-300 my-4 overflow-hidden animate-fadeIn">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full border border-slate-300 my-4 overflow-hidden">
       
       <!-- Modal Toolbar -->
       <div class="no-print bg-slate-900 px-6 py-3.5 flex flex-wrap items-center justify-between gap-3 text-white border-b border-slate-800">
@@ -1148,7 +1219,6 @@
     </div>
   </div>
 
-  <!-- MODAL: CONFIRM ACTION / DELETE MODAL (No native confirm()) -->
   <div id="modalConfirm" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center space-y-4 border border-slate-200">
       <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 mx-auto flex items-center justify-center text-xl font-bold" id="confirmIcon">
@@ -1169,7 +1239,6 @@
     </div>
   </div>
 
-  <!-- TOAST NOTIFICATION CONTAINER -->
   <div id="toastNotification" class="fixed bottom-5 right-5 z-50 transform transition-all duration-300 translate-y-24 opacity-0 pointer-events-none">
     <div class="bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl border border-slate-700 flex items-center space-x-3 text-xs sm:text-sm">
       <span id="toastIcon">✓</span>
@@ -1177,30 +1246,30 @@
     </div>
   </div>
 
-  <!-- SCRIPT CONTROLLER -->
   <script>
     /*
      * BAZZ Cold Storage Management System & Gate Pass Portal
-     * Pure JavaScript Controller with LocalStorage Persistence
+     * Single File Web App with Google Sheets Apps Script Cloud Database Sync
      */
 
-    const STORAGE_KEY = 'BAZZ_COLD_STORAGE_SYSTEM_DB_V2';
+    const STORAGE_KEY = 'BAZZ_COLD_STORAGE_SYSTEM_DB_V3';
+    const CLOUD_CONFIG_KEY = 'BAZZ_GOOGLE_SCRIPT_URL_V3';
 
-    // Application state
     let appData = {
       parties: [],
       inwards: [],
       outwards: [],
       payments: [],
       staff: [],
-      currentUser: null, // role: 'admin' | 'staff' | 'customer'
+      currentUser: null,
       currentTab: 'dashboard'
     };
 
+    let googleScriptUrl = '';
+    let isCloudSyncing = false;
     let activeDocForPrint = null;
     let pendingConfirmAction = null;
 
-    // Seed realistic Abohar Punjab initial data
     const INITIAL_SEED = {
       parties: [
         {
@@ -1232,7 +1301,7 @@
         {
           id: 'P03',
           name: 'Bishnoi Brothers Seed Potato Growers',
-          place: 'Village Sito Guno, Fazilka',
+          place: 'Village Khuian Sarwar, Fazilka',
           phone: '9915078901',
           altPhone: '',
           gst: '',
@@ -1350,6 +1419,7 @@
 
     function loadStorage() {
       try {
+        googleScriptUrl = localStorage.getItem(CLOUD_CONFIG_KEY) || '';
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
           appData = JSON.parse(saved);
@@ -1359,12 +1429,8 @@
           appData.inwards = INITIAL_SEED.inwards;
           appData.outwards = INITIAL_SEED.outwards;
           appData.payments = INITIAL_SEED.payments;
-          appData.currentUser = {
-            role: 'admin',
-            name: 'Administrator',
-            username: 'admin'
-          };
-          saveStorage();
+          appData.currentUser = { role: 'admin', name: 'Administrator', username: 'admin' };
+          saveStorage(false);
         }
       } catch (e) {
         console.error('Storage error, falling back to seed', e);
@@ -1379,17 +1445,158 @@
       if (!appData.currentUser) {
         appData.currentUser = { role: 'admin', name: 'Administrator', username: 'admin' };
       }
+
+      updateCloudBadge();
     }
 
-    function saveStorage() {
+    function saveStorage(syncToCloud = true) {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
       } catch (err) {
         console.warn('Failed to save to localStorage', err);
       }
+
+      if (syncToCloud && googleScriptUrl) {
+        pushToGoogle();
+      }
     }
 
-    // Toast Notification helper
+    function updateCloudBadge() {
+      const dot = document.getElementById('cloudStatusDot');
+      const txt = document.getElementById('cloudStatusText');
+      if (!googleScriptUrl) {
+        dot.className = 'w-2 h-2 rounded-full bg-amber-400';
+        txt.innerText = 'Local Only';
+      } else if (isCloudSyncing) {
+        dot.className = 'w-2 h-2 rounded-full bg-cyan-400 animate-ping';
+        txt.innerText = 'Syncing...';
+      } else {
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
+        txt.innerText = 'Cloud Synced ☁️';
+      }
+    }
+
+    function openCloudModal() {
+      document.getElementById('googleScriptUrlInput').value = googleScriptUrl;
+      document.getElementById('modalCloudSetup').classList.remove('hidden');
+    }
+
+    function closeCloudModal() {
+      document.getElementById('modalCloudSetup').classList.add('hidden');
+    }
+
+    function saveCloudConfig() {
+      const url = document.getElementById('googleScriptUrlInput').value.trim();
+      googleScriptUrl = url;
+      localStorage.setItem(CLOUD_CONFIG_KEY, url);
+      updateCloudBadge();
+      closeCloudModal();
+      if (googleScriptUrl) {
+        showToast('Google Sheet URL saved. Syncing data now...');
+        pushToGoogle();
+      } else {
+        showToast('Running in local offline mode.');
+      }
+    }
+
+    function copyAppsScriptCode() {
+      const copyText = document.getElementById('appsScriptCodeBlock');
+      copyText.select();
+      document.execCommand('copy');
+      showToast('Apps Script code copied to clipboard!');
+    }
+
+    async function testCloudConnection() {
+      const url = document.getElementById('googleScriptUrlInput').value.trim();
+      if (!url) {
+        showToast('Please enter your Google Apps Script URL first.', '⚠️');
+        return;
+      }
+      showToast('Testing Google Sheet connection...', '⏳');
+      try {
+        const res = await fetch(url);
+        if (res.ok) {
+          showToast('Connected to Google Sheet successfully!', '✓');
+        } else {
+          showToast('Google Sheet responded with error code ' + res.status, '❌');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Could not reach Google Sheet. Check permissions: "Anyone".', '❌');
+      }
+    }
+
+    async function pullFromGoogle(showNotification = false) {
+      if (!googleScriptUrl) return;
+      isCloudSyncing = true;
+      updateCloudBadge();
+
+      try {
+        const response = await fetch(googleScriptUrl);
+        const data = await response.json();
+        if (data && (data.parties || data.inwards)) {
+          appData.parties = data.parties || appData.parties;
+          appData.inwards = data.inwards || appData.inwards;
+          appData.outwards = data.outwards || appData.outwards;
+          appData.payments = data.payments || appData.payments;
+          appData.staff = data.staff || appData.staff;
+          saveStorage(false);
+          refreshActiveView();
+          if (showNotification) showToast('Data loaded from Google Sheets!', '☁️');
+        }
+      } catch (err) {
+        console.warn('Could not pull from Google Sheets:', err);
+        if (showNotification) showToast('Could not reach Google Sheets. Using local backup.', '⚠️');
+      } finally {
+        isCloudSyncing = false;
+        updateCloudBadge();
+      }
+    }
+
+    async function pushToGoogle() {
+      if (!googleScriptUrl) return;
+      isCloudSyncing = true;
+      updateCloudBadge();
+
+      const payload = {
+        parties: appData.parties,
+        inwards: appData.inwards,
+        outwards: appData.outwards,
+        payments: appData.payments,
+        staff: appData.staff,
+        lastUpdated: new Date().toISOString()
+      };
+
+      try {
+        await fetch(googleScriptUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        // Non-blocking fire & forget
+      } catch (err) {
+        console.error('Failed to sync to Google Sheets:', err);
+      } finally {
+        setTimeout(() => {
+          isCloudSyncing = false;
+          updateCloudBadge();
+        }, 1200);
+      }
+    }
+
+    function manualCloudSync() {
+      if (!googleScriptUrl) {
+        openCloudModal();
+        return;
+      }
+      showToast('Syncing with Google Sheet...', '⏳');
+      pushToGoogle();
+      setTimeout(() => {
+        pullFromGoogle(true);
+      }, 1500);
+    }
+
     function showToast(msg, icon = '✓') {
       const toast = document.getElementById('toastNotification');
       document.getElementById('toastMsg').innerText = msg;
@@ -1402,7 +1609,6 @@
       }, 3500);
     }
 
-    // Custom Confirmation Dialog (Replaces native confirm())
     function openConfirmModal(title, msg, onConfirm) {
       document.getElementById('confirmTitle').innerText = title;
       document.getElementById('confirmMessage').innerText = msg;
@@ -1426,7 +1632,7 @@
       const u = document.getElementById('loginUsernameInput').value.trim();
       const p = document.getElementById('loginPasswordInput').value.trim();
 
-      // Check Admin
+      // Admin verification
       if (u === 'admin' && p === 'Csetia@1122') {
         appData.currentUser = {
           role: 'admin',
@@ -1437,7 +1643,7 @@
         return;
       }
 
-      // Check Staff
+      // Staff verification
       const foundStaff = appData.staff.find(s => s.username.toLowerCase() === u.toLowerCase() && s.password === p);
       if (foundStaff) {
         if (foundStaff.blocked) {
@@ -1453,7 +1659,7 @@
         return;
       }
 
-      // Check Customer (Username = Mobile Number or party username)
+      // Customer verification (Phone = username)
       const foundParty = appData.parties.find(pt => (pt.phone === u || pt.username === u) && pt.password === p);
       if (foundParty) {
         if (foundParty.blocked) {
@@ -1490,7 +1696,7 @@
 
     function finishLogin() {
       document.getElementById('loginOverlay').classList.add('hidden');
-      saveStorage();
+      saveStorage(false);
       updateUserUI();
       if (appData.currentUser.role === 'customer') {
         switchTab('customerPortal');
@@ -1505,7 +1711,7 @@
       document.getElementById('loginUsernameInput').value = '';
       document.getElementById('loginPasswordInput').value = '';
       document.getElementById('loginOverlay').classList.remove('hidden');
-      saveStorage();
+      saveStorage(false);
     }
 
     function updateUserUI() {
@@ -1593,7 +1799,11 @@
         activeBtn.classList.add('border-cyan-400', 'text-cyan-400', 'font-bold');
       }
 
-      // Trigger respective data renders
+      refreshActiveView();
+    }
+
+    function refreshActiveView() {
+      const tabId = appData.currentTab;
       if (tabId === 'dashboard') renderDashboard();
       if (tabId === 'parties') renderPartiesTable();
       if (tabId === 'inwardList') renderInwardTable();
@@ -1604,20 +1814,13 @@
       if (tabId === 'customerPortal') renderCustomerPortal();
     }
 
-    /*
-     * DYNAMIC MONTHLY RENT ENGINE:
-     * - Month 1 rent + labour charges recorded upon inward date.
-     * - If goods are kept for a single day into the next cycle, full month rent is added.
-     * - Next month start date: if received on Jan 21, next month starts on Feb 22, then Mar 22, etc.
-     * - Subsequent month rent is calculated solely on the un-dispatched balance stock of that lot!
-     */
     function computePartyFinancialsAndStock(partyId) {
       const partyInwards = appData.inwards.filter(i => i.partyId === partyId);
       const partyOutwards = appData.outwards.filter(o => o.partyId === partyId);
       const partyPayments = appData.payments.filter(p => p.partyId === partyId);
 
-      // 1. Calculate stock balances per product
-      const productMap = {}; // { 'Kinnow Grade A': { inward: 600, outward: 200, net: 400, packaging: 'Plastic Crates' } }
+      // Calculate stock balances per product
+      const productMap = {};
 
       partyInwards.forEach(inw => {
         const pKey = inw.productType.trim();
@@ -1660,10 +1863,9 @@
       });
       const netStockNugs = Math.max(0, totalInwardNugs - totalOutwardNugs);
 
-      // 2. Build Chronological Financial Ledger
+      // Build Chronological Financial Ledger
       const ledgerEvents = [];
 
-      // Add Inwards (Initial Month Rent + Initial Labour)
       partyInwards.forEach(inw => {
         ledgerEvents.push({
           date: inw.date,
@@ -1679,23 +1881,18 @@
           raw: inw
         });
 
-        // Compute Automated Subsequent Month Rent Cycles
-        // Target simulated current date for cold storage accounting:
+        // Dynamic recurring monthly rent cycle from milestone start date
         const today = new Date();
         const inwardDate = new Date(inw.date);
 
-        // Find how many months have elapsed from inward date
         let cycleIndex = 1;
         while (true) {
-          // Next cycle starts 1 month + 1 day after milestone (e.g. 21 Jan -> 22 Feb)
           const nextCycleDate = new Date(inwardDate);
           nextCycleDate.setMonth(nextCycleDate.getMonth() + cycleIndex);
           nextCycleDate.setDate(nextCycleDate.getDate() + 1);
 
           if (nextCycleDate > today) break;
 
-          // Compute remaining stock of this product up to this milestone date
-          // Deduct any outward dispatches that occurred before this cycle date
           let dispatchedBeforeCycle = 0;
           partyOutwards.forEach(outw => {
             const outwDate = new Date(outw.date);
@@ -1730,11 +1927,10 @@
           }
 
           cycleIndex++;
-          if (cycleIndex > 24) break; // guard
+          if (cycleIndex > 24) break;
         }
       });
 
-      // Add Outwards (Stock reduction)
       partyOutwards.forEach(outw => {
         let itemsDesc = (outw.items || []).map(it => `${it.productType} (-${it.outwardQty})`).join(', ');
         ledgerEvents.push({
@@ -1752,7 +1948,6 @@
         });
       });
 
-      // Add Payments (Credits)
       partyPayments.forEach(pay => {
         ledgerEvents.push({
           date: pay.date,
@@ -1769,10 +1964,8 @@
         });
       });
 
-      // Sort chronologically ascending
       ledgerEvents.sort((a, b) => a.sortTime - b.sortTime);
 
-      // Compute running stock & running balance
       let runningStock = 0;
       let runningNetDue = 0;
 
@@ -1828,7 +2021,6 @@
       chGrid.innerHTML = chamberList.map(ch => {
         let chQty = 0;
         appData.inwards.filter(i => (i.chamberNo || '').includes(`Chamber ${ch.id}`)).forEach(i => chQty += Number(i.qty || 0));
-        // deduct outwards estimated proportionally
         const pct = Math.min(100, Math.round((chQty / ch.cap) * 100));
 
         return `
@@ -1983,7 +2175,6 @@
       const password = document.getElementById('partyPasswordInput').value.trim() || `BAZZ@${phone.slice(-4) || '1234'}`;
 
       if (editId) {
-        // Admin Edit
         if (appData.currentUser.role !== 'admin') {
           showToast('Only Admin is authorized to edit parties.', '⚠️');
           return;
@@ -1996,12 +2187,11 @@
           p.altPhone = document.getElementById('partyAltPhoneInput').value.trim();
           p.marka = document.getElementById('partyMarkaInput').value.trim().toUpperCase();
           p.gst = document.getElementById('partyGstInput').value.trim().toUpperCase();
-          p.username = phone; // mobile is username
+          p.username = phone;
           p.password = password;
           showToast(`Party ${p.name} updated successfully!`);
         }
       } else {
-        // Create new
         const newParty = {
           id: 'P' + (appData.parties.length + 1).toString().padStart(2, '0'),
           name: document.getElementById('partyNameInput').value.trim(),
@@ -2067,13 +2257,11 @@
       document.getElementById('inwardEditId').value = '';
       document.getElementById('modalInwardTitle').innerText = 'Generate Inward Receiving Slip & Gate Pass';
 
-      // Populate parties dropdown
       const partySel = document.getElementById('inwardPartySelect');
       partySel.innerHTML = appData.parties.map(p => `
         <option value="${p.id}">${p.name} (${p.place})</option>
       `).join('');
 
-      // Auto-set Date & Time
       const now = new Date();
       document.getElementById('inwardDateInput').value = now.toISOString().slice(0, 10);
       document.getElementById('inwardTimeInput').value = now.toTimeString().slice(0, 5);
@@ -2324,7 +2512,6 @@
       document.getElementById('outwardEditId').value = '';
       document.getElementById('modalOutwardTitle').innerText = 'Generate Outward Dispatch Slip & Gate Pass';
 
-      // Populate parties
       const partySel = document.getElementById('outwardPartySelect');
       partySel.innerHTML = appData.parties.map(p => `
         <option value="${p.id}">${p.name} (${p.place})</option>
@@ -2371,7 +2558,6 @@
       const stats = computePartyFinancialsAndStock(partyId);
       document.getElementById('outwardPartyStockDisplay').innerText = `${stats.netStockNugs.toLocaleString()} Nugs`;
 
-      // Clear and populate initial product row
       const container = document.getElementById('outwardProductRowsContainer');
       container.innerHTML = '';
       addOutwardProductRow(partyId);
@@ -2675,7 +2861,6 @@
         return;
       }
 
-      const isAdmin = appData.currentUser?.role === 'admin';
       tbody.innerHTML = [...stats.ledger].reverse().map(item => `
         <tr class="hover:bg-slate-50/80 transition">
           <td class="py-2.5 px-3 whitespace-nowrap text-slate-600">${item.date}</td>
@@ -3049,11 +3234,8 @@
         bodyHTML = `
           <div class="border-2 border-slate-900 p-6 rounded-2xl relative space-y-4 bg-white text-slate-900 font-sans">
             
-            <!-- Header Letterhead -->
             <div class="text-center border-b-2 border-slate-900 pb-3">
-              <div class="flex items-center justify-center space-x-2">
-                <span class="text-2xl font-black tracking-tight text-slate-900">BAZZ COLD STORAGE & PRE-COOLING SYSTEM</span>
-              </div>
+              <span class="text-2xl font-black tracking-tight text-slate-900">BAZZ COLD STORAGE & PRE-COOLING SYSTEM</span>
               <p class="text-xs font-semibold text-slate-700">Abohar - Fazilka Bypass Highway, Abohar, Dist. Fazilka, Punjab - 152116</p>
               <p class="text-[11px] text-slate-500 font-mono">GSTIN: 03AAACB4921E1Z8 • Phone: +91 98765-43210, 01634-224455</p>
               
@@ -3064,7 +3246,6 @@
               </div>
             </div>
 
-            <!-- Identifiers Grid -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-300 text-xs font-mono">
               <div>
                 <span class="text-slate-500 block text-[10px] uppercase">Slip Number:</span>
@@ -3084,7 +3265,6 @@
               </div>
             </div>
 
-            <!-- Party Details -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs border border-slate-200 rounded-xl p-3">
               <div>
                 <h4 class="font-bold text-slate-900 uppercase text-[11px] border-b border-slate-200 pb-1 mb-1">Depositor / Farmer / Party</h4>
@@ -3098,7 +3278,6 @@
               </div>
             </div>
 
-            <!-- Goods Breakdown Table -->
             <div class="border border-slate-300 rounded-xl overflow-hidden">
               <table class="w-full text-left text-xs">
                 <thead class="bg-slate-100 border-b border-slate-300 font-bold text-slate-800">
@@ -3130,7 +3309,6 @@
               </table>
             </div>
 
-            <!-- Terms & Signatures -->
             <div class="text-[10px] text-slate-500 leading-tight bg-slate-50 p-2.5 rounded-lg border border-slate-200">
               <strong>STORAGE RULES:</strong> 1. Goods stored at depositor's risk regarding natural quality deterioration. 2. Storage rent is billed per month. Even for 1 day in a cycle, full month rent applies. Subsequent cycle starts from milestone date for the un-dispatched balance. 3. Clearance only upon surrender of Gate Pass and settlement of dues.
             </div>
@@ -3209,7 +3387,6 @@
               </div>
             </div>
 
-            <!-- Table of Dispatched Items Showing Previous, Outward and Balance Stock -->
             <div class="border border-slate-300 rounded-xl overflow-hidden">
               <table class="w-full text-left text-xs">
                 <thead class="bg-slate-100 border-b border-slate-300 font-bold text-slate-800">
@@ -3445,6 +3622,11 @@
         switchTab('customerPortal');
       } else {
         switchTab('dashboard');
+      }
+
+      // Automatically pull latest changes from Google Sheets if connected
+      if (googleScriptUrl) {
+        pullFromGoogle(false);
       }
     });
   </script>
