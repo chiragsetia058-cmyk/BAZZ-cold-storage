@@ -288,7 +288,7 @@
             <h2 class="text-base font-bold text-white flex items-center gap-2">
               <i class="fa-solid fa-users-gear text-rose-400"></i> Staff User Management & Permissions
             </h2>
-            <p class="text-xs text-slate-400">Admin can grant specific staff members permission to Edit or Delete slips</p>
+            <p class="text-xs text-slate-400">Admin can grant specific staff members permission to Edit or Delete Inward and Outward slips</p>
           </div>
           <button onclick="openStaffModal()" class="px-3.5 py-2 bg-rose-500 hover:bg-rose-400 text-slate-950 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-rose-500/10">
             <i class="fa-solid fa-user-shield"></i> Create Staff ID
@@ -543,7 +543,7 @@
     </div>
   </div>
 
-  <!-- MODAL: OUTWARD GATE PASS -->
+  <!-- MODAL: OUTWARD GATE PASS (WITH EDIT SUPPORT) -->
   <div id="modal-outward" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
     <div class="bg-slate-950 border border-slate-800 rounded-2xl w-full max-w-3xl p-5 sm:p-6 my-8 space-y-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
@@ -770,7 +770,7 @@
 
   <!-- ==================== CORE LOGIC ENGINE ==================== -->
   <script>
-    const CACHE_KEY = 'BAZZ_STORAGE_PROD_V4_MULTI';
+    const CACHE_KEY = 'BAZZ_STORAGE_PROD_V5_OUTEDIT';
     const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyo_dGbzwRiNpINuJZvL6K0D-UBtYnQIL8oHq40voHlMDMoJnFc7zN38Kq7cOClXkHMXQ/exec";
 
     let currentUser = null;
@@ -1303,7 +1303,6 @@
           if (item.items && item.items.length > 0) {
             item.items.forEach(it => addInwardItemRow(it));
           } else if (item.product) {
-            // legacy fallback
             addInwardItemRow({
               product: item.product,
               qty: item.qty,
@@ -1317,7 +1316,6 @@
         }
       } else {
         document.getElementById('inward-modal-title').textContent = "Generate Inward Receiving Slip / Gate Pass";
-        // Auto-increment slip number starting from 1
         const nextNum = appData.inwardSlips.length + 1;
         document.getElementById('inward-slip-num').value = nextNum;
         document.getElementById('inward-gatepass-num').value = '';
@@ -1521,7 +1519,6 @@
       const canDel = userCanDelete();
 
       appData.inwardSlips.forEach(s => {
-        // Support multi-items or legacy single item
         const itemsList = s.items ? s.items : [{ product: s.product, qty: s.qty, packaging: s.packaging, chamber: s.chamber }];
 
         const tr = document.createElement('tr');
@@ -1575,7 +1572,7 @@
     }
 
     // =========================================================
-    // 3. OUTWARD GATE PASS LOGIC
+    // 3. OUTWARD GATE PASS LOGIC (WITH EDIT SUPPORT)
     // =========================================================
     function openOutwardModal(editId = null) {
       const form = document.getElementById('outward-form');
@@ -1588,28 +1585,54 @@
       document.getElementById('outward-date').value = now.toISOString().split('T')[0];
       document.getElementById('outward-time').value = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
 
-      const nextNum = appData.outwardSlips.length + 1;
-      document.getElementById('outward-slip-num').value = nextNum;
-      document.getElementById('outward-gatepass-num').value = '';
+      if (editId) {
+        const item = appData.outwardSlips.find(x => x.id === editId);
+        if (item) {
+          document.getElementById('outward-modal-title').textContent = "Edit Outward Dispatch Gate Pass";
+          document.getElementById('outward-edit-id').value = item.id;
+          document.getElementById('outward-slip-num').value = item.id;
+          document.getElementById('outward-gatepass-num').value = item.gatePassNo;
+          document.getElementById('outward-party-id').value = item.partyId;
+          document.getElementById('outward-date').value = item.date;
+          document.getElementById('outward-time').value = item.time;
+          document.getElementById('outward-receiver-name').value = item.receiverName;
+          document.getElementById('outward-receiver-mobile').value = item.receiverMobile;
+          document.getElementById('outward-veh-type').value = item.vehicleType;
+          document.getElementById('outward-veh-num').value = item.vehicleNum;
 
-      handleOutwardPartySelect();
+          const availableProds = getPartyAvailableProducts(item.partyId, editId);
+          if (item.items && item.items.length > 0) {
+            item.items.forEach(it => addOutwardProductRow(it, availableProds));
+          }
+        }
+      } else {
+        document.getElementById('outward-modal-title').textContent = "Generate Outward Dispatch Gate Pass";
+        const nextNum = appData.outwardSlips.length + 1;
+        document.getElementById('outward-slip-num').value = nextNum;
+        document.getElementById('outward-gatepass-num').value = '';
+        handleOutwardPartySelect();
+      }
       openModal('modal-outward');
     }
 
     function handleOutwardPartySelect() {
       const partyId = document.getElementById('outward-party-id').value;
+      const editId = document.getElementById('outward-edit-id').value;
       const container = document.getElementById('outward-products-container');
       container.innerHTML = '';
       if (!partyId) return;
-      addOutwardProductRow();
+      if (!editId) {
+        addOutwardProductRow();
+      }
     }
 
-    function addOutwardProductRow(data = null) {
+    function addOutwardProductRow(data = null, customProds = null) {
       const partyId = document.getElementById('outward-party-id').value;
+      const editId = document.getElementById('outward-edit-id').value;
       const container = document.getElementById('outward-products-container');
       const rowId = 'out-row-' + Date.now() + '-' + Math.floor(Math.random()*1000);
 
-      const availableProds = getPartyAvailableProducts(partyId);
+      const availableProds = customProds || getPartyAvailableProducts(partyId, editId || null);
 
       const div = document.createElement('div');
       div.id = rowId;
@@ -1662,6 +1685,7 @@
 
     function handleSaveOutward(e) {
       e.preventDefault();
+      const editId = document.getElementById('outward-edit-id').value;
       const partyId = document.getElementById('outward-party-id').value;
       const slipNum = document.getElementById('outward-slip-num').value.trim();
       const gatePassNum = document.getElementById('outward-gatepass-num').value.trim();
@@ -1711,7 +1735,17 @@
         createdAt: new Date().toISOString()
       };
 
-      appData.outwardSlips.unshift(passData);
+      if (editId) {
+        if (!userCanEdit()) {
+          alert("You do not have permission to edit gate passes.");
+          return;
+        }
+        const idx = appData.outwardSlips.findIndex(x => x.id === editId);
+        if (idx !== -1) appData.outwardSlips[idx] = passData;
+      } else {
+        appData.outwardSlips.unshift(passData);
+      }
+
       pushToGoogle();
       closeModal('modal-outward');
       refreshCurrentView();
@@ -1726,6 +1760,7 @@
         return;
       }
 
+      const canEdit = userCanEdit();
       const canDel = userCanDelete();
 
       appData.outwardSlips.forEach(s => {
@@ -1759,6 +1794,7 @@
           <td class="p-3 text-right space-x-1 whitespace-nowrap">
             <button onclick="printOutwardSlip('${s.id}')" title="Print Gate Pass" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-400 rounded"><i class="fa-solid fa-print"></i></button>
             <button onclick="shareOutwardWhatsApp('${s.id}')" title="Share WhatsApp" class="p-1.5 bg-slate-800 hover:bg-emerald-950 text-emerald-400 rounded"><i class="fa-brands fa-whatsapp"></i></button>
+            ${canEdit ? `<button onclick="openOutwardModal('${s.id}')" title="Edit Pass" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-amber-400 rounded"><i class="fa-solid fa-pen-to-square"></i></button>` : ''}
             ${canDel ? `<button onclick="deleteOutwardSlip('${s.id}')" title="Delete Pass" class="p-1.5 bg-slate-800 hover:bg-rose-950 text-rose-400 rounded"><i class="fa-solid fa-trash"></i></button>` : ''}
           </td>
         `;
@@ -1987,9 +2023,9 @@
     }
 
     // =========================================================
-    // 6. CALCULATIONS (MULTI-ITEM SUPPORT)
+    // 6. CALCULATIONS
     // =========================================================
-    function getPartyAvailableProducts(partyId) {
+    function getPartyAvailableProducts(partyId, ignoreOutwardId = null) {
       const party = appData.parties.find(x => x.id === partyId);
       if (!party) return [];
 
@@ -2008,7 +2044,7 @@
         });
       });
 
-      appData.outwardSlips.filter(s => s.partyId === partyId).forEach(s => {
+      appData.outwardSlips.filter(s => s.partyId === partyId && s.id !== ignoreOutwardId).forEach(s => {
         s.items.forEach(it => {
           stockMap[it.product] = (stockMap[it.product] || 0) - it.dispatchedQty;
         });
@@ -2088,7 +2124,6 @@
           balance: runningBal
         });
 
-        // Recurring rent cycles for items
         const items = s.items ? s.items : [{ product: s.product, qty: s.qty, monthlyRate: s.monthlyRate }];
         items.forEach(it => {
           const recurringDebits = calculateItemRecurringCycles(s.date, it.product, it.qty, it.monthlyRate || 15, partyId);
@@ -2391,7 +2426,7 @@
     }
 
     // =========================================================
-    // 9. PRINT ENGINE (SHOWING BALANCE STOCK ON OUTWARD SLIP)
+    // 9. PRINT ENGINE
     // =========================================================
     function printInwardSlip(slipId) {
       const s = appData.inwardSlips.find(x => x.id === slipId);
