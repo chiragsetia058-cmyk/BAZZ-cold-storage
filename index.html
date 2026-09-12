@@ -168,7 +168,7 @@
             <h2 class="text-base font-bold text-white flex items-center gap-2">
               <i class="fa-solid fa-arrow-down-to-bracket text-emerald-400"></i> Inward Receiving Slips & Gate Passes
             </h2>
-            <p class="text-xs text-slate-400">Record incoming stock, assign chambers, set monthly rent and labour</p>
+            <p class="text-xs text-slate-400">Record incoming multi-item stock, chambers, monthly rent, and labour</p>
           </div>
           <button onclick="openInwardModal()" class="px-3.5 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-emerald-500/10">
             <i class="fa-solid fa-plus"></i> New Inward Entry
@@ -182,8 +182,7 @@
                 <tr>
                   <th class="p-3">Slip # & Date</th>
                   <th class="p-3">Party Name</th>
-                  <th class="p-3">Commodity & Qty</th>
-                  <th class="p-3">Chamber & Floor</th>
+                  <th class="p-3">Multi-Items Deposited</th>
                   <th class="p-3">Rent + Labour (Mo 1)</th>
                   <th class="p-3">Vehicle & Driver</th>
                   <th class="p-3 text-right">Share & Actions</th>
@@ -202,7 +201,7 @@
             <h2 class="text-base font-bold text-white flex items-center gap-2">
               <i class="fa-solid fa-arrow-up-from-bracket text-amber-400"></i> Outward Dispatches & Gate Passes
             </h2>
-            <p class="text-xs text-slate-400">Dispatch stock with real-time stock balance validation and gate release</p>
+            <p class="text-xs text-slate-400">Dispatch stock with real-time stock balance validation and balance left tracking</p>
           </div>
           <button onclick="openOutwardModal()" class="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-amber-500/10">
             <i class="fa-solid fa-truck-ramp-box"></i> Create Outward Pass
@@ -216,7 +215,7 @@
                 <tr>
                   <th class="p-3">Pass # & Time</th>
                   <th class="p-3">Party Name</th>
-                  <th class="p-3">Dispatched Items</th>
+                  <th class="p-3">Dispatched Items & Balance Left</th>
                   <th class="p-3">Carrier / "Jo Le Kr Jaa Rha H"</th>
                   <th class="p-3">Vehicle</th>
                   <th class="p-3 text-right">Share & Actions</th>
@@ -423,7 +422,6 @@
           </div>
 
           <div id="opening-stock-container" class="space-y-2.5"></div>
-          <p class="text-[10px] text-slate-500 italic">* Monthly storage rent will automatically recur based on the specified start date.</p>
         </div>
 
         <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
@@ -434,13 +432,13 @@
     </div>
   </div>
 
-  <!-- MODAL: INWARD SLIP / RECEIVING -->
+  <!-- MODAL: INWARD SLIP / RECEIVING (MULTI-ITEM SUPPORT) -->
   <div id="modal-inward" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-    <div class="bg-slate-950 border border-slate-800 rounded-2xl w-full max-w-3xl p-5 sm:p-6 my-8 space-y-4 shadow-2xl">
+    <div class="bg-slate-950 border border-slate-800 rounded-2xl w-full max-w-4xl p-5 sm:p-6 my-8 space-y-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <div>
-          <h3 id="inward-modal-title" class="font-bold text-base text-white">Generate Inward Receiving Slip / Gate Pass</h3>
-          <p class="text-xs text-slate-400">Fillable slip & gate pass numbers, chamber allocation, and rent rates</p>
+          <h3 id="inward-modal-title" class="font-bold base text-white">Generate Inward Receiving Slip / Gate Pass</h3>
+          <p class="text-xs text-slate-400">Add multiple product items, manual gate pass, chambers, rent, and labour</p>
         </div>
         <button onclick="closeModal('modal-inward')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
@@ -448,15 +446,15 @@
       <form id="inward-form" onsubmit="handleSaveInward(event)" class="space-y-4 text-xs">
         <input type="hidden" id="inward-edit-id" />
 
-        <!-- FILLABLE INWARD SLIP & GATE PASS NUMBERS -->
+        <!-- SLIP # (AUTO STARTING FROM 1) & MANUAL GATE PASS # -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-900/80 p-3 rounded-xl border border-slate-800">
           <div>
-            <label class="block text-cyan-400 font-bold mb-1">Inward Slip # (Fillable / Editable) *</label>
-            <input id="inward-slip-num" type="text" required placeholder="e.g. 1 or IN-1" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white font-mono font-bold" />
+            <label class="block text-cyan-400 font-bold mb-1">Inward Slip # (Auto / Editable) *</label>
+            <input id="inward-slip-num" type="text" required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white font-mono font-bold" />
           </div>
           <div>
-            <label class="block text-cyan-400 font-bold mb-1">Gate Pass # (Fillable / Editable) *</label>
-            <input id="inward-gatepass-num" type="text" required placeholder="e.g. GP-IN-1" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white font-mono font-bold" />
+            <label class="block text-cyan-400 font-bold mb-1">Gate Pass # (Manual Fillable) *</label>
+            <input id="inward-gatepass-num" type="text" required placeholder="Enter gate pass #" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white font-mono font-bold" />
           </div>
         </div>
 
@@ -475,64 +473,28 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
-          <div>
-            <label class="block text-slate-300 font-semibold mb-1">Product (Type Manually) *</label>
-            <input id="inward-product" type="text" required placeholder="e.g. Kinnow Grade A" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" />
+        <!-- MULTI-ITEM INWARD BUILDER -->
+        <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-xl space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="font-bold text-cyan-400 text-xs flex items-center gap-1.5">
+              <i class="fa-solid fa-boxes-stacked"></i> Inward Product Items (Multiple Items Supported)
+            </span>
+            <button type="button" onclick="addInwardItemRow()" class="px-2.5 py-1 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 rounded-lg text-[11px] font-bold">
+              + Add Product Item
+            </button>
           </div>
-          <div>
-            <label class="block text-slate-300 font-semibold mb-1">Quantity (Nugs) *</label>
-            <input id="inward-qty" type="number" min="1" required placeholder="e.g. 500" oninput="calculateInwardTotals()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-bold" />
-          </div>
-          <div>
-            <label class="block text-slate-300 font-semibold mb-1">Packaging Type *</label>
-            <input id="inward-pack" list="pack-types" required placeholder="Crates, Boxes, Peti, Bori..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" />
-            <datalist id="pack-types">
-              <option value="Plastic Crates"></option>
-              <option value="Corrugated Boxes"></option>
-              <option value="Wooden Peti"></option>
-              <option value="Jute Bori"></option>
-              <option value="Net Bags"></option>
-            </datalist>
-          </div>
-          <div>
-            <label class="block text-slate-300 font-semibold mb-1">Weight of Single Nug (Kg)</label>
-            <input id="inward-weight" type="number" step="0.1" placeholder="e.g. 20" oninput="calculateInwardTotals()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" />
-          </div>
+
+          <div id="inward-items-container" class="space-y-3"></div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-          <div>
-            <label class="block text-slate-300 font-semibold mb-1">Chamber & Floor *</label>
-            <select id="inward-chamber" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white">
-              <option value="Chamber 1 - Ground Floor">Chamber 1 - Ground Floor</option>
-              <option value="Chamber 1 - 1st Floor">Chamber 1 - 1st Floor</option>
-              <option value="Chamber 2 - Ground Floor">Chamber 2 - Ground Floor</option>
-              <option value="Chamber 2 - 1st Floor">Chamber 2 - 1st Floor</option>
-              <option value="Chamber 3 - Ground Floor">Chamber 3 - Ground Floor</option>
-              <option value="Chamber 3 - 1st Floor">Chamber 3 - 1st Floor</option>
-              <option value="Chamber 4 - Ground Floor">Chamber 4 - Ground Floor</option>
-              <option value="Chamber 4 - 1st Floor">Chamber 4 - 1st Floor</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-slate-300 font-semibold mb-1">Monthly Rent / Nug (₹) *</label>
-            <input id="inward-rate" type="number" min="0" step="any" required placeholder="e.g. 15" oninput="calculateInwardTotals()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" />
-          </div>
-          <div>
-            <label class="block text-slate-300 font-semibold mb-1">Labour Charge / Nug (₹) *</label>
-            <input id="inward-labour-rate" type="number" min="0" step="any" required placeholder="e.g. 2" oninput="calculateInwardTotals()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" />
-          </div>
-        </div>
-
-        <!-- Calculated Summary Box -->
+        <!-- CALCULATED TOTAL SUMMARY BOX -->
         <div class="bg-cyan-950/30 border border-cyan-500/30 p-3 rounded-xl flex flex-wrap justify-between items-center gap-3">
           <div>
-            <span class="text-slate-400">Total Net Weight: </span>
-            <span id="calc-inward-weight" class="font-bold text-white">0 Kg (0 Quintals)</span>
+            <span class="text-slate-400">Total Net Wt: </span>
+            <span id="calc-inward-weight" class="font-bold text-white">0 Kg</span>
           </div>
           <div>
-            <span class="text-slate-400">Goods Rent (1st Mo): </span>
+            <span class="text-slate-400">Total Rent (Mo 1): </span>
             <span id="calc-inward-rent" class="font-bold text-white">₹0</span>
           </div>
           <div>
@@ -540,7 +502,7 @@
             <span id="calc-inward-labour" class="font-bold text-white">₹0</span>
           </div>
           <div>
-            <span class="text-slate-400">Total Initial Bill: </span>
+            <span class="text-slate-400">Grand Total Initial Bill: </span>
             <span id="calc-inward-total" class="font-black text-cyan-400 text-sm">₹0</span>
           </div>
         </div>
@@ -587,7 +549,7 @@
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <div>
           <h3 id="outward-modal-title" class="font-bold text-base text-white">Generate Outward Dispatch Gate Pass</h3>
-          <p class="text-xs text-slate-400">Fillable slip & gate pass numbers with automated stock balance deduction</p>
+          <p class="text-xs text-slate-400">Manual gate pass number and automated stock balance deduction</p>
         </div>
         <button onclick="closeModal('modal-outward')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
@@ -595,15 +557,15 @@
       <form id="outward-form" onsubmit="handleSaveOutward(event)" class="space-y-4 text-xs">
         <input type="hidden" id="outward-edit-id" />
 
-        <!-- FILLABLE OUTWARD SLIP & GATE PASS NUMBERS -->
+        <!-- SLIP # (AUTO STARTING FROM 1) & MANUAL GATE PASS # -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-900/80 p-3 rounded-xl border border-slate-800">
           <div>
-            <label class="block text-amber-400 font-bold mb-1">Outward Slip # (Fillable / Editable) *</label>
-            <input id="outward-slip-num" type="text" required placeholder="e.g. 1 or OUT-1" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white font-mono font-bold" />
+            <label class="block text-amber-400 font-bold mb-1">Outward Slip # (Auto / Editable) *</label>
+            <input id="outward-slip-num" type="text" required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white font-mono font-bold" />
           </div>
           <div>
-            <label class="block text-amber-400 font-bold mb-1">Gate Pass # (Fillable / Editable) *</label>
-            <input id="outward-gatepass-num" type="text" required placeholder="e.g. GP-OUT-1" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white font-mono font-bold" />
+            <label class="block text-amber-400 font-bold mb-1">Gate Pass # (Manual Fillable) *</label>
+            <input id="outward-gatepass-num" type="text" required placeholder="Enter gate pass #" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white font-mono font-bold" />
           </div>
         </div>
 
@@ -728,7 +690,7 @@
     </div>
   </div>
 
-  <!-- MODAL: STAFF ACCOUNT (WITH ADMIN EDIT/DELETE PERMISSION SELECTORS) -->
+  <!-- MODAL: STAFF ACCOUNT -->
   <div id="modal-staff" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
     <div class="bg-slate-950 border border-slate-800 rounded-2xl w-full max-w-md p-5 sm:p-6 my-8 space-y-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
@@ -755,18 +717,17 @@
           <input id="staff-phone" type="tel" placeholder="Mobile number" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white" />
         </div>
 
-        <!-- ADMIN PRIVILEGES CHECKBOXES -->
         <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-xl space-y-2">
           <div class="font-bold text-rose-400 text-xs flex items-center gap-1.5">
             <i class="fa-solid fa-shield-halved"></i> Admin Privileges (Edit / Delete Slips)
           </div>
           <label class="flex items-center gap-2 cursor-pointer pt-1">
             <input id="staff-perm-edit" type="checkbox" class="w-4 h-4 rounded bg-slate-950 border-slate-700 text-rose-500 focus:ring-rose-500" />
-            <span class="text-slate-200">Allow this staff to **Edit** Inward & Outward Slips</span>
+            <span class="text-slate-200">Allow staff to **Edit** Inward & Outward Slips</span>
           </label>
           <label class="flex items-center gap-2 cursor-pointer">
             <input id="staff-perm-delete" type="checkbox" class="w-4 h-4 rounded bg-slate-950 border-slate-700 text-rose-500 focus:ring-rose-500" />
-            <span class="text-slate-200">Allow this staff to **Delete** Inward & Outward Slips</span>
+            <span class="text-slate-200">Allow staff to **Delete** Inward & Outward Slips</span>
           </label>
         </div>
 
@@ -809,7 +770,7 @@
 
   <!-- ==================== CORE LOGIC ENGINE ==================== -->
   <script>
-    const CACHE_KEY = 'BAZZ_STORAGE_PROD_V3_PERMISSIONS';
+    const CACHE_KEY = 'BAZZ_STORAGE_PROD_V4_MULTI';
     const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyo_dGbzwRiNpINuJZvL6K0D-UBtYnQIL8oHq40voHlMDMoJnFc7zN38Kq7cOClXkHMXQ/exec";
 
     let currentUser = null;
@@ -819,9 +780,7 @@
       outwardSlips: [],
       payments: [],
       staffAccounts: [],
-      config: {
-        googleScriptUrl: DEFAULT_SCRIPT_URL
-      }
+      config: { googleScriptUrl: DEFAULT_SCRIPT_URL }
     };
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -849,7 +808,6 @@
       localStorage.setItem(CACHE_KEY, JSON.stringify(appData));
     }
 
-    // --- PERMISSION HELPERS ---
     function userCanEdit() {
       if (!currentUser) return false;
       if (currentUser.role === 'admin') return true;
@@ -1314,12 +1272,13 @@
     }
 
     // =========================================================
-    // 2. INWARD SLIP & RECEIVING
+    // 2. INWARD SLIP & MULTI-ITEM RECEIVING
     // =========================================================
     function openInwardModal(editId = null) {
       const form = document.getElementById('inward-form');
       form.reset();
       document.getElementById('inward-edit-id').value = '';
+      document.getElementById('inward-items-container').innerHTML = '';
       populatePartyDropdowns();
 
       const now = new Date();
@@ -1336,45 +1295,123 @@
           document.getElementById('inward-party-id').value = item.partyId;
           document.getElementById('inward-date').value = item.date;
           document.getElementById('inward-time').value = item.time;
-          document.getElementById('inward-product').value = item.product;
-          document.getElementById('inward-qty').value = item.qty;
-          document.getElementById('inward-pack').value = item.packaging;
-          document.getElementById('inward-weight').value = item.singleWeight || '';
-          document.getElementById('inward-chamber').value = item.chamber;
-          document.getElementById('inward-rate').value = item.monthlyRate;
-          document.getElementById('inward-labour-rate').value = item.labourRate;
           document.getElementById('inward-veh-type').value = item.vehicleType;
           document.getElementById('inward-veh-num').value = item.vehicleNum;
           document.getElementById('inward-driver-name').value = item.driverName;
           document.getElementById('inward-driver-mobile').value = item.driverMobile;
+
+          if (item.items && item.items.length > 0) {
+            item.items.forEach(it => addInwardItemRow(it));
+          } else if (item.product) {
+            // legacy fallback
+            addInwardItemRow({
+              product: item.product,
+              qty: item.qty,
+              packaging: item.packaging,
+              singleWeight: item.singleWeight,
+              chamber: item.chamber,
+              monthlyRate: item.monthlyRate,
+              labourRate: item.labourRate
+            });
+          }
         }
       } else {
         document.getElementById('inward-modal-title').textContent = "Generate Inward Receiving Slip / Gate Pass";
+        // Auto-increment slip number starting from 1
         const nextNum = appData.inwardSlips.length + 1;
-        document.getElementById('inward-slip-num').value = 'IN-' + nextNum;
-        document.getElementById('inward-gatepass-num').value = 'GP-IN-' + nextNum;
+        document.getElementById('inward-slip-num').value = nextNum;
+        document.getElementById('inward-gatepass-num').value = '';
+        addInwardItemRow();
       }
 
       calculateInwardTotals();
       openModal('modal-inward');
     }
 
+    function addInwardItemRow(data = null) {
+      const container = document.getElementById('inward-items-container');
+      const rowId = 'in-item-' + Date.now() + '-' + Math.floor(Math.random()*1000);
+      const div = document.createElement('div');
+      div.id = rowId;
+      div.className = "p-3 bg-slate-950 border border-slate-800 rounded-lg space-y-2 text-xs";
+
+      div.innerHTML = `
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+          <div>
+            <label class="text-[10px] text-slate-400 block mb-0.5">Product Name *</label>
+            <input type="text" placeholder="e.g. Kinnow Grade A" value="${data ? data.product : ''}" required class="in-prod w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white" />
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-400 block mb-0.5">Quantity (Nugs) *</label>
+            <input type="number" min="1" placeholder="Qty" value="${data ? data.qty : ''}" required class="in-qty w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white font-bold" oninput="calculateInwardTotals()" />
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-400 block mb-0.5">Packaging Type *</label>
+            <input type="text" placeholder="Crates, Boxes..." value="${data ? data.packaging : 'Boxes'}" required class="in-pack w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white" />
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-400 block mb-0.5">Single Wt (Kg)</label>
+            <input type="number" step="0.1" placeholder="Wt/nug" value="${data ? data.singleWeight : ''}" class="in-wt w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white" oninput="calculateInwardTotals()" />
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 items-center">
+          <div class="sm:col-span-2">
+            <label class="text-[10px] text-slate-400 block mb-0.5">Chamber & Floor *</label>
+            <select class="in-chamber w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white text-[11px]">
+              <option value="Chamber 1 - Ground Floor">Chamber 1 - Ground Floor</option>
+              <option value="Chamber 1 - 1st Floor">Chamber 1 - 1st Floor</option>
+              <option value="Chamber 2 - Ground Floor">Chamber 2 - Ground Floor</option>
+              <option value="Chamber 2 - 1st Floor">Chamber 2 - 1st Floor</option>
+              <option value="Chamber 3 - Ground Floor">Chamber 3 - Ground Floor</option>
+              <option value="Chamber 3 - 1st Floor">Chamber 3 - 1st Floor</option>
+              <option value="Chamber 4 - Ground Floor">Chamber 4 - Ground Floor</option>
+              <option value="Chamber 4 - 1st Floor">Chamber 4 - 1st Floor</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-400 block mb-0.5">Monthly Rent/Nug (₹) *</label>
+            <input type="number" min="0" step="any" placeholder="Rate" value="${data ? data.monthlyRate : 15}" required class="in-rate w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white" oninput="calculateInwardTotals()" />
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="flex-1">
+              <label class="text-[10px] text-slate-400 block mb-0.5">Labour/Nug (₹) *</label>
+              <input type="number" min="0" step="any" placeholder="Labour" value="${data ? data.labourRate : 2}" required class="in-labour w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white" oninput="calculateInwardTotals()" />
+            </div>
+            <button type="button" onclick="document.getElementById('${rowId}').remove(); calculateInwardTotals();" class="text-rose-400 hover:text-rose-300 p-2 mt-4"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </div>
+      `;
+      container.appendChild(div);
+
+      if (data && data.chamber) {
+        div.querySelector('.in-chamber').value = data.chamber;
+      }
+      calculateInwardTotals();
+    }
+
     function calculateInwardTotals() {
-      const qty = parseFloat(document.getElementById('inward-qty').value) || 0;
-      const wt = parseFloat(document.getElementById('inward-weight').value) || 0;
-      const rate = parseFloat(document.getElementById('inward-rate').value) || 0;
-      const labour = parseFloat(document.getElementById('inward-labour-rate').value) || 0;
+      const rows = document.querySelectorAll('#inward-items-container > div');
+      let totalWt = 0;
+      let totalRent = 0;
+      let totalLabour = 0;
 
-      const totalWeightKg = qty * wt;
-      const totalQuintals = (totalWeightKg / 100).toFixed(2);
-      const rentTotal = qty * rate;
-      const labourTotal = qty * labour;
-      const initialBill = rentTotal + labourTotal;
+      rows.forEach(r => {
+        const qty = parseInt(r.querySelector('.in-qty').value) || 0;
+        const wt = parseFloat(r.querySelector('.in-wt').value) || 0;
+        const rate = parseFloat(r.querySelector('.in-rate').value) || 0;
+        const labour = parseFloat(r.querySelector('.in-labour').value) || 0;
 
-      document.getElementById('calc-inward-weight').textContent = `${totalWeightKg.toLocaleString('en-IN')} Kg (${totalQuintals} Qtl)`;
-      document.getElementById('calc-inward-rent').textContent = `₹${rentTotal.toLocaleString('en-IN')}`;
-      document.getElementById('calc-inward-labour').textContent = `₹${labourTotal.toLocaleString('en-IN')}`;
-      document.getElementById('calc-inward-total').textContent = `₹${initialBill.toLocaleString('en-IN')}`;
+        totalWt += (qty * wt);
+        totalRent += (qty * rate);
+        totalLabour += (qty * labour);
+      });
+
+      const grandTotal = totalRent + totalLabour;
+
+      document.getElementById('calc-inward-weight').textContent = `${totalWt.toLocaleString('en-IN')} Kg`;
+      document.getElementById('calc-inward-rent').textContent = `₹${totalRent.toLocaleString('en-IN')}`;
+      document.getElementById('calc-inward-labour').textContent = `₹${totalLabour.toLocaleString('en-IN')}`;
+      document.getElementById('calc-inward-total').textContent = `₹${grandTotal.toLocaleString('en-IN')}`;
     }
 
     function handleSaveInward(e) {
@@ -1390,10 +1427,49 @@
         return;
       }
 
-      const qty = parseInt(document.getElementById('inward-qty').value) || 0;
-      const wt = parseFloat(document.getElementById('inward-weight').value) || 0;
-      const rate = parseFloat(document.getElementById('inward-rate').value) || 0;
-      const labour = parseFloat(document.getElementById('inward-labour-rate').value) || 0;
+      const rows = document.querySelectorAll('#inward-items-container > div');
+      const items = [];
+      let totalWt = 0;
+      let totalRent = 0;
+      let totalLabour = 0;
+
+      rows.forEach(r => {
+        const prod = r.querySelector('.in-prod').value.trim();
+        const qty = parseInt(r.querySelector('.in-qty').value) || 0;
+        const pack = r.querySelector('.in-pack').value.trim();
+        const wt = parseFloat(r.querySelector('.in-wt').value) || 0;
+        const cham = r.querySelector('.in-chamber').value;
+        const rate = parseFloat(r.querySelector('.in-rate').value) || 0;
+        const labour = parseFloat(r.querySelector('.in-labour').value) || 0;
+
+        if (prod && qty > 0) {
+          const itemWt = qty * wt;
+          const itemRent = qty * rate;
+          const itemLab = qty * labour;
+
+          totalWt += itemWt;
+          totalRent += itemRent;
+          totalLabour += itemLab;
+
+          items.push({
+            product: prod,
+            qty,
+            packaging: pack,
+            singleWeight: wt,
+            totalWeightKg: itemWt,
+            chamber: cham,
+            monthlyRate: rate,
+            labourRate: labour,
+            totalRentMonth1: itemRent,
+            totalLabour: itemLab
+          });
+        }
+      });
+
+      if (items.length === 0) {
+        alert("Please add at least one product item to the inward slip.");
+        return;
+      }
 
       const slipData = {
         id: slipNum,
@@ -1404,17 +1480,11 @@
         partyPlace: party.place,
         date: document.getElementById('inward-date').value,
         time: document.getElementById('inward-time').value,
-        product: document.getElementById('inward-product').value.trim(),
-        qty,
-        packaging: document.getElementById('inward-pack').value.trim(),
-        singleWeight: wt,
-        totalWeightKg: qty * wt,
-        chamber: document.getElementById('inward-chamber').value,
-        monthlyRate: rate,
-        labourRate: labour,
-        totalRentMonth1: qty * rate,
-        totalLabour: qty * labour,
-        initialTotal: (qty * rate) + (qty * labour),
+        items,
+        totalWeightKg: totalWt,
+        totalRentMonth1: totalRent,
+        totalLabour: totalLabour,
+        initialTotal: totalRent + totalLabour,
         vehicleType: document.getElementById('inward-veh-type').value,
         vehicleNum: document.getElementById('inward-veh-num').value.trim().toUpperCase(),
         driverName: document.getElementById('inward-driver-name').value.trim(),
@@ -1443,7 +1513,7 @@
       tbody.innerHTML = '';
 
       if (appData.inwardSlips.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-500">No inward slips recorded yet. Click "+ New Inward Entry".</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-500">No inward slips recorded yet. Click "+ New Inward Entry".</td></tr>`;
         return;
       }
 
@@ -1451,24 +1521,27 @@
       const canDel = userCanDelete();
 
       appData.inwardSlips.forEach(s => {
+        // Support multi-items or legacy single item
+        const itemsList = s.items ? s.items : [{ product: s.product, qty: s.qty, packaging: s.packaging, chamber: s.chamber }];
+
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-900/50 transition";
         tr.innerHTML = `
           <td class="p-3">
             <div class="font-bold text-white">${s.id}</div>
-            <div class="text-[10px] text-emerald-400 font-mono">${s.gatePassNo} | ${s.date} ${s.time}</div>
+            <div class="text-[10px] text-emerald-400 font-mono">GP: ${s.gatePassNo} | ${s.date}</div>
           </td>
           <td class="p-3">
             <div class="font-bold text-slate-200">${escapeHtml(s.partyName)}</div>
             <div class="text-[10px] text-slate-400">${escapeHtml(s.partyPlace)}</div>
           </td>
           <td class="p-3">
-            <div class="font-bold text-white">${s.qty} ${escapeHtml(s.packaging)}</div>
-            <div class="text-[10px] text-cyan-400 font-semibold">${escapeHtml(s.product)} (${s.totalWeightKg} Kg)</div>
-          </td>
-          <td class="p-3 text-slate-300">
-            <div>${escapeHtml(s.chamber)}</div>
-            <div class="text-[10px] text-slate-500">Rent: ₹${s.monthlyRate}/mo | Lab: ₹${s.labourRate}</div>
+            ${itemsList.map(it => `
+              <div class="text-xs text-white">
+                <span class="font-bold">${it.qty} ${escapeHtml(it.packaging)}</span> of ${escapeHtml(it.product)} 
+                <span class="text-[10px] text-slate-400">(${escapeHtml(it.chamber)})</span>
+              </div>
+            `).join('')}
           </td>
           <td class="p-3">
             <div class="font-bold text-emerald-400">₹${s.initialTotal.toLocaleString('en-IN')}</div>
@@ -1516,8 +1589,8 @@
       document.getElementById('outward-time').value = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
 
       const nextNum = appData.outwardSlips.length + 1;
-      document.getElementById('outward-slip-num').value = 'OUT-' + nextNum;
-      document.getElementById('outward-gatepass-num').value = 'GP-OUT-' + nextNum;
+      document.getElementById('outward-slip-num').value = nextNum;
+      document.getElementById('outward-gatepass-num').value = '';
 
       handleOutwardPartySelect();
       openModal('modal-outward');
@@ -1547,12 +1620,12 @@
           <label class="text-[10px] text-slate-400 block mb-0.5">Select Product *</label>
           <select class="out-prod-select w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white" onchange="updateOutwardRowStock('${rowId}')">
             <option value="">-- Choose Available Product --</option>
-            ${availableProds.map(p => `<option value="${escapeHtml(p.product)}" data-stock="${p.stock}">${escapeHtml(p.product)} (Available: ${p.stock})</option>`).join('')}
+            ${availableProds.map(p => `<option value="${escapeHtml(p.product)}" data-stock="${p.stock}" ${data && data.product === p.product ? 'selected' : ''}>${escapeHtml(p.product)} (Available: ${p.stock})</option>`).join('')}
           </select>
         </div>
         <div>
           <label class="text-[10px] text-slate-400 block mb-0.5">Dispatch Qty *</label>
-          <input type="number" min="1" placeholder="Qty" required class="out-qty-input w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white font-bold" oninput="updateOutwardRowStock('${rowId}')" />
+          <input type="number" min="1" placeholder="Qty" value="${data ? data.dispatchedQty : ''}" required class="out-qty-input w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white font-bold" oninput="updateOutwardRowStock('${rowId}')" />
         </div>
         <div class="flex items-center gap-1.5 pt-3 sm:pt-0">
           <div class="flex-1">
@@ -1565,8 +1638,6 @@
       container.appendChild(div);
 
       if (data) {
-        div.querySelector('.out-prod-select').value = data.product;
-        div.querySelector('.out-qty-input').value = data.qty;
         updateOutwardRowStock(rowId);
       }
     }
@@ -1651,7 +1722,7 @@
       tbody.innerHTML = '';
 
       if (appData.outwardSlips.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-500">No outward gate passes created yet. Click "+ Create Outward Pass" above.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-500">No outward gate passes created yet. Click "+ Create Outward Pass".</td></tr>`;
         return;
       }
 
@@ -1663,7 +1734,7 @@
         tr.innerHTML = `
           <td class="p-3">
             <div class="font-bold text-white">${s.id}</div>
-            <div class="text-[10px] text-amber-400 font-mono">${s.gatePassNo} | ${s.date} ${s.time}</div>
+            <div class="text-[10px] text-amber-400 font-mono">GP: ${s.gatePassNo} | ${s.date}</div>
           </td>
           <td class="p-3">
             <div class="font-bold text-slate-200">${escapeHtml(s.partyName)}</div>
@@ -1672,8 +1743,8 @@
           <td class="p-3">
             ${s.items.map(it => `
               <div class="text-xs text-white">
-                <span class="font-bold">${it.dispatchedQty}</span> ${escapeHtml(it.product)}
-                <span class="text-[10px] text-cyan-400 font-mono">(Prev: ${it.previousStock} → Left: ${it.balanceLeft})</span>
+                <span class="font-bold">${it.dispatchedQty}</span> ${escapeHtml(it.product)} 
+                <span class="text-[10px] text-cyan-400 font-mono">(Prev: ${it.previousStock} → <b>Balance Left: ${it.balanceLeft}</b>)</span>
               </div>
             `).join('')}
           </td>
@@ -1790,7 +1861,7 @@
     }
 
     // =========================================================
-    // 5. STAFF ACCOUNTS & PERMISSION SELECTORS
+    // 5. STAFF ACCOUNTS
     // =========================================================
     function openStaffModal(editId = null) {
       document.getElementById('staff-form').reset();
@@ -1916,7 +1987,7 @@
     }
 
     // =========================================================
-    // 6. CALCULATIONS
+    // 6. CALCULATIONS (MULTI-ITEM SUPPORT)
     // =========================================================
     function getPartyAvailableProducts(partyId) {
       const party = appData.parties.find(x => x.id === partyId);
@@ -1931,7 +2002,10 @@
       }
 
       appData.inwardSlips.filter(s => s.partyId === partyId).forEach(s => {
-        stockMap[s.product] = (stockMap[s.product] || 0) + s.qty;
+        const items = s.items ? s.items : [{ product: s.product, qty: s.qty }];
+        items.forEach(it => {
+          stockMap[it.product] = (stockMap[it.product] || 0) + it.qty;
+        });
       });
 
       appData.outwardSlips.filter(s => s.partyId === partyId).forEach(s => {
@@ -1964,8 +2038,11 @@
       }
 
       appData.inwardSlips.filter(s => s.partyId === partyId).forEach(s => {
-        prodMap[s.product] = (prodMap[s.product] || 0) + s.qty;
-        total += s.qty;
+        const items = s.items ? s.items : [{ product: s.product, qty: s.qty }];
+        items.forEach(it => {
+          prodMap[it.product] = (prodMap[it.product] || 0) + it.qty;
+          total += it.qty;
+        });
       });
 
       appData.outwardSlips.filter(s => s.partyId === partyId).forEach(s => {
@@ -2005,21 +2082,25 @@
         runningBal += s.initialTotal;
         entries.push({
           date: s.date,
-          particulars: `Inward Slip #${s.id} - ${s.qty} ${s.packaging} ${s.product} (Rent: ₹${s.totalRentMonth1} + Lab: ₹${s.totalLabour})`,
+          particulars: `Inward Slip #${s.id} - Total Bill (Rent: ₹${s.totalRentMonth1} + Lab: ₹${s.totalLabour})`,
           debit: s.initialTotal,
           credit: 0,
           balance: runningBal
         });
 
-        const recurringDebits = calculateLotRecurringCycles(s, partyId);
-        recurringDebits.forEach(rec => {
-          runningBal += rec.amount;
-          entries.push({
-            date: rec.cycleDate,
-            particulars: rec.description,
-            debit: rec.amount,
-            credit: 0,
-            balance: runningBal
+        // Recurring rent cycles for items
+        const items = s.items ? s.items : [{ product: s.product, qty: s.qty, monthlyRate: s.monthlyRate }];
+        items.forEach(it => {
+          const recurringDebits = calculateItemRecurringCycles(s.date, it.product, it.qty, it.monthlyRate || 15, partyId);
+          recurringDebits.forEach(rec => {
+            runningBal += rec.amount;
+            entries.push({
+              date: rec.cycleDate,
+              particulars: rec.description,
+              debit: rec.amount,
+              credit: 0,
+              balance: runningBal
+            });
           });
         });
       });
@@ -2072,9 +2153,9 @@
       };
     }
 
-    function calculateLotRecurringCycles(slip, partyId) {
+    function calculateItemRecurringCycles(slipDate, product, initialQty, rate, partyId) {
       const cycles = [];
-      const inwardDate = new Date(slip.date);
+      const inwardDate = new Date(slipDate);
       const today = new Date();
 
       let cycleIndex = 1;
@@ -2085,12 +2166,12 @@
 
         if (nextMilestone > today) break;
 
-        const liveBalance = calculateHistoricalBalance(partyId, slip.product, nextMilestone);
+        const liveBalance = calculateHistoricalBalance(partyId, product, nextMilestone);
         if (liveBalance > 0) {
-          const recurringRent = liveBalance * slip.monthlyRate;
+          const recurringRent = liveBalance * rate;
           cycles.push({
             cycleDate: nextMilestone.toISOString().split('T')[0],
-            description: `Auto Month ${cycleIndex + 1} Storage Rent: ${liveBalance} ${slip.product} left @ ₹${slip.monthlyRate}/mo`,
+            description: `Auto Month ${cycleIndex + 1} Storage Rent: ${liveBalance} ${product} left @ ₹${rate}/mo`,
             amount: recurringRent
           });
         } else {
@@ -2138,8 +2219,11 @@
         party.openingStockLots.filter(l => l.product === product).forEach(l => bal += l.qty);
       }
 
-      appData.inwardSlips.filter(s => s.partyId === partyId && s.product === product && new Date(s.date) <= asOfDate)
-        .forEach(s => bal += s.qty);
+      appData.inwardSlips.filter(s => s.partyId === partyId && new Date(s.date) <= asOfDate)
+        .forEach(s => {
+          const items = s.items ? s.items : [{ product: s.product, qty: s.qty }];
+          items.filter(it => it.product === product).forEach(it => bal += it.qty);
+        });
 
       appData.outwardSlips.filter(s => s.partyId === partyId && new Date(s.date) <= asOfDate)
         .forEach(s => {
@@ -2183,7 +2267,7 @@
       const sel = document.getElementById('ledger-party-select');
       const target = document.getElementById('ledger-render-target');
       if (!sel || !sel.value) {
-        target.innerHTML = `<div class="p-8 bg-slate-950 border border-slate-800 rounded-xl text-center text-slate-500">Please register or select a party to view running ledger.</div>`;
+        target.innerHTML = `<div class="p-8 bg-slate-950 border border-slate-800 rounded-xl text-center text-slate-500">Please select a party to view running ledger.</div>`;
         return;
       }
 
@@ -2264,7 +2348,10 @@
 
       let totalIn = 0;
       if (party.openingStockLots) party.openingStockLots.forEach(l => totalIn += l.qty);
-      appData.inwardSlips.filter(s => s.partyId === party.id).forEach(s => totalIn += s.qty);
+      appData.inwardSlips.filter(s => s.partyId === party.id).forEach(s => {
+        const items = s.items ? s.items : [{ qty: s.qty }];
+        items.forEach(it => totalIn += it.qty);
+      });
 
       let totalOut = 0;
       appData.outwardSlips.filter(s => s.partyId === party.id).forEach(s => {
@@ -2304,11 +2391,13 @@
     }
 
     // =========================================================
-    // 9. PRINT ENGINE
+    // 9. PRINT ENGINE (SHOWING BALANCE STOCK ON OUTWARD SLIP)
     // =========================================================
     function printInwardSlip(slipId) {
       const s = appData.inwardSlips.find(x => x.id === slipId);
       if (!s) return;
+
+      const itemsList = s.items ? s.items : [{ product: s.product, qty: s.qty, packaging: s.packaging, singleWeight: s.singleWeight, totalWeightKg: s.totalWeightKg, chamber: s.chamber, monthlyRate: s.monthlyRate, labourRate: s.labourRate, totalRentMonth1: s.totalRentMonth1, totalLabour: s.totalLabour }];
 
       const html = `
         <div class="slip-box">
@@ -2340,38 +2429,36 @@
                 <th>Commodity / Product</th>
                 <th>Packaging</th>
                 <th style="text-align:right">Quantity</th>
-                <th style="text-align:right">Weight/Nug</th>
-                <th style="text-align:right">Total Net Wt</th>
+                <th style="text-align:right">Single Wt</th>
+                <th style="text-align:right">Total Wt</th>
                 <th>Chamber & Floor</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td><b>${escapeHtml(s.product)}</b></td>
-                <td>${escapeHtml(s.packaging)}</td>
-                <td style="text-align:right; font-weight:bold">${s.qty} Nugs</td>
-                <td style="text-align:right">${s.singleWeight} Kg</td>
-                <td style="text-align:right">${s.totalWeightKg} Kg (${(s.totalWeightKg/100).toFixed(2)} Qtl)</td>
-                <td><b>${escapeHtml(s.chamber)}</b></td>
-              </tr>
+              ${itemsList.map(it => `
+                <tr>
+                  <td><b>${escapeHtml(it.product)}</b></td>
+                  <td>${escapeHtml(it.packaging)}</td>
+                  <td style="text-align:right; font-weight:bold">${it.qty} Nugs</td>
+                  <td style="text-align:right">${it.singleWeight || 0} Kg</td>
+                  <td style="text-align:right">${it.totalWeightKg || 0} Kg</td>
+                  <td><b>${escapeHtml(it.chamber)}</b></td>
+                </tr>
+              `).join('')}
             </tbody>
           </table>
 
           <table class="slip-data-table" style="margin-top:10px">
             <thead>
               <tr>
-                <th>Monthly Rent / Nug</th>
-                <th>Month 1 Goods Rent</th>
-                <th>Labour Charge / Nug</th>
+                <th>Month 1 Rent Total</th>
                 <th>Total Labour Amount</th>
-                <th style="text-align:right">Total Initial Bill</th>
+                <th style="text-align:right">Grand Total Initial Bill</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>₹${s.monthlyRate} / month</td>
                 <td>₹${s.totalRentMonth1.toLocaleString('en-IN')}</td>
-                <td>₹${s.labourRate} / nug</td>
                 <td>₹${s.totalLabour.toLocaleString('en-IN')}</td>
                 <td style="text-align:right; font-weight:bold; font-size:14px">₹${s.initialTotal.toLocaleString('en-IN')}</td>
               </tr>
@@ -2433,9 +2520,9 @@
             <thead>
               <tr>
                 <th>Item / Commodity</th>
-                <th style="text-align:right">Previous Available Stock</th>
-                <th style="text-align:right">Dispatched Quantity</th>
-                <th style="text-align:right">Balance Quantity Left in Chamber</th>
+                <th style="text-align:right">Previous Stock</th>
+                <th style="text-align:right">Dispatched Qty</th>
+                <th style="text-align:right; color:#b45309">Balance Qty Left in Chamber</th>
               </tr>
             </thead>
             <tbody>
@@ -2443,8 +2530,8 @@
                 <tr>
                   <td><b>${escapeHtml(it.product)}</b></td>
                   <td style="text-align:right">${it.previousStock} Nugs</td>
-                  <td style="text-align:right; font-weight:bold; color:#b45309">${it.dispatchedQty} Nugs</td>
-                  <td style="text-align:right; font-weight:bold">${it.balanceLeft} Nugs Left</td>
+                  <td style="text-align:right; font-weight:bold">${it.dispatchedQty} Nugs</td>
+                  <td style="text-align:right; font-weight:bold; font-size:13px; color:#b45309">${it.balanceLeft} Nugs Left</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -2647,6 +2734,9 @@
       const s = appData.inwardSlips.find(x => x.id === slipId);
       if (!s) return;
 
+      const itemsList = s.items ? s.items : [{ product: s.product, qty: s.qty, packaging: s.packaging, chamber: s.chamber }];
+      let itemsTxt = itemsList.map(it => `• *${it.qty} ${it.packaging}* of ${it.product} (${it.chamber})`).join('\n');
+
       const text = 
 `*❄️ BAZZ COLD STORAGE & PRE-COOLING PLANT*
 *Abohar - Fazilka Bypass, Punjab*
@@ -2657,15 +2747,12 @@ Gate Pass #: ${s.gatePassNo}
 Date & Time: ${s.date} ${s.time}
 
 *Party:* ${s.partyName} (${s.partyPlace})
-*Product:* ${s.product}
-*Quantity:* ${s.qty} ${s.packaging}
-*Chamber:* ${s.chamber}
-*Total Net Wt:* ${s.totalWeightKg} Kg (${(s.totalWeightKg/100).toFixed(2)} Qtl)
+
+*Deposited Items:*
+${itemsTxt}
 
 *Financial Breakdown (Month 1):*
-• Monthly Rent: ₹${s.monthlyRate}/nug = ₹${s.totalRentMonth1}
-• Labour: ₹${s.labourRate}/nug = ₹${s.totalLabour}
-*• Initial Total Bill: ₹${s.initialTotal}*
+• Initial Total Bill: ₹${s.initialTotal.toLocaleString('en-IN')}
 
 *Carrier Details:*
 • Vehicle: ${s.vehicleNum} (${s.vehicleType})
@@ -2693,7 +2780,7 @@ Date & Time: ${s.date} ${s.time}
 
 *Party:* ${s.partyName} (${s.partyPlace})
 
-*Dispatched Stock Items:*
+*Dispatched Stock & Balance Left:*
 ${itemsTxt}
 
 *Release Details:*
