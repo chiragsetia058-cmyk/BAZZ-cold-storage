@@ -100,7 +100,7 @@
     </div>
   </div>
 
-  <!-- ==================== MAIN ADMIN & STAFF DASHBOARD ==================== -->
+  <!-- ==================== MAIN DASHBOARD ==================== -->
   <div id="view-dashboard" class="hidden flex-1 flex flex-col">
     <!-- Sub-navigation Tabs -->
     <div class="bg-slate-950/80 border-b border-slate-800 px-4">
@@ -126,7 +126,6 @@
       </div>
     </div>
 
-    <!-- Tab View Container -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
 
       <!-- PANE 1: PARTIES DIRECTORY -->
@@ -288,9 +287,9 @@
         <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800">
           <div>
             <h2 class="text-base font-bold text-white flex items-center gap-2">
-              <i class="fa-solid fa-users-gear text-rose-400"></i> Staff User Management
+              <i class="fa-solid fa-users-gear text-rose-400"></i> Staff User Management & Permissions
             </h2>
-            <p class="text-xs text-slate-400">Staff can generate slips and take payments, but cannot edit or delete entries</p>
+            <p class="text-xs text-slate-400">Admin can grant specific staff members permission to Edit or Delete slips</p>
           </div>
           <button onclick="openStaffModal()" class="px-3.5 py-2 bg-rose-500 hover:bg-rose-400 text-slate-950 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-rose-500/10">
             <i class="fa-solid fa-user-shield"></i> Create Staff ID
@@ -305,6 +304,7 @@
                   <th class="p-3">Staff Member</th>
                   <th class="p-3">Username</th>
                   <th class="p-3">Phone</th>
+                  <th class="p-3">Granted Privileges</th>
                   <th class="p-3">Status</th>
                   <th class="p-3 text-right">Actions</th>
                 </tr>
@@ -318,7 +318,7 @@
     </main>
   </div>
 
-  <!-- ==================== CUSTOMER SELF-SERVICE PORTAL ==================== -->
+  <!-- ==================== CUSTOMER PORTAL ==================== -->
   <div id="view-customer-portal" class="hidden flex-1 p-4 sm:p-6 max-w-5xl mx-auto w-full space-y-6">
     <div class="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 p-6 rounded-2xl border border-cyan-500/30 shadow-2xl">
       <div class="flex flex-wrap items-center justify-between gap-4">
@@ -394,7 +394,7 @@
           </div>
         </div>
 
-        <!-- OPENING FINANCIAL BALANCE SECTION -->
+        <!-- OPENING FINANCIAL BALANCE -->
         <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-xl space-y-3">
           <div class="font-bold text-amber-400 text-xs flex items-center gap-1.5">
             <i class="fa-solid fa-wallet"></i> Previous Financial Balance (Money Receivable)
@@ -411,7 +411,7 @@
           </div>
         </div>
 
-        <!-- OPENING PHYSICAL STOCK LOTS SECTION -->
+        <!-- OPENING STOCK LOTS -->
         <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-xl space-y-3">
           <div class="flex justify-between items-center">
             <div class="font-bold text-cyan-400 text-xs flex items-center gap-1.5">
@@ -440,7 +440,7 @@
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <div>
           <h3 id="inward-modal-title" class="font-bold text-base text-white">Generate Inward Receiving Slip / Gate Pass</h3>
-          <p class="text-xs text-slate-400">Intake stock into chamber and record month-1 rent and labour charges</p>
+          <p class="text-xs text-slate-400">Fillable slip & gate pass numbers, chamber allocation, and rent rates</p>
         </div>
         <button onclick="closeModal('modal-inward')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
@@ -448,7 +448,7 @@
       <form id="inward-form" onsubmit="handleSaveInward(event)" class="space-y-4 text-xs">
         <input type="hidden" id="inward-edit-id" />
 
-        <!-- FILLABLE SLIP & GATE PASS NUMBERS -->
+        <!-- FILLABLE INWARD SLIP & GATE PASS NUMBERS -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-900/80 p-3 rounded-xl border border-slate-800">
           <div>
             <label class="block text-cyan-400 font-bold mb-1">Inward Slip # (Fillable / Editable) *</label>
@@ -587,7 +587,7 @@
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <div>
           <h3 id="outward-modal-title" class="font-bold text-base text-white">Generate Outward Dispatch Gate Pass</h3>
-          <p class="text-xs text-slate-400">Release stock with automated deduction of balances</p>
+          <p class="text-xs text-slate-400">Fillable slip & gate pass numbers with automated stock balance deduction</p>
         </div>
         <button onclick="closeModal('modal-outward')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
@@ -728,11 +728,11 @@
     </div>
   </div>
 
-  <!-- MODAL: STAFF ACCOUNT (ADMIN ONLY) -->
+  <!-- MODAL: STAFF ACCOUNT (WITH ADMIN EDIT/DELETE PERMISSION SELECTORS) -->
   <div id="modal-staff" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
     <div class="bg-slate-950 border border-slate-800 rounded-2xl w-full max-w-md p-5 sm:p-6 my-8 space-y-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <h3 id="staff-modal-title" class="font-bold text-base text-white">Create Staff Login Credentials</h3>
+        <h3 id="staff-modal-title" class="font-bold text-base text-white">Create Staff Login & Permissions</h3>
         <button onclick="closeModal('modal-staff')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
 
@@ -755,9 +755,24 @@
           <input id="staff-phone" type="tel" placeholder="Mobile number" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white" />
         </div>
 
+        <!-- ADMIN PRIVILEGES CHECKBOXES -->
+        <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-xl space-y-2">
+          <div class="font-bold text-rose-400 text-xs flex items-center gap-1.5">
+            <i class="fa-solid fa-shield-halved"></i> Admin Privileges (Edit / Delete Slips)
+          </div>
+          <label class="flex items-center gap-2 cursor-pointer pt-1">
+            <input id="staff-perm-edit" type="checkbox" class="w-4 h-4 rounded bg-slate-950 border-slate-700 text-rose-500 focus:ring-rose-500" />
+            <span class="text-slate-200">Allow this staff to **Edit** Inward & Outward Slips</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input id="staff-perm-delete" type="checkbox" class="w-4 h-4 rounded bg-slate-950 border-slate-700 text-rose-500 focus:ring-rose-500" />
+            <span class="text-slate-200">Allow this staff to **Delete** Inward & Outward Slips</span>
+          </label>
+        </div>
+
         <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
           <button type="button" onclick="closeModal('modal-staff')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg">Cancel</button>
-          <button type="submit" class="px-5 py-2 bg-rose-500 hover:bg-rose-400 text-slate-950 font-bold rounded-lg">Save Staff</button>
+          <button type="submit" class="px-5 py-2 bg-rose-500 hover:bg-rose-400 text-slate-950 font-bold rounded-lg">Save Staff Account</button>
         </div>
       </form>
     </div>
@@ -794,7 +809,7 @@
 
   <!-- ==================== CORE LOGIC ENGINE ==================== -->
   <script>
-    const CACHE_KEY = 'BAZZ_STORAGE_PROD_V2_FILLABLE';
+    const CACHE_KEY = 'BAZZ_STORAGE_PROD_V3_PERMISSIONS';
     const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyo_dGbzwRiNpINuJZvL6K0D-UBtYnQIL8oHq40voHlMDMoJnFc7zN38Kq7cOClXkHMXQ/exec";
 
     let currentUser = null;
@@ -832,6 +847,27 @@
 
     function saveLocalState() {
       localStorage.setItem(CACHE_KEY, JSON.stringify(appData));
+    }
+
+    // --- PERMISSION HELPERS ---
+    function userCanEdit() {
+      if (!currentUser) return false;
+      if (currentUser.role === 'admin') return true;
+      if (currentUser.role === 'staff') {
+        const staff = appData.staffAccounts.find(s => s.id === currentUser.id);
+        return staff && staff.canEdit === true;
+      }
+      return false;
+    }
+
+    function userCanDelete() {
+      if (!currentUser) return false;
+      if (currentUser.role === 'admin') return true;
+      if (currentUser.role === 'staff') {
+        const staff = appData.staffAccounts.find(s => s.id === currentUser.id);
+        return staff && staff.canDelete === true;
+      }
+      return false;
     }
 
     // --- GOOGLE CLOUD SYNC ---
@@ -1202,13 +1238,15 @@
       tbody.innerHTML = '';
 
       if (appData.parties.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-500">No parties registered yet. Click "+ Add New Party" above to create your first party.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-500">No parties registered yet. Click "+ Add New Party" above.</td></tr>`;
         return;
       }
 
       appData.parties.forEach(p => {
         const stockData = calculatePartyLiveStock(p.id);
         const balData = calculatePartyFinancials(p.id);
+        const canEdit = userCanEdit();
+        const canDel = userCanDelete();
 
         const tr = document.createElement('tr');
         tr.className = p.isBlocked ? "bg-rose-950/20 text-slate-400" : "hover:bg-slate-900/50 transition";
@@ -1237,13 +1275,13 @@
           </td>
           <td class="p-3 text-right space-x-1 whitespace-nowrap">
             <button onclick="viewPartyInLedger('${p.id}')" title="View Ledger" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-blue-400 rounded"><i class="fa-solid fa-scale-balanced"></i></button>
+            ${canEdit ? `<button onclick="openPartyModal('${p.id}')" title="Edit Party" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-amber-400 rounded"><i class="fa-solid fa-pen-to-square"></i></button>` : ''}
             ${currentUser.role === 'admin' ? `
-              <button onclick="openPartyModal('${p.id}')" title="Edit Party" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-amber-400 rounded"><i class="fa-solid fa-pen-to-square"></i></button>
               <button onclick="togglePartyBlock('${p.id}')" title="${p.isBlocked ? 'Unblock' : 'Block'}" class="p-1.5 bg-slate-800 hover:bg-slate-700 ${p.isBlocked ? 'text-emerald-400' : 'text-orange-400'} rounded">
                 <i class="fa-solid ${p.isBlocked ? 'fa-lock-open' : 'fa-ban'}"></i>
               </button>
-              <button onclick="deletePartyRecord('${p.id}')" title="Delete" class="p-1.5 bg-slate-800 hover:bg-rose-900/60 text-rose-400 rounded"><i class="fa-solid fa-trash"></i></button>
             ` : ''}
+            ${canDel ? `<button onclick="deletePartyRecord('${p.id}')" title="Delete" class="p-1.5 bg-slate-800 hover:bg-rose-900/60 text-rose-400 rounded"><i class="fa-solid fa-trash"></i></button>` : ''}
           </td>
         `;
         tbody.appendChild(tr);
@@ -1261,7 +1299,10 @@
     }
 
     function deletePartyRecord(id) {
-      if (currentUser.role !== 'admin') return;
+      if (!userCanDelete()) {
+        alert("You do not have permission to delete records.");
+        return;
+      }
       if (confirm("Are you sure you want to delete this party and all associated records?")) {
         appData.parties = appData.parties.filter(x => x.id !== id);
         appData.inwardSlips = appData.inwardSlips.filter(x => x.partyId !== id);
@@ -1273,7 +1314,7 @@
     }
 
     // =========================================================
-    // 2. INWARD SLIP & RECEIVING LOGIC (WITH FILLABLE SLIP/GP #)
+    // 2. INWARD SLIP & RECEIVING
     // =========================================================
     function openInwardModal(editId = null) {
       const form = document.getElementById('inward-form');
@@ -1345,7 +1386,7 @@
       const party = appData.parties.find(x => x.id === partyId);
 
       if (!party) {
-        alert("Please select a valid party from the directory.");
+        alert("Please select a valid party.");
         return;
       }
 
@@ -1382,6 +1423,10 @@
       };
 
       if (editId) {
+        if (!userCanEdit()) {
+          alert("You do not have permission to edit slips.");
+          return;
+        }
         const idx = appData.inwardSlips.findIndex(x => x.id === editId);
         if (idx !== -1) appData.inwardSlips[idx] = slipData;
       } else {
@@ -1398,9 +1443,12 @@
       tbody.innerHTML = '';
 
       if (appData.inwardSlips.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-500">No inward slips recorded yet. Click "+ New Inward Entry" to create.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-500">No inward slips recorded yet. Click "+ New Inward Entry".</td></tr>`;
         return;
       }
+
+      const canEdit = userCanEdit();
+      const canDel = userCanDelete();
 
       appData.inwardSlips.forEach(s => {
         const tr = document.createElement('tr');
@@ -1433,10 +1481,8 @@
           <td class="p-3 text-right space-x-1 whitespace-nowrap">
             <button onclick="printInwardSlip('${s.id}')" title="Print Slip" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-400 rounded"><i class="fa-solid fa-print"></i></button>
             <button onclick="shareInwardWhatsApp('${s.id}')" title="Share WhatsApp" class="p-1.5 bg-slate-800 hover:bg-emerald-950 text-emerald-400 rounded"><i class="fa-brands fa-whatsapp"></i></button>
-            ${currentUser.role === 'admin' ? `
-              <button onclick="openInwardModal('${s.id}')" title="Edit Slip" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-amber-400 rounded"><i class="fa-solid fa-pen-to-square"></i></button>
-              <button onclick="deleteInwardSlip('${s.id}')" title="Delete Slip" class="p-1.5 bg-slate-800 hover:bg-rose-950 text-rose-400 rounded"><i class="fa-solid fa-trash"></i></button>
-            ` : ''}
+            ${canEdit ? `<button onclick="openInwardModal('${s.id}')" title="Edit Slip" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-amber-400 rounded"><i class="fa-solid fa-pen-to-square"></i></button>` : ''}
+            ${canDel ? `<button onclick="deleteInwardSlip('${s.id}')" title="Delete Slip" class="p-1.5 bg-slate-800 hover:bg-rose-950 text-rose-400 rounded"><i class="fa-solid fa-trash"></i></button>` : ''}
           </td>
         `;
         tbody.appendChild(tr);
@@ -1444,7 +1490,10 @@
     }
 
     function deleteInwardSlip(id) {
-      if (currentUser.role !== 'admin') return;
+      if (!userCanDelete()) {
+        alert("You do not have permission to delete slips.");
+        return;
+      }
       if (confirm("Delete this inward slip?")) {
         appData.inwardSlips = appData.inwardSlips.filter(x => x.id !== id);
         pushToGoogle();
@@ -1453,7 +1502,7 @@
     }
 
     // =========================================================
-    // 3. OUTWARD GATE PASS LOGIC (WITH FILLABLE SLIP/GP #)
+    // 3. OUTWARD GATE PASS LOGIC
     // =========================================================
     function openOutwardModal(editId = null) {
       const form = document.getElementById('outward-form');
@@ -1606,6 +1655,8 @@
         return;
       }
 
+      const canDel = userCanDelete();
+
       appData.outwardSlips.forEach(s => {
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-900/50 transition";
@@ -1637,9 +1688,7 @@
           <td class="p-3 text-right space-x-1 whitespace-nowrap">
             <button onclick="printOutwardSlip('${s.id}')" title="Print Gate Pass" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-400 rounded"><i class="fa-solid fa-print"></i></button>
             <button onclick="shareOutwardWhatsApp('${s.id}')" title="Share WhatsApp" class="p-1.5 bg-slate-800 hover:bg-emerald-950 text-emerald-400 rounded"><i class="fa-brands fa-whatsapp"></i></button>
-            ${currentUser.role === 'admin' ? `
-              <button onclick="deleteOutwardSlip('${s.id}')" title="Delete Pass" class="p-1.5 bg-slate-800 hover:bg-rose-950 text-rose-400 rounded"><i class="fa-solid fa-trash"></i></button>
-            ` : ''}
+            ${canDel ? `<button onclick="deleteOutwardSlip('${s.id}')" title="Delete Pass" class="p-1.5 bg-slate-800 hover:bg-rose-950 text-rose-400 rounded"><i class="fa-solid fa-trash"></i></button>` : ''}
           </td>
         `;
         tbody.appendChild(tr);
@@ -1647,7 +1696,10 @@
     }
 
     function deleteOutwardSlip(id) {
-      if (currentUser.role !== 'admin') return;
+      if (!userCanDelete()) {
+        alert("You do not have permission to delete gate passes.");
+        return;
+      }
       if (confirm("Delete this outward gate pass? Associated stock will be reverted.")) {
         appData.outwardSlips = appData.outwardSlips.filter(x => x.id !== id);
         pushToGoogle();
@@ -1701,6 +1753,8 @@
         return;
       }
 
+      const canDel = userCanDelete();
+
       appData.payments.forEach(p => {
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-900/50 transition";
@@ -1716,9 +1770,7 @@
           <td class="p-3 text-right space-x-1 whitespace-nowrap">
             <button onclick="printPaymentReceipt('${p.id}')" title="Print Receipt" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-400 rounded"><i class="fa-solid fa-print"></i></button>
             <button onclick="sharePaymentWhatsApp('${p.id}')" title="Share WhatsApp" class="p-1.5 bg-slate-800 hover:bg-emerald-950 text-emerald-400 rounded"><i class="fa-brands fa-whatsapp"></i></button>
-            ${currentUser.role === 'admin' ? `
-              <button onclick="deletePayment('${p.id}')" title="Delete" class="p-1.5 bg-slate-800 hover:bg-rose-950 text-rose-400 rounded"><i class="fa-solid fa-trash"></i></button>
-            ` : ''}
+            ${canDel ? `<button onclick="deletePayment('${p.id}')" title="Delete" class="p-1.5 bg-slate-800 hover:bg-rose-950 text-rose-400 rounded"><i class="fa-solid fa-trash"></i></button>` : ''}
           </td>
         `;
         tbody.appendChild(tr);
@@ -1726,7 +1778,10 @@
     }
 
     function deletePayment(id) {
-      if (currentUser.role !== 'admin') return;
+      if (!userCanDelete()) {
+        alert("You do not have permission to delete records.");
+        return;
+      }
       if (confirm("Delete this payment receipt?")) {
         appData.payments = appData.payments.filter(x => x.id !== id);
         pushToGoogle();
@@ -1735,36 +1790,69 @@
     }
 
     // =========================================================
-    // 5. STAFF ACCOUNTS
+    // 5. STAFF ACCOUNTS & PERMISSION SELECTORS
     // =========================================================
-    function openStaffModal() {
+    function openStaffModal(editId = null) {
       document.getElementById('staff-form').reset();
       document.getElementById('staff-edit-id').value = '';
+
+      if (editId) {
+        const s = appData.staffAccounts.find(x => x.id === editId);
+        if (s) {
+          document.getElementById('staff-modal-title').textContent = "Edit Staff Privileges";
+          document.getElementById('staff-edit-id').value = s.id;
+          document.getElementById('staff-name').value = s.name;
+          document.getElementById('staff-user').value = s.username;
+          document.getElementById('staff-pass').value = s.password;
+          document.getElementById('staff-phone').value = s.phone || '';
+          document.getElementById('staff-perm-edit').checked = !!s.canEdit;
+          document.getElementById('staff-perm-delete').checked = !!s.canDelete;
+        }
+      } else {
+        document.getElementById('staff-modal-title').textContent = "Create Staff Login & Permissions";
+      }
       openModal('modal-staff');
     }
 
     function handleSaveStaff(e) {
       e.preventDefault();
+      const editId = document.getElementById('staff-edit-id').value;
       const name = document.getElementById('staff-name').value.trim();
       const username = document.getElementById('staff-user').value.trim().toLowerCase();
       const password = document.getElementById('staff-pass').value.trim();
       const phone = document.getElementById('staff-phone').value.trim();
+      const canEdit = document.getElementById('staff-perm-edit').checked;
+      const canDelete = document.getElementById('staff-perm-delete').checked;
 
-      const exists = appData.staffAccounts.find(s => s.username === username);
+      const exists = appData.staffAccounts.find(s => s.username === username && s.id !== editId);
       if (exists) {
         alert("Username already exists!");
         return;
       }
 
-      appData.staffAccounts.push({
-        id: 'STAFF-' + Date.now(),
-        name,
-        username,
-        password,
-        phone,
-        isBlocked: false,
-        createdAt: new Date().toISOString()
-      });
+      if (editId) {
+        const s = appData.staffAccounts.find(x => x.id === editId);
+        if (s) {
+          s.name = name;
+          s.username = username;
+          s.password = password;
+          s.phone = phone;
+          s.canEdit = canEdit;
+          s.canDelete = canDelete;
+        }
+      } else {
+        appData.staffAccounts.push({
+          id: 'STAFF-' + Date.now(),
+          name,
+          username,
+          password,
+          phone,
+          canEdit,
+          canDelete,
+          isBlocked: false,
+          createdAt: new Date().toISOString()
+        });
+      }
 
       pushToGoogle();
       closeModal('modal-staff');
@@ -1776,7 +1864,7 @@
       tbody.innerHTML = '';
 
       if (appData.staffAccounts.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-slate-500">No staff accounts created yet.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-500">No staff accounts created yet. Click "+ Create Staff ID".</td></tr>`;
         return;
       }
 
@@ -1787,6 +1875,11 @@
           <td class="p-3 font-bold text-white">${escapeHtml(s.name)}</td>
           <td class="p-3 font-mono text-cyan-400">${escapeHtml(s.username)}</td>
           <td class="p-3 text-slate-300">${escapeHtml(s.phone || '-')}</td>
+          <td class="p-3 space-x-1">
+            ${s.canEdit ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/40">Can Edit</span>' : ''}
+            ${s.canDelete ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/40">Can Delete</span>' : ''}
+            ${!s.canEdit && !s.canDelete ? '<span class="text-slate-500 text-[10px]">None</span>' : ''}
+          </td>
           <td class="p-3">
             ${s.isBlocked 
               ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/40">Blocked</span>'
@@ -1794,6 +1887,7 @@
             }
           </td>
           <td class="p-3 text-right space-x-1 whitespace-nowrap">
+            <button onclick="openStaffModal('${s.id}')" title="Edit Privileges" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-amber-400 rounded"><i class="fa-solid fa-pen-to-square"></i></button>
             <button onclick="toggleStaffBlock('${s.id}')" title="${s.isBlocked ? 'Unblock' : 'Block'}" class="p-1.5 bg-slate-800 hover:bg-slate-700 ${s.isBlocked ? 'text-emerald-400' : 'text-orange-400'} rounded">
               <i class="fa-solid ${s.isBlocked ? 'fa-lock-open' : 'fa-ban'}"></i>
             </button>
