@@ -129,7 +129,7 @@
     <!-- Tab View Container -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
 
-      <!-- PANE 1: PARTIES DIRECTORY & OPENING BALANCE -->
+      <!-- PANE 1: PARTIES DIRECTORY -->
       <section id="pane-parties" class="tab-pane hidden space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800">
           <div>
@@ -364,7 +364,7 @@
 
   <!-- ==================== MODALS ==================== -->
 
-  <!-- MODAL: ADD / EDIT PARTY (WITH OPENING BALANCE & STOCK) -->
+  <!-- MODAL: ADD / EDIT PARTY -->
   <div id="modal-party" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
     <div class="bg-slate-950 border border-slate-800 rounded-2xl w-full max-w-2xl p-5 sm:p-6 my-8 space-y-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
@@ -447,6 +447,18 @@
 
       <form id="inward-form" onsubmit="handleSaveInward(event)" class="space-y-4 text-xs">
         <input type="hidden" id="inward-edit-id" />
+
+        <!-- FILLABLE SLIP & GATE PASS NUMBERS -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+          <div>
+            <label class="block text-cyan-400 font-bold mb-1">Inward Slip # (Fillable / Editable) *</label>
+            <input id="inward-slip-num" type="text" required placeholder="e.g. 1 or IN-1" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white font-mono font-bold" />
+          </div>
+          <div>
+            <label class="block text-cyan-400 font-bold mb-1">Gate Pass # (Fillable / Editable) *</label>
+            <input id="inward-gatepass-num" type="text" required placeholder="e.g. GP-IN-1" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white font-mono font-bold" />
+          </div>
+        </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
@@ -582,6 +594,18 @@
 
       <form id="outward-form" onsubmit="handleSaveOutward(event)" class="space-y-4 text-xs">
         <input type="hidden" id="outward-edit-id" />
+
+        <!-- FILLABLE OUTWARD SLIP & GATE PASS NUMBERS -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+          <div>
+            <label class="block text-amber-400 font-bold mb-1">Outward Slip # (Fillable / Editable) *</label>
+            <input id="outward-slip-num" type="text" required placeholder="e.g. 1 or OUT-1" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white font-mono font-bold" />
+          </div>
+          <div>
+            <label class="block text-amber-400 font-bold mb-1">Gate Pass # (Fillable / Editable) *</label>
+            <input id="outward-gatepass-num" type="text" required placeholder="e.g. GP-OUT-1" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white font-mono font-bold" />
+          </div>
+        </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
@@ -770,11 +794,9 @@
 
   <!-- ==================== CORE LOGIC ENGINE ==================== -->
   <script>
-    // Clean production storage key starting with zero mock data
-    const CACHE_KEY = 'BAZZ_STORAGE_PROD_V1_ZERO';
+    const CACHE_KEY = 'BAZZ_STORAGE_PROD_V2_FILLABLE';
     const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyo_dGbzwRiNpINuJZvL6K0D-UBtYnQIL8oHq40voHlMDMoJnFc7zN38Kq7cOClXkHMXQ/exec";
 
-    // Application state with empty structures
     let currentUser = null;
     let appData = {
       parties: [],
@@ -787,7 +809,6 @@
       }
     };
 
-    // Initialize application
     window.addEventListener('DOMContentLoaded', () => {
       loadLocalState();
       checkSavedSession();
@@ -813,7 +834,7 @@
       localStorage.setItem(CACHE_KEY, JSON.stringify(appData));
     }
 
-    // --- GOOGLE CLOUD SYNC ENGINE ---
+    // --- GOOGLE CLOUD SYNC ---
     async function pullFromGoogle() {
       const url = appData.config.googleScriptUrl;
       if (!url) return;
@@ -833,7 +854,7 @@
           updateCloudStatus("Cloud Synced ☁️", "text-emerald-400 border-emerald-500/40 bg-emerald-950/60");
         }
       } catch (err) {
-        console.warn("Pull fallback to local:", err);
+        console.warn("Pull fallback:", err);
         updateCloudStatus("Local Only 💾", "text-slate-400 border-slate-700 bg-slate-900");
       }
     }
@@ -895,7 +916,7 @@
       openModal('modal-cloud');
     }
 
-    // --- AUTHENTICATION ENGINE ---
+    // --- AUTHENTICATION ---
     function checkSavedSession() {
       const savedUser = sessionStorage.getItem('BAZZ_ACTIVE_USER');
       if (savedUser) {
@@ -911,14 +932,12 @@
       const u = document.getElementById('login-username').value.trim();
       const p = document.getElementById('login-password').value.trim();
 
-      // 1. Admin Login Check
       if (u === 'admin' && p === 'Csetia@1122') {
         currentUser = { role: 'admin', name: 'Super Admin', id: 'admin' };
         loginSuccess();
         return;
       }
 
-      // 2. Staff Login Check
       const staff = appData.staffAccounts.find(s => s.username.toLowerCase() === u.toLowerCase() && s.password === p);
       if (staff) {
         if (staff.isBlocked) {
@@ -930,7 +949,6 @@
         return;
       }
 
-      // 3. Customer Portal Login (Mobile as Username)
       const party = appData.parties.find(p_item => p_item.mobile === u);
       if (party) {
         if (party.isBlocked) {
@@ -982,7 +1000,6 @@
         document.getElementById('view-customer-portal').classList.add('hidden');
         document.getElementById('view-dashboard').classList.remove('hidden');
 
-        // Show/hide admin specific tabs
         const adminElements = document.querySelectorAll('.admin-only');
         adminElements.forEach(el => {
           if (currentUser.role === 'admin') el.classList.remove('hidden');
@@ -1030,7 +1047,7 @@
     function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
     // =========================================================
-    // 1. PARTIES & OPENING STOCK LOGIC
+    // 1. PARTIES & OPENING STOCK
     // =========================================================
     function openPartyModal(editId = null) {
       const form = document.getElementById('party-form');
@@ -1119,14 +1136,12 @@
       const prevBal = parseFloat(document.getElementById('party-prev-bal').value) || 0;
       const prevDate = document.getElementById('party-prev-date').value || new Date().toISOString().split('T')[0];
 
-      // Check mobile collision
       const existing = appData.parties.find(x => x.mobile === mobile && x.id !== editId);
       if (existing) {
         alert("A party with this mobile number is already registered!");
         return;
       }
 
-      // Collect opening stock rows
       const lotRows = document.querySelectorAll('#opening-stock-container > div');
       const openingLots = [];
       lotRows.forEach((r, idx) => {
@@ -1247,7 +1262,7 @@
 
     function deletePartyRecord(id) {
       if (currentUser.role !== 'admin') return;
-      if (confirm("Are you sure you want to delete this party and all associated inward, outward, and payment records?")) {
+      if (confirm("Are you sure you want to delete this party and all associated records?")) {
         appData.parties = appData.parties.filter(x => x.id !== id);
         appData.inwardSlips = appData.inwardSlips.filter(x => x.partyId !== id);
         appData.outwardSlips = appData.outwardSlips.filter(x => x.partyId !== id);
@@ -1258,7 +1273,7 @@
     }
 
     // =========================================================
-    // 2. INWARD SLIP & RECEIVING LOGIC
+    // 2. INWARD SLIP & RECEIVING LOGIC (WITH FILLABLE SLIP/GP #)
     // =========================================================
     function openInwardModal(editId = null) {
       const form = document.getElementById('inward-form');
@@ -1275,6 +1290,8 @@
         if (item) {
           document.getElementById('inward-modal-title').textContent = "Edit Inward Slip";
           document.getElementById('inward-edit-id').value = item.id;
+          document.getElementById('inward-slip-num').value = item.id;
+          document.getElementById('inward-gatepass-num').value = item.gatePassNo;
           document.getElementById('inward-party-id').value = item.partyId;
           document.getElementById('inward-date').value = item.date;
           document.getElementById('inward-time').value = item.time;
@@ -1292,6 +1309,9 @@
         }
       } else {
         document.getElementById('inward-modal-title').textContent = "Generate Inward Receiving Slip / Gate Pass";
+        const nextNum = appData.inwardSlips.length + 1;
+        document.getElementById('inward-slip-num').value = 'IN-' + nextNum;
+        document.getElementById('inward-gatepass-num').value = 'GP-IN-' + nextNum;
       }
 
       calculateInwardTotals();
@@ -1319,6 +1339,8 @@
     function handleSaveInward(e) {
       e.preventDefault();
       const editId = document.getElementById('inward-edit-id').value;
+      const slipNum = document.getElementById('inward-slip-num').value.trim();
+      const gatePassNum = document.getElementById('inward-gatepass-num').value.trim();
       const partyId = document.getElementById('inward-party-id').value;
       const party = appData.parties.find(x => x.id === partyId);
 
@@ -1333,8 +1355,8 @@
       const labour = parseFloat(document.getElementById('inward-labour-rate').value) || 0;
 
       const slipData = {
-        id: editId || 'BAZZ-IN-' + Date.now().toString().slice(-6),
-        gatePassNo: 'GP-IN-' + Date.now().toString().slice(-4),
+        id: slipNum,
+        gatePassNo: gatePassNum,
         partyId,
         partyName: party.name,
         partyMobile: party.mobile,
@@ -1431,7 +1453,7 @@
     }
 
     // =========================================================
-    // 3. OUTWARD GATE PASS LOGIC
+    // 3. OUTWARD GATE PASS LOGIC (WITH FILLABLE SLIP/GP #)
     // =========================================================
     function openOutwardModal(editId = null) {
       const form = document.getElementById('outward-form');
@@ -1443,6 +1465,10 @@
       const now = new Date();
       document.getElementById('outward-date').value = now.toISOString().split('T')[0];
       document.getElementById('outward-time').value = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+      const nextNum = appData.outwardSlips.length + 1;
+      document.getElementById('outward-slip-num').value = 'OUT-' + nextNum;
+      document.getElementById('outward-gatepass-num').value = 'GP-OUT-' + nextNum;
 
       handleOutwardPartySelect();
       openModal('modal-outward');
@@ -1517,6 +1543,8 @@
     function handleSaveOutward(e) {
       e.preventDefault();
       const partyId = document.getElementById('outward-party-id').value;
+      const slipNum = document.getElementById('outward-slip-num').value.trim();
+      const gatePassNum = document.getElementById('outward-gatepass-num').value.trim();
       const party = appData.parties.find(x => x.id === partyId);
       if (!party) return;
 
@@ -1547,8 +1575,8 @@
       }
 
       const passData = {
-        id: 'BAZZ-OUT-' + Date.now().toString().slice(-6),
-        gatePassNo: 'GP-OUT-' + Date.now().toString().slice(-4),
+        id: slipNum,
+        gatePassNo: gatePassNum,
         partyId,
         partyName: party.name,
         partyMobile: party.mobile,
@@ -1628,7 +1656,7 @@
     }
 
     // =========================================================
-    // 4. PAYMENTS & FINANCIAL LOGIC
+    // 4. PAYMENTS
     // =========================================================
     function openPaymentModal(editId = null) {
       const form = document.getElementById('payment-form');
@@ -1794,7 +1822,7 @@
     }
 
     // =========================================================
-    // 6. CALCULATION ENGINES: STOCK & RECURRING RENT
+    // 6. CALCULATIONS
     // =========================================================
     function getPartyAvailableProducts(partyId) {
       const party = appData.parties.find(x => x.id === partyId);
@@ -1860,8 +1888,6 @@
       };
     }
 
-    // Rent Cycle Engine: Full month rent upon entry.
-    // Recurring rent added on milestone day (e.g., 21 Jan -> 22 Feb) for balance stock left.
     function calculatePartyFinancials(partyId) {
       const party = appData.parties.find(x => x.id === partyId);
       if (!party) return { totalBilled: 0, totalPaid: 0, netDue: 0, entries: [] };
@@ -1869,7 +1895,6 @@
       const entries = [];
       let runningBal = 0;
 
-      // 1. Opening Receivable
       if (party.openingBalance > 0) {
         runningBal += party.openingBalance;
         entries.push({
@@ -1881,7 +1906,6 @@
         });
       }
 
-      // 2. Inwards (Month 1 Rent + Labour)
       const inwards = appData.inwardSlips.filter(s => s.partyId === partyId);
       inwards.forEach(s => {
         runningBal += s.initialTotal;
@@ -1893,7 +1917,6 @@
           balance: runningBal
         });
 
-        // Recurring rent cycles based on current date
         const recurringDebits = calculateLotRecurringCycles(s, partyId);
         recurringDebits.forEach(rec => {
           runningBal += rec.amount;
@@ -1907,7 +1930,6 @@
         });
       });
 
-      // 3. Opening Stock Lots recurring cycles
       if (party.openingStockLots) {
         party.openingStockLots.forEach(lot => {
           const recs = calculateOpeningLotRecurringCycles(lot, partyId);
@@ -1924,7 +1946,6 @@
         });
       }
 
-      // 4. Payments
       const pmts = appData.payments.filter(p => p.partyId === partyId);
       pmts.forEach(p => {
         runningBal -= p.amount;
@@ -1937,7 +1958,6 @@
         });
       });
 
-      // Sort entries chronologically
       entries.sort((a, b) => new Date(a.date) - new Date(b.date));
 
       let tempBal = 0;
@@ -2036,7 +2056,7 @@
     }
 
     // =========================================================
-    // 7. LEDGER VIEWS
+    // 7. LEDGERS & VIEWS
     // =========================================================
     function populatePartyDropdowns() {
       const inwardSel = document.getElementById('inward-party-id');
@@ -2135,7 +2155,7 @@
     }
 
     // =========================================================
-    // 8. CUSTOMER SELF-SERVICE PORTAL
+    // 8. CUSTOMER PORTAL
     // =========================================================
     function renderCustomerPortal() {
       if (!currentUser || currentUser.role !== 'customer') return;
@@ -2190,7 +2210,7 @@
     }
 
     // =========================================================
-    // 9. HIGH-RELIABILITY PRINT ENGINE (NO BLANK PAGES)
+    // 9. PRINT ENGINE
     // =========================================================
     function printInwardSlip(slipId) {
       const s = appData.inwardSlips.find(x => x.id === slipId);
