@@ -108,6 +108,9 @@
         <button onclick="switchTab('parties')" id="tab-parties" class="tab-btn px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap">
           <i class="fa-solid fa-address-book text-cyan-400"></i> Parties & Stock
         </button>
+        <button onclick="switchTab('products')" id="tab-products" class="tab-btn px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap">
+          <i class="fa-solid fa-boxes-stacked text-teal-400"></i> Products Catalog
+        </button>
         <button onclick="switchTab('inward')" id="tab-inward" class="tab-btn px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap">
           <i class="fa-solid fa-arrow-down-to-bracket text-emerald-400"></i> Inward Slips
         </button>
@@ -161,6 +164,35 @@
         </div>
       </section>
 
+      <!-- PANE 1.5: PRODUCTS CATALOG -->
+      <section id="pane-products" class="tab-pane hidden space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800">
+          <div>
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-boxes-stacked text-teal-400"></i> Master Products Catalog
+            </h2>
+            <p class="text-xs text-slate-400">Add items here first so they appear in dropdowns when creating inward and outward slips</p>
+          </div>
+          <button onclick="openProductModal()" class="px-3.5 py-2 bg-teal-500 hover:bg-teal-400 text-slate-950 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-teal-500/10">
+            <i class="fa-solid fa-plus"></i> Add New Product Item
+          </button>
+        </div>
+
+        <div class="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden shadow-xl">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-900 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+                <tr>
+                  <th class="p-3">Product Name</th>
+                  <th class="p-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="product-table-body" class="divide-y divide-slate-800/60 font-medium"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
       <!-- PANE 2: INWARD SLIPS -->
       <section id="pane-inward" class="tab-pane hidden space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800">
@@ -168,7 +200,7 @@
             <h2 class="text-base font-bold text-white flex items-center gap-2">
               <i class="fa-solid fa-arrow-down-to-bracket text-emerald-400"></i> Inward Receiving Slips & Gate Passes
             </h2>
-            <p class="text-xs text-slate-400">Record incoming multi-item stock with master items, chambers, rent, and labour</p>
+            <p class="text-xs text-slate-400">Record incoming multi-item stock using saved catalog items, chambers, rent, and labour</p>
           </div>
           <button onclick="openInwardModal()" class="px-3.5 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-emerald-500/10">
             <i class="fa-solid fa-plus"></i> New Inward Entry
@@ -363,6 +395,27 @@
 
   <!-- ==================== MODALS ==================== -->
 
+  <!-- MODAL: ADD / EDIT PRODUCT ITEM -->
+  <div id="modal-product" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-950 border border-slate-800 rounded-2xl w-full max-w-md p-5 sm:p-6 my-8 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h3 class="font-bold text-base text-white">Add Master Product Item</h3>
+        <button onclick="closeModal('modal-product')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <form onsubmit="handleSaveProduct(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Product Name *</label>
+          <input id="prod-name-input" type="text" required placeholder="e.g. Kinnow Grade A, Garlic, Apple..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white" />
+        </div>
+        <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
+          <button type="button" onclick="closeModal('modal-product')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold rounded-lg">Save Product</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- MODAL: ADD / EDIT PARTY -->
   <div id="modal-party" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
     <div class="bg-slate-950 border border-slate-800 rounded-2xl w-full max-w-2xl p-5 sm:p-6 my-8 space-y-4 shadow-2xl">
@@ -438,7 +491,7 @@
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <div>
           <h3 id="inward-modal-title" class="font-bold base text-white">Generate Inward Receiving Slip / Gate Pass</h3>
-          <p class="text-xs text-slate-400">Select or add saved master items, manual gate pass, chambers, rent, and labour</p>
+          <p class="text-xs text-slate-400">Select items from catalog, manual gate pass, chambers, rent, and labour</p>
         </div>
         <button onclick="closeModal('modal-inward')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
@@ -477,7 +530,7 @@
         <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-xl space-y-3">
           <div class="flex justify-between items-center">
             <span class="font-bold text-cyan-400 text-xs flex items-center gap-1.5">
-              <i class="fa-solid fa-boxes-stacked"></i> Inward Product Items (Multiple Items Supported)
+              <i class="fa-solid fa-boxes-stacked"></i> Inward Product Items (Select from Master Catalog)
             </span>
             <button type="button" onclick="addInwardItemRow()" class="px-2.5 py-1 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 rounded-lg text-[11px] font-bold">
               + Add Product Item
@@ -588,7 +641,7 @@
         <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-xl space-y-3">
           <div class="flex justify-between items-center">
             <span class="font-bold text-amber-400 text-xs flex items-center gap-1.5">
-              <i class="fa-solid fa-cart-flatbed"></i> Products to Dispatch (Multiple Items Supported)
+              <i class="fa-solid fa-cart-flatbed"></i> Products to Dispatch (FIFO Deducted)
             </span>
             <button type="button" onclick="addOutwardProductRow()" class="px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-lg text-[11px] font-bold">
               + Add Another Product
@@ -770,7 +823,7 @@
 
   <!-- ==================== CORE LOGIC ENGINE ==================== -->
   <script>
-    const CACHE_KEY = 'BAZZ_STORAGE_PROD_V6_FIFO';
+    const CACHE_KEY = 'BAZZ_STORAGE_PROD_V7_CATALOG_FIFO';
     const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyo_dGbzwRiNpINuJZvL6K0D-UBtYnQIL8oHq40voHlMDMoJnFc7zN38Kq7cOClXkHMXQ/exec";
 
     let currentUser = null;
@@ -1034,6 +1087,7 @@
         renderCustomerPortal();
       } else {
         renderPartiesTable();
+        renderProductsTable();
         renderInwardTable();
         renderOutwardTable();
         renderPaymentsTable();
@@ -1047,7 +1101,62 @@
     function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
     // =========================================================
-    // 1. PARTIES & OPENING STOCK
+    // 1. PRODUCTS CATALOG (ADD ITEMS FIRST)
+    // =========================================================
+    function openProductModal() {
+      document.getElementById('prod-name-input').value = '';
+      openModal('modal-product');
+    }
+
+    function handleSaveProduct(e) {
+      e.preventDefault();
+      const val = document.getElementById('prod-name-input').value.trim();
+      if (!val) return;
+
+      if (!appData.masterProducts.includes(val)) {
+        appData.masterProducts.push(val);
+        pushToGoogle();
+        refreshCurrentView();
+      }
+      closeModal('modal-product');
+    }
+
+    function renderProductsTable() {
+      const tbody = document.getElementById('product-table-body');
+      tbody.innerHTML = '';
+
+      if (appData.masterProducts.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="2" class="text-center py-8 text-slate-500">No products added yet. Click "+ Add New Product Item".</td></tr>`;
+        return;
+      }
+
+      appData.masterProducts.forEach((prod, index) => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-900/50 transition";
+        tr.innerHTML = `
+          <td class="p-3 font-bold text-white text-sm"><i class="fa-solid fa-box text-teal-400 mr-2"></i> ${escapeHtml(prod)}</td>
+          <td class="p-3 text-right">
+            <button onclick="deleteMasterProduct('${escapeHtml(prod)}')" title="Delete Product" class="p-1.5 bg-slate-800 hover:bg-rose-950 text-rose-400 rounded"><i class="fa-solid fa-trash"></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function deleteMasterProduct(prodName) {
+      if (!userCanDelete() && currentUser.role !== 'admin') {
+        alert("You do not have permission to delete catalog items.");
+        return;
+      }
+      if (confirm(`Remove "${prodName}" from master catalog?`)) {
+        appData.masterProducts = appData.masterProducts.filter(p => p !== prodName);
+        pushToGoogle();
+        refreshCurrentView();
+      }
+    }
+
+    // =========================================================
+    // 2. PARTIES & OPENING STOCK
     // =========================================================
     function openPartyModal(editId = null) {
       const form = document.getElementById('party-form');
@@ -1085,10 +1194,17 @@
       div.id = rowId;
       div.className = "p-3 bg-slate-950 border border-slate-800 rounded-lg grid grid-cols-1 sm:grid-cols-6 gap-2 items-center text-xs";
 
+      const prodOptions = appData.masterProducts.map(prod => `
+        <option value="${escapeHtml(prod)}" ${data && data.product === prod ? 'selected' : ''}>${escapeHtml(prod)}</option>
+      `).join('');
+
       div.innerHTML = `
         <div class="sm:col-span-2">
           <label class="text-[10px] text-slate-400 block mb-0.5">Product</label>
-          <input type="text" placeholder="e.g. Kinnow" value="${data ? data.product : ''}" required class="os-product w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white" />
+          <select class="os-product w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white">
+            <option value="">-- Select Product --</option>
+            ${prodOptions}
+          </select>
         </div>
         <div>
           <label class="text-[10px] text-slate-400 block mb-0.5">Opening Qty</label>
@@ -1121,6 +1237,9 @@
       `;
       container.appendChild(div);
 
+      if (data && data.product) {
+        div.querySelector('.os-product').value = data.product;
+      }
       if (data && data.chamber) {
         div.querySelector('.os-chamber').value = data.chamber;
       }
@@ -1145,7 +1264,7 @@
       const lotRows = document.querySelectorAll('#opening-stock-container > div');
       const openingLots = [];
       lotRows.forEach((r, idx) => {
-        const prod = r.querySelector('.os-product').value.trim();
+        const prod = r.querySelector('.os-product').value;
         const qty = parseInt(r.querySelector('.os-qty').value) || 0;
         const pack = r.querySelector('.os-pack').value.trim();
         const cham = r.querySelector('.os-chamber').value;
@@ -1161,7 +1280,6 @@
             rate: 15,
             cycleStartDate: dt
           });
-          if (!appData.masterProducts.includes(prod)) appData.masterProducts.push(prod);
         }
       });
 
@@ -1279,7 +1397,7 @@
     }
 
     // =========================================================
-    // 2. INWARD SLIP & MULTI-ITEM RECEIVING (WITH MASTER ITEMS)
+    // 3. INWARD SLIP & MULTI-ITEM RECEIVING (USING MASTER CATALOG)
     // =========================================================
     function openInwardModal(editId = null) {
       const form = document.getElementById('inward-form');
@@ -1348,14 +1466,10 @@
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
           <div>
             <label class="text-[10px] text-slate-400 block mb-0.5">Product Name *</label>
-            <div class="flex gap-1">
-              <select class="in-prod-select w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white text-xs" onchange="checkInwardProductSelection(this)">
-                <option value="">-- Select Product --</option>
-                ${productOptions}
-                <option value="__ADD_NEW__">➕ Add New Product...</option>
-              </select>
-              <input type="text" placeholder="Product name" value="${data ? data.product : ''}" required class="in-prod-custom hidden w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white text-xs" />
-            </div>
+            <select class="in-prod-select w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white text-xs" required>
+              <option value="">-- Select Product From Catalog --</option>
+              ${productOptions}
+            </select>
           </div>
           <div>
             <label class="text-[10px] text-slate-400 block mb-0.5">Quantity (Nugs) *</label>
@@ -1399,33 +1513,13 @@
       `;
       container.appendChild(div);
 
-      const sel = div.querySelector('.in-prod-select');
-      const customInput = div.querySelector('.in-prod-custom');
       if (data && data.product) {
-        if (appData.masterProducts.includes(data.product)) {
-          sel.value = data.product;
-        } else {
-          sel.value = '__ADD_NEW__';
-          customInput.value = data.product;
-          customInput.classList.remove('hidden');
-          sel.classList.add('hidden');
-        }
+        div.querySelector('.in-prod-select').value = data.product;
       }
-
       if (data && data.chamber) {
         div.querySelector('.in-chamber').value = data.chamber;
       }
       calculateInwardTotals();
-    }
-
-    function checkInwardProductSelection(sel) {
-      const row = sel.closest('div.space-y-2') || sel.closest('div');
-      const customInput = row.querySelector('.in-prod-custom');
-      if (sel.value === '__ADD_NEW__') {
-        sel.classList.add('hidden');
-        customInput.classList.remove('hidden');
-        customInput.focus();
-      }
     }
 
     function calculateInwardTotals() {
@@ -1473,15 +1567,7 @@
       let totalLabour = 0;
 
       rows.forEach(r => {
-        const sel = r.querySelector('.in-prod-select');
-        const customInput = r.querySelector('.in-prod-custom');
-        let prod = '';
-        if (sel.classList.contains('hidden') || sel.value === '__ADD_NEW__') {
-          prod = customInput.value.trim();
-        } else {
-          prod = sel.value;
-        }
-
+        const prod = r.querySelector('.in-prod-select').value;
         const qty = parseInt(r.querySelector('.in-qty').value) || 0;
         const pack = r.querySelector('.in-pack').value.trim();
         const wt = parseFloat(r.querySelector('.in-wt').value) || 0;
@@ -1490,10 +1576,6 @@
         const labour = parseFloat(r.querySelector('.in-labour').value) || 0;
 
         if (prod && qty > 0) {
-          if (!appData.masterProducts.includes(prod)) {
-            appData.masterProducts.push(prod);
-          }
-
           const itemWt = qty * wt;
           const itemRent = qty * rate;
           const itemLab = qty * labour;
@@ -1518,7 +1600,7 @@
       });
 
       if (items.length === 0) {
-        alert("Please add at least one product item to the inward slip.");
+        alert("Please select at least one product item from the catalog.");
         return;
       }
 
@@ -1625,7 +1707,7 @@
     }
 
     // =========================================================
-    // 3. OUTWARD GATE PASS LOGIC (FIFO INVENTORY DEDUCTION)
+    // 4. OUTWARD GATE PASS (FIFO INVENTORY DEDUCTION)
     // =========================================================
     function openOutwardModal(editId = null) {
       const form = document.getElementById('outward-form');
@@ -1868,9 +1950,9 @@
     }
 
     // =========================================================
-    // 4. PAYMENTS
+    // 5. PAYMENTS & STAFF
     // =========================================================
-    function openPaymentModal(editId = null) {
+    function openPaymentModal() {
       const form = document.getElementById('payment-form');
       form.reset();
       document.getElementById('payment-edit-id').value = '';
@@ -1949,9 +2031,6 @@
       }
     }
 
-    // =========================================================
-    // 5. STAFF ACCOUNTS
-    // =========================================================
     function openStaffModal(editId = null) {
       document.getElementById('staff-form').reset();
       document.getElementById('staff-edit-id').value = '';
@@ -2076,13 +2155,12 @@
     }
 
     // =========================================================
-    // 6. FIFO CALCULATION ENGINE
+    // 6. FIFO & FINANCIAL CALCULATION ENGINES
     // =========================================================
     function getPartyAvailableProducts(partyId, ignoreOutwardId = null) {
       const party = appData.parties.find(x => x.id === partyId);
       if (!party) return [];
 
-      // Replay chronological Inwards and Outwards with FIFO balance
       const stockMap = {};
 
       if (party.openingStockLots) {
