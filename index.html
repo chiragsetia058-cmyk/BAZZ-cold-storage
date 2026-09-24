@@ -149,7 +149,7 @@
                 <tr>
                   <th class="p-3">Party Name & Place</th>
                   <th class="p-3">Mobile & Credentials</th>
-                  <th class="p-3">Live Chamber Stock</th>
+                  <th class="p-3">Live Chamber Stock (FIFO)</th>
                   <th class="p-3">Financial Balance</th>
                   <th class="p-3">Status</th>
                   <th class="p-3 text-right">Actions</th>
@@ -168,7 +168,7 @@
             <h2 class="text-base font-bold text-white flex items-center gap-2">
               <i class="fa-solid fa-arrow-down-to-bracket text-emerald-400"></i> Inward Receiving Slips & Gate Passes
             </h2>
-            <p class="text-xs text-slate-400">Record incoming multi-item stock, chambers, monthly rent, and labour</p>
+            <p class="text-xs text-slate-400">Record incoming multi-item stock with master items, chambers, rent, and labour</p>
           </div>
           <button onclick="openInwardModal()" class="px-3.5 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-emerald-500/10">
             <i class="fa-solid fa-plus"></i> New Inward Entry
@@ -201,7 +201,7 @@
             <h2 class="text-base font-bold text-white flex items-center gap-2">
               <i class="fa-solid fa-arrow-up-from-bracket text-amber-400"></i> Outward Dispatches & Gate Passes
             </h2>
-            <p class="text-xs text-slate-400">Dispatch stock with real-time stock balance validation and balance left tracking</p>
+            <p class="text-xs text-slate-400">Dispatch stock using FIFO deduction with balance left tracking</p>
           </div>
           <button onclick="openOutwardModal()" class="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-amber-500/10">
             <i class="fa-solid fa-truck-ramp-box"></i> Create Outward Pass
@@ -432,13 +432,13 @@
     </div>
   </div>
 
-  <!-- MODAL: INWARD SLIP / RECEIVING (MULTI-ITEM SUPPORT) -->
+  <!-- MODAL: INWARD SLIP / RECEIVING (MULTI-ITEM & MASTER ITEMS) -->
   <div id="modal-inward" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
     <div class="bg-slate-950 border border-slate-800 rounded-2xl w-full max-w-4xl p-5 sm:p-6 my-8 space-y-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <div>
           <h3 id="inward-modal-title" class="font-bold base text-white">Generate Inward Receiving Slip / Gate Pass</h3>
-          <p class="text-xs text-slate-400">Add multiple product items, manual gate pass, chambers, rent, and labour</p>
+          <p class="text-xs text-slate-400">Select or add saved master items, manual gate pass, chambers, rent, and labour</p>
         </div>
         <button onclick="closeModal('modal-inward')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
@@ -473,7 +473,7 @@
           </div>
         </div>
 
-        <!-- MULTI-ITEM INWARD BUILDER -->
+        <!-- MULTI-ITEM INWARD BUILDER WITH MASTER PRODUCTS -->
         <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-xl space-y-3">
           <div class="flex justify-between items-center">
             <span class="font-bold text-cyan-400 text-xs flex items-center gap-1.5">
@@ -543,13 +543,13 @@
     </div>
   </div>
 
-  <!-- MODAL: OUTWARD GATE PASS (WITH EDIT SUPPORT) -->
+  <!-- MODAL: OUTWARD GATE PASS -->
   <div id="modal-outward" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
     <div class="bg-slate-950 border border-slate-800 rounded-2xl w-full max-w-3xl p-5 sm:p-6 my-8 space-y-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <div>
           <h3 id="outward-modal-title" class="font-bold text-base text-white">Generate Outward Dispatch Gate Pass</h3>
-          <p class="text-xs text-slate-400">Manual gate pass number and automated stock balance deduction</p>
+          <p class="text-xs text-slate-400">Manual gate pass number and FIFO stock balance deduction</p>
         </div>
         <button onclick="closeModal('modal-outward')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
@@ -770,7 +770,7 @@
 
   <!-- ==================== CORE LOGIC ENGINE ==================== -->
   <script>
-    const CACHE_KEY = 'BAZZ_STORAGE_PROD_V5_OUTEDIT';
+    const CACHE_KEY = 'BAZZ_STORAGE_PROD_V6_FIFO';
     const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyo_dGbzwRiNpINuJZvL6K0D-UBtYnQIL8oHq40voHlMDMoJnFc7zN38Kq7cOClXkHMXQ/exec";
 
     let currentUser = null;
@@ -780,6 +780,7 @@
       outwardSlips: [],
       payments: [],
       staffAccounts: [],
+      masterProducts: ['Kinnow Grade A', 'Kinnow Grade B', 'Seed Potato', 'Apple', 'Pomegranate', 'Garlic'],
       config: { googleScriptUrl: DEFAULT_SCRIPT_URL }
     };
 
@@ -798,6 +799,9 @@
         } catch (e) {
           console.error("Local storage error:", e);
         }
+      }
+      if (!appData.masterProducts || appData.masterProducts.length === 0) {
+        appData.masterProducts = ['Kinnow Grade A', 'Kinnow Grade B', 'Seed Potato', 'Apple'];
       }
       if (!appData.config.googleScriptUrl) {
         appData.config.googleScriptUrl = DEFAULT_SCRIPT_URL;
@@ -843,6 +847,7 @@
           appData.outwardSlips = data.outwardSlips || [];
           appData.payments = data.payments || [];
           appData.staffAccounts = data.staffAccounts || [];
+          appData.masterProducts = data.masterProducts || appData.masterProducts;
           saveLocalState();
           refreshCurrentView();
           updateCloudStatus("Cloud Synced ☁️", "text-emerald-400 border-emerald-500/40 bg-emerald-950/60");
@@ -865,6 +870,7 @@
         outwardSlips: appData.outwardSlips,
         payments: appData.payments,
         staffAccounts: appData.staffAccounts,
+        masterProducts: appData.masterProducts,
         timestamp: new Date().toISOString()
       };
 
@@ -1155,6 +1161,7 @@
             rate: 15,
             cycleStartDate: dt
           });
+          if (!appData.masterProducts.includes(prod)) appData.masterProducts.push(prod);
         }
       });
 
@@ -1272,7 +1279,7 @@
     }
 
     // =========================================================
-    // 2. INWARD SLIP & MULTI-ITEM RECEIVING
+    // 2. INWARD SLIP & MULTI-ITEM RECEIVING (WITH MASTER ITEMS)
     // =========================================================
     function openInwardModal(editId = null) {
       const form = document.getElementById('inward-form');
@@ -1333,11 +1340,22 @@
       div.id = rowId;
       div.className = "p-3 bg-slate-950 border border-slate-800 rounded-lg space-y-2 text-xs";
 
+      const productOptions = appData.masterProducts.map(prod => `
+        <option value="${escapeHtml(prod)}" ${data && data.product === prod ? 'selected' : ''}>${escapeHtml(prod)}</option>
+      `).join('');
+
       div.innerHTML = `
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
           <div>
             <label class="text-[10px] text-slate-400 block mb-0.5">Product Name *</label>
-            <input type="text" placeholder="e.g. Kinnow Grade A" value="${data ? data.product : ''}" required class="in-prod w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white" />
+            <div class="flex gap-1">
+              <select class="in-prod-select w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white text-xs" onchange="checkInwardProductSelection(this)">
+                <option value="">-- Select Product --</option>
+                ${productOptions}
+                <option value="__ADD_NEW__">➕ Add New Product...</option>
+              </select>
+              <input type="text" placeholder="Product name" value="${data ? data.product : ''}" required class="in-prod-custom hidden w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white text-xs" />
+            </div>
           </div>
           <div>
             <label class="text-[10px] text-slate-400 block mb-0.5">Quantity (Nugs) *</label>
@@ -1381,10 +1399,33 @@
       `;
       container.appendChild(div);
 
+      const sel = div.querySelector('.in-prod-select');
+      const customInput = div.querySelector('.in-prod-custom');
+      if (data && data.product) {
+        if (appData.masterProducts.includes(data.product)) {
+          sel.value = data.product;
+        } else {
+          sel.value = '__ADD_NEW__';
+          customInput.value = data.product;
+          customInput.classList.remove('hidden');
+          sel.classList.add('hidden');
+        }
+      }
+
       if (data && data.chamber) {
         div.querySelector('.in-chamber').value = data.chamber;
       }
       calculateInwardTotals();
+    }
+
+    function checkInwardProductSelection(sel) {
+      const row = sel.closest('div.space-y-2') || sel.closest('div');
+      const customInput = row.querySelector('.in-prod-custom');
+      if (sel.value === '__ADD_NEW__') {
+        sel.classList.add('hidden');
+        customInput.classList.remove('hidden');
+        customInput.focus();
+      }
     }
 
     function calculateInwardTotals() {
@@ -1432,7 +1473,15 @@
       let totalLabour = 0;
 
       rows.forEach(r => {
-        const prod = r.querySelector('.in-prod').value.trim();
+        const sel = r.querySelector('.in-prod-select');
+        const customInput = r.querySelector('.in-prod-custom');
+        let prod = '';
+        if (sel.classList.contains('hidden') || sel.value === '__ADD_NEW__') {
+          prod = customInput.value.trim();
+        } else {
+          prod = sel.value;
+        }
+
         const qty = parseInt(r.querySelector('.in-qty').value) || 0;
         const pack = r.querySelector('.in-pack').value.trim();
         const wt = parseFloat(r.querySelector('.in-wt').value) || 0;
@@ -1441,6 +1490,10 @@
         const labour = parseFloat(r.querySelector('.in-labour').value) || 0;
 
         if (prod && qty > 0) {
+          if (!appData.masterProducts.includes(prod)) {
+            appData.masterProducts.push(prod);
+          }
+
           const itemWt = qty * wt;
           const itemRent = qty * rate;
           const itemLab = qty * labour;
@@ -1572,7 +1625,7 @@
     }
 
     // =========================================================
-    // 3. OUTWARD GATE PASS LOGIC (WITH EDIT SUPPORT)
+    // 3. OUTWARD GATE PASS LOGIC (FIFO INVENTORY DEDUCTION)
     // =========================================================
     function openOutwardModal(editId = null) {
       const form = document.getElementById('outward-form');
@@ -2023,12 +2076,13 @@
     }
 
     // =========================================================
-    // 6. CALCULATIONS
+    // 6. FIFO CALCULATION ENGINE
     // =========================================================
     function getPartyAvailableProducts(partyId, ignoreOutwardId = null) {
       const party = appData.parties.find(x => x.id === partyId);
       if (!party) return [];
 
+      // Replay chronological Inwards and Outwards with FIFO balance
       const stockMap = {};
 
       if (party.openingStockLots) {
@@ -2063,12 +2117,12 @@
       const party = appData.parties.find(x => x.id === partyId);
       if (!party) return { currentStock: 0, breakdownText: 'No stock' };
 
-      const prodMap = {};
+      const stockMap = {};
       let total = 0;
 
       if (party.openingStockLots) {
         party.openingStockLots.forEach(lot => {
-          prodMap[lot.product] = (prodMap[lot.product] || 0) + lot.qty;
+          stockMap[lot.product] = (stockMap[lot.product] || 0) + lot.qty;
           total += lot.qty;
         });
       }
@@ -2076,19 +2130,19 @@
       appData.inwardSlips.filter(s => s.partyId === partyId).forEach(s => {
         const items = s.items ? s.items : [{ product: s.product, qty: s.qty }];
         items.forEach(it => {
-          prodMap[it.product] = (prodMap[it.product] || 0) + it.qty;
+          stockMap[it.product] = (stockMap[it.product] || 0) + it.qty;
           total += it.qty;
         });
       });
 
       appData.outwardSlips.filter(s => s.partyId === partyId).forEach(s => {
         s.items.forEach(it => {
-          prodMap[it.product] = (prodMap[it.product] || 0) - it.dispatchedQty;
+          stockMap[it.product] = (stockMap[it.product] || 0) - it.dispatchedQty;
           total -= it.dispatchedQty;
         });
       });
 
-      const breakdown = Object.keys(prodMap).filter(k => prodMap[k] > 0).map(k => `${prodMap[k]} ${k}`).join(', ');
+      const breakdown = Object.keys(stockMap).filter(k => stockMap[k] > 0).map(k => `${stockMap[k]} ${k}`).join(', ');
       return {
         currentStock: total,
         breakdownText: breakdown || '0 Nugs left'
@@ -2330,7 +2384,7 @@
         </div>
 
         <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
-          <div class="text-xs font-bold text-cyan-400 uppercase tracking-wider">Current Stock In Chambers</div>
+          <div class="text-xs font-bold text-cyan-400 uppercase tracking-wider">Current Stock In Chambers (FIFO)</div>
           <div class="text-sm font-semibold text-white">${stockData.currentStock} Nugs Total <span class="text-xs text-slate-400 font-normal">(${stockData.breakdownText})</span></div>
         </div>
 
@@ -2663,7 +2717,7 @@
               </td>
               <td width="50%">
                 <div class="row"><b>Statement Date:</b> ${new Date().toLocaleDateString('en-IN')}</div>
-                <div class="row"><b>Current Stock in Chamber:</b> ${stock.currentStock} Nugs (${stock.breakdownText})</div>
+                <div class="row"><b>Current Stock in Chamber (FIFO):</b> ${stock.currentStock} Nugs (${stock.breakdownText})</div>
                 <div class="row"><b>Net Balance Due:</b> <b>₹${fin.netDue.toLocaleString('en-IN')}</b></div>
               </td>
             </tr>
@@ -2869,7 +2923,7 @@ _Thank you for your payment!_`;
 *Party:* ${party.name} (${party.place})
 *Date:* ${new Date().toLocaleDateString('en-IN')}
 
-*Stock in Chambers:* ${stock.currentStock} Nugs
+*Stock in Chambers (FIFO):* ${stock.currentStock} Nugs
 (${stock.breakdownText})
 
 *Account Summary:*
