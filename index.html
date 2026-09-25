@@ -10,6 +10,7 @@
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
     body { font-family: 'Plus Jakarta Sans', sans-serif; }
 
+    /* Print media safety */
     @page { size: A4 portrait; margin: 10mm 12mm; }
     @media print {
       body * { visibility: hidden !important; }
@@ -28,7 +29,7 @@
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
 
-  <!-- ==================== TOP NAVIGATION ==================== -->
+  <!-- ==================== TOP NAVIGATION BAR ==================== -->
   <header id="top-nav" class="hidden bg-slate-950 border-b border-slate-800 sticky top-0 z-40 px-4 py-3">
     <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center space-x-3">
@@ -42,16 +43,19 @@
       </div>
 
       <div class="flex items-center space-x-2 sm:space-x-3">
+        <!-- Google Cloud Sync Indicator -->
         <button onclick="openCloudModal()" id="cloud-pill" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border bg-emerald-950/60 border-emerald-500/40 text-emerald-400 hover:bg-emerald-900/50 transition">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
           <span id="cloud-status-text">Cloud Synced ☁️</span>
         </button>
 
+        <!-- Current User Role & Name -->
         <div class="text-right hidden sm:block">
           <div id="nav-user-name" class="text-xs font-semibold text-slate-200">Admin</div>
           <div id="nav-user-role" class="text-[10px] text-cyan-400 uppercase font-mono font-bold tracking-wider">ADMINISTRATOR</div>
         </div>
 
+        <!-- Logout Action -->
         <button onclick="logout()" class="px-3 py-1.5 bg-slate-800 hover:bg-red-950/60 hover:text-red-300 text-slate-300 border border-slate-700 rounded-lg text-xs font-medium transition flex items-center gap-1.5">
           <i class="fa-solid fa-right-from-bracket"></i> <span class="hidden sm:inline">Logout</span>
         </button>
@@ -59,7 +63,7 @@
     </div>
   </header>
 
-  <!-- ==================== LOGIN SCREEN ==================== -->
+  <!-- ==================== CLEAN LOGIN SCREEN ==================== -->
   <div id="view-login" class="flex-1 flex items-center justify-center p-4">
     <div class="max-w-md w-full bg-slate-950 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
       <div class="text-center mb-6">
@@ -98,6 +102,7 @@
 
   <!-- ==================== MAIN DASHBOARD ==================== -->
   <div id="view-dashboard" class="hidden flex-1 flex flex-col">
+    <!-- Sub-navigation Tabs -->
     <div class="bg-slate-950/80 border-b border-slate-800 px-4">
       <div class="max-w-7xl mx-auto flex items-center space-x-1 sm:space-x-2 overflow-x-auto py-2 scrollbar-none text-xs sm:text-sm">
         <button onclick="switchTab('parties')" id="tab-parties" class="tab-btn px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap">
@@ -195,7 +200,7 @@
             <h2 class="text-base font-bold text-white flex items-center gap-2">
               <i class="fa-solid fa-arrow-down-to-bracket text-emerald-400"></i> Inward Receiving Slips & Gate Passes
             </h2>
-            <p class="text-xs text-slate-400">Record incoming multi-item stock with auto slip numbers and manual gate pass numbers</p>
+            <p class="text-xs text-slate-400">Record incoming multi-item stock using saved catalog items, chambers, rent, and labour</p>
           </div>
           <button onclick="openInwardModal()" class="px-3.5 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-emerald-500/10">
             <i class="fa-solid fa-plus"></i> New Inward Entry
@@ -870,7 +875,7 @@
       return false;
     }
 
-    // --- GOOGLE CLOUD SYNC ---
+    // --- GOOGLE CLOUD SYNC (WITH SELF-INITIALIZATION FOR BLANK SHEETS) ---
     async function pullFromGoogle() {
       const url = appData.config.googleScriptUrl;
       if (!url) return;
@@ -878,7 +883,12 @@
 
       try {
         const response = await fetch(url);
-        const data = await response.json();
+        const text = await response.text();
+        if (!text || text.trim() === "") {
+          pushToGoogle();
+          return;
+        }
+        const data = JSON.parse(text);
         if (data && typeof data === 'object') {
           appData.parties = data.parties || [];
           appData.inwardSlips = data.inwardSlips || [];
@@ -2140,7 +2150,7 @@
     }
 
     // =========================================================
-    // 6. TRUE FIFO INVENTORY & RECURRING RENT ENGINE
+    // 6. TRUE FIFO & FINANCIAL CALCULATION ENGINES (FIXED RENT MILESTONES)
     // =========================================================
     function getPartyAvailableProducts(partyId, ignoreOutwardId = null) {
       const party = appData.parties.find(x => x.id === partyId);
@@ -2194,7 +2204,6 @@
 
       const batches = [];
 
-      // 1. Opening Stock Batches
       if (party.openingStockLots) {
         party.openingStockLots.forEach((lot, idx) => {
           batches.push({
@@ -2204,17 +2213,14 @@
             initialQty: lot.qty,
             remainingQty: lot.qty,
             rate: lot.rate || 15,
-            isOpening: true,
-            packaging: lot.packaging,
-            chamber: lot.chamber
+            isOpening: true
           });
         });
       }
 
-      // 2. Inward Slip Batches
       const inwards = appData.inwardSlips.filter(s => s.partyId === partyId);
       inwards.forEach(s => {
-        const items = s.items ? s.items : [{ product: s.product, qty: s.qty, monthlyRate: s.monthlyRate, packaging: s.packaging, chamber: s.chamber }];
+        const items = s.items ? s.items : [{ product: s.product, qty: s.qty, monthlyRate: s.monthlyRate }];
         items.forEach((it, idx) => {
           batches.push({
             batchId: `IN-${s.id}-${idx+1}`,
@@ -2224,14 +2230,11 @@
             initialQty: it.qty,
             remainingQty: it.qty,
             rate: it.monthlyRate || 15,
-            isOpening: false,
-            packaging: it.packaging,
-            chamber: it.chamber
+            isOpening: false
           });
         });
       });
 
-      // Chronological sort
       batches.sort((a, b) => new Date(a.date) - new Date(b.date));
       return batches;
     }
@@ -2255,7 +2258,6 @@
       });
     }
 
-    // TRUE FIFO FINANCIAL & RECURRING RENT ENGINE
     function calculatePartyFinancials(partyId) {
       const party = appData.parties.find(x => x.id === partyId);
       if (!party) return { totalBilled: 0, totalPaid: 0, netDue: 0, entries: [] };
@@ -2263,7 +2265,6 @@
       const entries = [];
       const today = new Date();
 
-      // 1. Previous Financial Balance
       if (party.openingBalance > 0) {
         entries.push({
           date: party.openingBalanceDate || '2026-01-01',
@@ -2273,7 +2274,6 @@
         });
       }
 
-      // 2. Inward Initial Month 1 Bills
       const inwards = appData.inwardSlips.filter(s => s.partyId === partyId);
       inwards.forEach(s => {
         entries.push({
@@ -2284,7 +2284,6 @@
         });
       });
 
-      // 3. True Batch-by-Batch FIFO Recurring Rent Engine
       const batches = buildPartyBatches(partyId);
       const outwards = appData.outwardSlips.filter(s => s.partyId === partyId);
       outwards.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -2294,13 +2293,11 @@
         let monthCycle = 1;
 
         while (true) {
-          // Exact calendar milestone (1 month, 2 months, etc. from this batch start)
           const milestone = new Date(batchStart);
           milestone.setMonth(milestone.getMonth() + monthCycle);
 
           if (milestone > today) break;
 
-          // How many units of THIS batch remained on this milestone?
           const batchBalance = getBatchBalanceOnDate(b, batches, outwards, milestone);
           if (batchBalance > 0) {
             const cycleRent = batchBalance * b.rate;
@@ -2311,14 +2308,12 @@
               credit: 0
             });
           } else {
-            // Once batch hits 0, no further recurring months for this batch
             break;
           }
           monthCycle++;
         }
       });
 
-      // 4. Payment Receipts
       const pmts = appData.payments.filter(p => p.partyId === partyId);
       pmts.forEach(p => {
         entries.push({
@@ -2329,7 +2324,6 @@
         });
       });
 
-      // Chronological sort
       entries.sort((a, b) => new Date(a.date) - new Date(b.date));
 
       let runningBal = 0;
@@ -2351,7 +2345,6 @@
     }
 
     function getBatchBalanceOnDate(targetBatch, allBatches, allOutwards, asOfDate) {
-      // Re-simulate FIFO specifically up to asOfDate
       const tempBatches = allBatches.map(b => ({
         batchId: b.batchId,
         date: b.date,
