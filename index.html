@@ -395,7 +395,7 @@
 
   <!-- ==================== MODALS ==================== -->
 
-  <!-- MODAL: ADD / EDIT PRODUCT ITEM -->
+  <!-- MODAL: ADD PRODUCT -->
   <div id="modal-product" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
     <div class="bg-slate-950 border border-slate-800 rounded-2xl w-full max-w-md p-5 sm:p-6 my-8 space-y-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
@@ -833,7 +833,7 @@
       outwardSlips: [],
       payments: [],
       staffAccounts: [],
-      masterProducts: ['Kinnow Grade A', 'Kinnow Grade B', 'Seed Potato', 'Apple', 'Pomegranate', 'Garlic'],
+      masterProducts: ['Kinnow Grade A', 'Kinnow Grade B', 'Seed Potato', 'Apple', 'Pomegranate', 'Garlic', 'Kaaju', 'Anjeer', 'Kishmish', 'Chuara'],
       config: { googleScriptUrl: DEFAULT_SCRIPT_URL }
     };
 
@@ -854,7 +854,7 @@
         }
       }
       if (!appData.masterProducts || appData.masterProducts.length === 0) {
-        appData.masterProducts = ['Kinnow Grade A', 'Kinnow Grade B', 'Seed Potato', 'Apple'];
+        appData.masterProducts = ['Kinnow Grade A', 'Kinnow Grade B', 'Seed Potato', 'Apple', 'Kaaju', 'Anjeer', 'Kishmish', 'Chuara'];
       }
       if (!appData.config.googleScriptUrl) {
         appData.config.googleScriptUrl = DEFAULT_SCRIPT_URL;
@@ -1101,7 +1101,7 @@
     function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
     // =========================================================
-    // 1. PRODUCTS CATALOG (ADD ITEMS FIRST)
+    // 1. PRODUCTS CATALOG
     // =========================================================
     function openProductModal() {
       document.getElementById('prod-name-input').value = '';
@@ -1194,7 +1194,7 @@
       div.id = rowId;
       div.className = "p-3 bg-slate-950 border border-slate-800 rounded-lg grid grid-cols-1 sm:grid-cols-6 gap-2 items-center text-xs";
 
-      const prodOptions = appData.masterProducts.map(prod => `
+      const productOptions = appData.masterProducts.map(prod => `
         <option value="${escapeHtml(prod)}" ${data && data.product === prod ? 'selected' : ''}>${escapeHtml(prod)}</option>
       `).join('');
 
@@ -1203,7 +1203,7 @@
           <label class="text-[10px] text-slate-400 block mb-0.5">Product</label>
           <select class="os-product w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white">
             <option value="">-- Select Product --</option>
-            ${prodOptions}
+            ${productOptions}
           </select>
         </div>
         <div>
@@ -2155,7 +2155,7 @@
     }
 
     // =========================================================
-    // 6. FIFO & FINANCIAL CALCULATION ENGINES
+    // 6. FIFO & FINANCIAL CALCULATION ENGINES (FIXED RENT MILESTONES)
     // =========================================================
     function getPartyAvailableProducts(partyId, ignoreOutwardId = null) {
       const party = appData.parties.find(x => x.id === partyId);
@@ -2329,7 +2329,7 @@
       while (true) {
         const nextMilestone = new Date(inwardDate);
         nextMilestone.setMonth(nextMilestone.getMonth() + cycleIndex);
-        nextMilestone.setDate(nextMilestone.getDate() + 1);
+        // EXACT CALENDAR MONTH MILESTONE (NO +1 DAY OFFSET)
 
         if (nextMilestone > today) break;
 
@@ -2359,7 +2359,7 @@
       while (true) {
         const nextMilestone = new Date(startDate);
         nextMilestone.setMonth(nextMilestone.getMonth() + cycleIndex);
-        nextMilestone.setDate(nextMilestone.getDate() + 1);
+        // EXACT CALENDAR MONTH MILESTONE (NO +1 DAY OFFSET)
 
         if (nextMilestone > today) break;
 
