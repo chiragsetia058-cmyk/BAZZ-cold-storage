@@ -46,7 +46,7 @@
         <!-- Google Cloud Sync Indicator -->
         <button onclick="openCloudModal()" id="cloud-pill" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border bg-emerald-950/60 border-emerald-500/40 text-emerald-400 hover:bg-emerald-900/50 transition">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span id="cloud-status-text">Cloud Synced ☁️️</span>
+          <span id="cloud-status-text">Cloud Synced ☁️</span>
         </button>
 
         <!-- Current User Role & Name -->
@@ -1134,7 +1134,7 @@
           appData.masterProducts = data.masterProducts || appData.masterProducts;
           saveLocalState();
           refreshCurrentView();
-          updateCloudStatus("Cloud Synced ☁️", "text-emerald-400 border-emerald-500/40 bg-emerald-950/60");
+          updateCloudStatus("Cloud Synced ☁️️", "text-emerald-400 border-emerald-500/40 bg-emerald-950/60");
         }
       } catch (err) {
         console.warn("Pull fallback:", err);
