@@ -1134,7 +1134,7 @@
           appData.masterProducts = data.masterProducts || appData.masterProducts;
           saveLocalState();
           refreshCurrentView();
-          updateCloudStatus("Cloud Synced ☁️️", "text-emerald-400 border-emerald-500/40 bg-emerald-950/60");
+          updateCloudStatus("Cloud Synced ☁️", "text-emerald-400 border-emerald-500/40 bg-emerald-950/60");
         }
       } catch (err) {
         console.warn("Pull fallback:", err);
@@ -1169,7 +1169,7 @@
         updateCloudStatus("Cloud Synced ☁️", "text-emerald-400 border-emerald-500/40 bg-emerald-950/60");
       }).catch(err => {
         console.error("Push failed:", err);
-        updateCloudStatus("Sync Failed ⚠️", "text-rose-400 border-rose-500/40 bg-rose-950/60");
+        updateCloudStatus("Sync Failed ⚠️️", "text-rose-400 border-rose-500/40 bg-rose-950/60");
       });
     }
 
@@ -3702,7 +3702,7 @@ _Official cold storage inventory receipt._`;
       let itemsTxt = s.items.map(it => `• *${it.dispatchedQty}* ${it.product} (Prev: ${it.previousStock} | Balance Left: *${it.balanceLeft}*)`).join('\n');
 
       const text = 
-`*❄️ BAZZ COLD STORAGE & PRE-COOLING PLANT*
+`*❄️️ BAZZ COLD STORAGE & PRE-COOLING PLANT*
 *Abohar - Fazilka Bypass, Punjab*
 ---------------------------------------
 *OUTWARD DISPATCH GATE PASS*
