@@ -580,7 +580,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
             <label class="block text-slate-300 font-semibold mb-1">Select Party *</label>
-            <select id="inward-party-id" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white"></select>
+            <select id="inward-party-id" required onchange="handleModalPartySummary('inward')" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white"></select>
           </div>
           <div>
             <label class="block text-slate-300 font-semibold mb-1">Deposit Date *</label>
@@ -589,6 +589,18 @@
           <div>
             <label class="block text-slate-300 font-semibold mb-1">Slip Time</label>
             <input id="inward-time" type="text" readonly class="w-full bg-slate-800/80 border border-slate-700 rounded-lg p-2 text-slate-300 font-mono" />
+          </div>
+        </div>
+
+        <!-- Quick Live Party Summary View inside Modal -->
+        <div id="inward-party-summary" class="bg-slate-900 border border-slate-800 p-3 rounded-xl text-xs flex flex-wrap justify-between items-center gap-3 hidden">
+          <div>
+            <span class="text-slate-400">Selected Party Stock: </span>
+            <span id="inward-summary-stock" class="font-bold text-cyan-400">0 Nugs</span>
+          </div>
+          <div>
+            <span class="text-slate-400">Outstanding Balance: </span>
+            <span id="inward-summary-bal" class="font-bold text-rose-400">₹0</span>
           </div>
         </div>
 
@@ -687,7 +699,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
             <label class="block text-slate-300 font-semibold mb-1">Select Party *</label>
-            <select id="outward-party-id" required onchange="handleOutwardPartySelect()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white"></select>
+            <select id="outward-party-id" required onchange="handleOutwardPartySelect(); handleModalPartySummary('outward');" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white"></select>
           </div>
           <div>
             <label class="block text-slate-300 font-semibold mb-1">Dispatch Date *</label>
@@ -696,6 +708,18 @@
           <div>
             <label class="block text-slate-300 font-semibold mb-1">Time</label>
             <input id="outward-time" type="text" readonly class="w-full bg-slate-800/80 border border-slate-700 rounded-lg p-2 text-slate-300 font-mono" />
+          </div>
+        </div>
+
+        <!-- Quick Live Party Summary View inside Modal -->
+        <div id="outward-party-summary" class="bg-slate-900 border border-slate-800 p-3 rounded-xl text-xs flex flex-wrap justify-between items-center gap-3 hidden">
+          <div>
+            <span class="text-slate-400">Available Stock: </span>
+            <span id="outward-summary-stock" class="font-bold text-cyan-400">0 Nugs</span>
+          </div>
+          <div>
+            <span class="text-slate-400">Outstanding Balance: </span>
+            <span id="outward-summary-bal" class="font-bold text-rose-400">₹0</span>
           </div>
         </div>
 
@@ -1169,7 +1193,7 @@
         updateCloudStatus("Cloud Synced ☁️", "text-emerald-400 border-emerald-500/40 bg-emerald-950/60");
       }).catch(err => {
         console.error("Push failed:", err);
-        updateCloudStatus("Sync Failed ⚠️️", "text-rose-400 border-rose-500/40 bg-rose-950/60");
+        updateCloudStatus("Sync Failed ⚠", "text-rose-400 border-rose-500/40 bg-rose-950/60");
       });
     }
 
@@ -1334,6 +1358,25 @@
 
     function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
     function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+    // --- QUICK MODAL PARTY SUMMARY HELPER ---
+    function handleModalPartySummary(modalType) {
+      const partyId = document.getElementById(`${modalType}-party-id`).value;
+      const summaryBox = document.getElementById(`${modalType}-party-summary`);
+      if (!partyId) {
+        if (summaryBox) summaryBox.classList.add('hidden');
+        return;
+      }
+      const stock = calculatePartyLiveStock(partyId);
+      const fin = calculatePartyFinancials(partyId);
+
+      const stockEl = document.getElementById(`${modalType}-summary-stock`);
+      const balEl = document.getElementById(`${modalType}-summary-bal`);
+
+      if (stockEl) stockEl.textContent = `${stock.currentStock} Nugs (${stock.breakdownText})`;
+      if (balEl) balEl.textContent = `₹${fin.netDue.toLocaleString('en-IN')}`;
+      if (summaryBox) summaryBox.classList.remove('hidden');
+    }
 
     // =========================================================
     // 1. PRODUCTS CATALOG
@@ -1682,6 +1725,7 @@
         addInwardItemRow();
       }
 
+      handleModalPartySummary('inward');
       calculateInwardTotals();
       openModal('modal-inward');
     }
@@ -2418,6 +2462,7 @@
         document.getElementById('outward-gatepass-num').value = '';
         handleOutwardPartySelect();
       }
+      handleModalPartySummary('outward');
       openModal('modal-outward');
     }
 
@@ -3206,7 +3251,7 @@
     }
 
     // =========================================================
-    // 9. PRINT ENGINE
+    // 9. PRINT ENGINE (ROBUST & FIXED)
     // =========================================================
     function printInwardSlip(slipId) {
       const s = appData.inwardSlips.find(x => x.id === slipId);
@@ -3603,19 +3648,6 @@
       const directPrintEl = document.getElementById('bazz-direct-print');
       if (directPrintEl) directPrintEl.innerHTML = innerContent;
 
-      const oldIframe = document.getElementById('bazz-print-iframe');
-      if (oldIframe) oldIframe.remove();
-
-      const iframe = document.createElement('iframe');
-      iframe.id = 'bazz-print-iframe';
-      iframe.style.position = 'fixed';
-      iframe.style.left = '-9999px';
-      iframe.style.top = '-9999px';
-      iframe.style.width = '0px';
-      iframe.style.height = '0px';
-      iframe.style.border = '0';
-      document.body.appendChild(iframe);
-
       const printStyles = `
         @page { size: A4 portrait; margin: 12mm 14mm; }
         * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -3636,9 +3668,22 @@
         .sign-line { border-top: 1px dashed #000; width: 80%; margin: 0 auto 5px auto; }
       `;
 
-      const doc = iframe.contentWindow.document;
-      doc.open();
-      doc.write(`
+      let printFrame = document.getElementById('bazz-print-iframe');
+      if (printFrame) printFrame.remove();
+
+      printFrame = document.createElement('iframe');
+      printFrame.id = 'bazz-print-iframe';
+      printFrame.style.position = 'fixed';
+      printFrame.style.right = '0';
+      printFrame.style.bottom = '0';
+      printFrame.style.width = '0';
+      printFrame.style.height = '0';
+      printFrame.style.border = '0';
+      document.body.appendChild(printFrame);
+
+      const frameDoc = printFrame.contentWindow.document;
+      frameDoc.open();
+      frameDoc.write(`
         <!DOCTYPE html>
         <html>
         <head>
@@ -3651,12 +3696,12 @@
         </body>
         </html>
       `);
-      doc.close();
+      frameDoc.close();
 
-      iframe.contentWindow.focus();
       setTimeout(() => {
-        iframe.contentWindow.print();
-      }, 300);
+        printFrame.contentWindow.focus();
+        printFrame.contentWindow.print();
+      }, 250);
     }
 
     // =========================================================
@@ -3702,7 +3747,7 @@ _Official cold storage inventory receipt._`;
       let itemsTxt = s.items.map(it => `• *${it.dispatchedQty}* ${it.product} (Prev: ${it.previousStock} | Balance Left: *${it.balanceLeft}*)`).join('\n');
 
       const text = 
-`*❄️️ BAZZ COLD STORAGE & PRE-COOLING PLANT*
+`*❄ BAZZ COLD STORAGE & PRE-COOLING PLANT*
 *Abohar - Fazilka Bypass, Punjab*
 ---------------------------------------
 *OUTWARD DISPATCH GATE PASS*
