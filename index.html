@@ -123,6 +123,9 @@
         <button onclick="switchTab('self-outward')" id="tab-self-outward" class="tab-btn px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap">
           <i class="fa-solid fa-truck-fast text-orange-400"></i> Self Outward
         </button>
+        <button onclick="switchTab('self-summary')" id="tab-self-summary" class="tab-btn px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap">
+          <i class="fa-solid fa-chart-pie text-violet-400"></i> Self Stock Ledger
+        </button>
         <button onclick="switchTab('payments')" id="tab-payments" class="tab-btn px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap">
           <i class="fa-solid fa-indian-rupee-sign text-purple-400"></i> Payments
         </button>
@@ -327,6 +330,23 @@
             </table>
           </div>
         </div>
+      </section>
+
+      <!-- PANE 3.7: SELF STOCK LEDGER & SUMMARY -->
+      <section id="pane-self-summary" class="tab-pane hidden space-y-4">
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-chart-pie text-violet-400"></i> Self-Stock Product & Lot Balance Summary
+            </h2>
+            <p class="text-xs text-slate-400">Live breakdown across all master product catalog items and active batch lots</p>
+          </div>
+          <button onclick="refreshSelfSummaryView()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-violet-300 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+            <i class="fa-solid fa-rotate"></i> Refresh Stock
+          </button>
+        </div>
+
+        <div id="self-summary-render-target" class="space-y-6"></div>
       </section>
 
       <!-- PANE 4: PAYMENTS -->
@@ -1349,6 +1369,7 @@
         renderOutwardTable();
         renderSelfInwardTable();
         renderSelfOutwardTable();
+        renderSelfSummaryView();
         renderPaymentsTable();
         renderStaffTable();
         populatePartyDropdowns();
@@ -2419,6 +2440,158 @@
         pushToGoogle();
         refreshCurrentView();
       }
+    }
+
+    // =========================================================
+    // 3.7 SELF STOCK LEDGER & LOT BALANCE SUMMARY
+    // =========================================================
+    function getDetailedSelfStockLots() {
+      const lotBatches = [];
+      appData.selfInwardSlips.forEach(s => {
+        s.items.forEach(it => {
+          lotBatches.push({
+            slipId: s.id,
+            date: s.date,
+            product: it.product,
+            lotNumber: it.lotNumber,
+            packaging: it.packaging,
+            chamber: it.chamber,
+            initialQty: it.qty,
+            remainingQty: it.qty
+          });
+        });
+      });
+
+      // Sort by inward date FIFO
+      lotBatches.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      const outwards = [...appData.selfOutwardSlips];
+      outwards.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      outwards.forEach(o => {
+        o.items.forEach(it => {
+          let needed = it.dispatchedQty;
+          for (let b of lotBatches) {
+            if (b.product === it.product && b.remainingQty > 0) {
+              const deduct = Math.min(b.remainingQty, needed);
+              b.remainingQty -= deduct;
+              needed -= deduct;
+              if (needed <= 0) break;
+            }
+          }
+        });
+      });
+
+      return lotBatches;
+    }
+
+    function renderSelfSummaryView() {
+      const target = document.getElementById('self-summary-render-target');
+      if (!target) return;
+
+      const lots = getDetailedSelfStockLots();
+      const catalog = appData.masterProducts || [];
+
+      // Group by catalog product
+      const productSummary = {};
+      catalog.forEach(prod => {
+        productSummary[prod] = { totalStock: 0, activeLots: [] };
+      });
+
+      lots.forEach(l => {
+        if (!productSummary[l.product]) {
+          productSummary[l.product] = { totalStock: 0, activeLots: [] };
+        }
+        productSummary[l.product].totalStock += l.remainingQty;
+        productSummary[l.product].activeLots.push(l);
+      });
+
+      let grandTotal = 0;
+      Object.values(productSummary).forEach(p => grandTotal += p.totalStock);
+
+      let html = `
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+            <div class="text-xs text-slate-400">Total Master Catalog Items Tracked</div>
+            <div class="text-xl font-bold text-violet-400 mt-1">${catalog.length} Items</div>
+          </div>
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+            <div class="text-xs text-slate-400">Total Live Self-Stock in Chambers</div>
+            <div class="text-xl font-black text-emerald-400 mt-1">${grandTotal} Nugs</div>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+      `;
+
+      catalog.forEach(prod => {
+        const info = productSummary[prod] || { totalStock: 0, activeLots: [] };
+        const hasStock = info.totalStock > 0;
+
+        html += `
+          <div class="bg-slate-950 rounded-xl border ${hasStock ? 'border-violet-500/30 shadow-lg shadow-violet-500/5' : 'border-slate-800/80'} overflow-hidden">
+            <div class="p-4 bg-slate-900/80 flex flex-wrap items-center justify-between gap-3 border-b border-slate-800">
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-box-open text-violet-400"></i>
+                <span class="font-bold text-white text-sm">${escapeHtml(prod)}</span>
+              </div>
+              <div class="px-3 py-1 rounded-lg text-xs font-black ${hasStock ? 'bg-violet-500/20 text-violet-300 border border-violet-500/40' : 'bg-slate-800 text-slate-500'}">
+                Balance: ${info.totalStock} Nugs
+              </div>
+            </div>
+            
+            <div class="p-3">
+        `;
+
+        if (info.activeLots.length === 0) {
+          html += `<div class="text-xs text-slate-500 italic py-2 px-2">No active inward lots or stock available for this catalog item.</div>`;
+        } else {
+          html += `
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs font-mono">
+                <thead class="text-slate-400 uppercase text-[10px] border-b border-slate-800">
+                  <tr>
+                    <th class="p-2">Lot / Batch ID</th>
+                    <th class="p-2">Inward Date</th>
+                    <th class="p-2">Chamber & Floor</th>
+                    <th class="p-2 text-right">Initial Qty</th>
+                    <th class="p-2 text-right">Balance Remaining</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/60">
+          `;
+
+          info.activeLots.forEach(l => {
+            html += `
+              <tr class="${l.remainingQty > 0 ? '' : 'opacity-40 line-through'}">
+                <td class="p-2 font-bold text-cyan-400">${escapeHtml(l.lotNumber)} <span class="text-[10px] text-slate-400">(Slip #${l.slipId})</span></td>
+                <td class="p-2 text-slate-300">${l.date}</td>
+                <td class="p-2 text-slate-300">${escapeHtml(l.chamber)}</td>
+                <td class="p-2 text-right text-slate-300">${l.initialQty} ${escapeHtml(l.packaging)}</td>
+                <td class="p-2 text-right font-bold text-violet-300">${l.remainingQty} Nugs Left</td>
+              </tr>
+            `;
+          });
+
+          html += `
+                </tbody>
+              </table>
+            </div>
+          `;
+        }
+
+        html += `
+            </div>
+          </div>
+        `;
+      });
+
+      html += `</div>`;
+      target.innerHTML = html;
+    }
+
+    function refreshSelfSummaryView() {
+      renderSelfSummaryView();
     }
 
     // =========================================================
