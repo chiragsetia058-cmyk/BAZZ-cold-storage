@@ -1042,11 +1042,11 @@
           </div>
           <label class="flex items-center gap-2 cursor-pointer pt-1">
             <input id="staff-perm-edit" type="checkbox" class="w-4 h-4 rounded bg-slate-950 border-slate-700 text-rose-500 focus:ring-rose-500" />
-            <span class="text-slate-200">Allow staff to **Edit** Inward & Outward Slips</span>
+            <span class="text-slate-200">Allow staff to <b>Edit</b> Inward & Outward Slips</span>
           </label>
           <label class="flex items-center gap-2 cursor-pointer">
             <input id="staff-perm-delete" type="checkbox" class="w-4 h-4 rounded bg-slate-950 border-slate-700 text-rose-500 focus:ring-rose-500" />
-            <span class="text-slate-200">Allow staff to **Delete** Inward & Outward Slips</span>
+            <span class="text-slate-200">Allow staff to <b>Delete</b> Inward & Outward Slips</span>
           </label>
         </div>
 
@@ -1090,7 +1090,7 @@
   <!-- ==================== CORE LOGIC ENGINE ==================== -->
   <script>
     const CACHE_KEY = 'BAZZ_STORAGE_PROD_V9_SELF_STOCK';
-    const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyo_dGbzwRiNpINuJZvL6K0D-UBtYnQIL8oHq40voHlMDMoJnFc7zN38Kq7cOClXkHMXQ/exec";
+    const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzwaMTe29Ag7BfbX7u8coH5O_gocImntRabbwVWCoLPMRF9AUbINaaxE5Q7mYTH8ToDCw/exec";
 
     let currentUser = null;
     let appData = {
@@ -1108,7 +1108,7 @@
     window.addEventListener('DOMContentLoaded', () => {
       loadLocalState();
       checkSavedSession();
-      pullFromGoogle();
+      // pullFromGoogle(); // Disabled auto-pull on page load to safeguard local browser entries
     });
 
     function loadLocalState() {
@@ -1167,7 +1167,7 @@
           return;
         }
         const data = JSON.parse(text);
-        if (data && typeof data === 'object') {
+        if (data && typeof data === 'object' && data.parties) {
           appData.parties = data.parties || [];
           appData.inwardSlips = data.inwardSlips || [];
           appData.outwardSlips = data.outwardSlips || [];
@@ -2462,7 +2462,6 @@
         });
       });
 
-      // Sort by inward date FIFO
       lotBatches.sort((a, b) => new Date(a.date) - new Date(b.date));
 
       const outwards = [...appData.selfOutwardSlips];
@@ -2492,7 +2491,6 @@
       const lots = getDetailedSelfStockLots();
       const catalog = appData.masterProducts || [];
 
-      // Group by catalog product
       const productSummary = {};
       catalog.forEach(prod => {
         productSummary[prod] = { totalStock: 0, activeLots: [] };
