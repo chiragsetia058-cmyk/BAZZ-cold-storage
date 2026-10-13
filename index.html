@@ -137,7 +137,9 @@
         </button>
       </div>
     </div>
-
+        <button onclick="switchTab('mapping')" id="tab-mapping" class="tab-btn px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap">
+          <i class="fa-solid fa-map-location-dot text-pink-400"></i> Chamber Map
+        </button>
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
 
       <!-- PANE 1: PARTIES DIRECTORY -->
@@ -435,7 +437,74 @@
           </div>
         </div>
       </section>
+<!-- PANE 7: STOCK MAPPING -->
+      <section id="pane-mapping" class="tab-pane hidden space-y-4">
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-map-location-dot text-pink-400"></i> Visual Stock Mapping
+            </h2>
+            <p class="text-xs text-slate-400">Click on a section to map inward gate passes and stock quantities.</p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="switchFloorMap('ground')" id="btn-map-ground" class="px-4 py-2 bg-pink-600 text-white rounded-lg text-xs font-bold transition">Ground Floor</button>
+            <button onclick="switchFloorMap('first')" id="btn-map-first" class="px-4 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-lg text-xs font-bold transition">First Floor</button>
+          </div>
+        </div>
 
+        <div class="bg-slate-950 rounded-xl border border-slate-800 p-6 flex justify-center overflow-x-auto shadow-xl">
+          
+          <!-- GROUND FLOOR MAP (Based on 15 Pillars) -->
+          <div id="map-ground" class="relative w-[320px] h-[480px] bg-slate-900 border-2 border-slate-600 grid grid-cols-2 grid-rows-4 gap-1 p-2 shadow-inner">
+            <!-- Structural Pillars (Absolute positioned dots at intersections) -->
+            <div class="absolute -top-1.5 -left-1.5 w-3 h-3 bg-slate-400 shadow-sm"></div><div class="absolute -top-1.5 left-1/2 -ml-1.5 w-3 h-3 bg-slate-400 shadow-sm"></div><div class="absolute -top-1.5 -right-1.5 w-3 h-3 bg-slate-400 shadow-sm"></div>
+            <div class="absolute top-1/4 -mt-1.5 -left-1.5 w-3 h-3 bg-slate-400 shadow-sm"></div><div class="absolute top-1/4 -mt-1.5 left-1/2 -ml-1.5 w-3 h-3 bg-slate-400 shadow-sm"></div><div class="absolute top-1/4 -mt-1.5 -right-1.5 w-3 h-3 bg-slate-400 shadow-sm"></div>
+            <div class="absolute top-2/4 -mt-1.5 -left-1.5 w-3 h-3 bg-slate-400 shadow-sm"></div><div class="absolute top-2/4 -mt-1.5 left-1/2 -ml-1.5 w-3 h-3 bg-slate-400 shadow-sm"></div><div class="absolute top-2/4 -mt-1.5 -right-1.5 w-3 h-3 bg-slate-400 shadow-sm"></div>
+            <div class="absolute top-3/4 -mt-1.5 -left-1.5 w-3 h-3 bg-slate-400 shadow-sm"></div><div class="absolute top-3/4 -mt-1.5 left-1/2 -ml-1.5 w-3 h-3 bg-slate-400 shadow-sm"></div><div class="absolute top-3/4 -mt-1.5 -right-1.5 w-3 h-3 bg-slate-400 shadow-sm"></div>
+            <div class="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-slate-400 shadow-sm"></div><div class="absolute -bottom-1.5 left-1/2 -ml-1.5 w-3 h-3 bg-slate-400 shadow-sm"></div><div class="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-slate-400 shadow-sm"></div>
+
+            <!-- Gate -->
+            <div class="absolute -bottom-3 left-1/2 ml-4 w-12 h-3 border-2 border-b-0 border-slate-500 bg-slate-800 text-[8px] font-bold text-center text-slate-300">GATE</div>
+            
+            <!-- Sections / Bays (Row 1 to 4) -->
+            <button onclick="openMappingModal('GF-L1')" class="border border-dashed border-slate-600 hover:border-pink-400 hover:bg-pink-900/20 flex flex-col items-center justify-center p-1 rounded group transition overflow-hidden relative"><span class="text-[10px] text-slate-500 group-hover:text-pink-300 z-10">Sec L1</span><div id="stock-GF-L1" class="flex flex-col items-center mt-1 pointer-events-none z-10 text-cyan-300 font-bold"></div></button>
+            <button onclick="openMappingModal('GF-R1')" class="border border-dashed border-slate-600 hover:border-pink-400 hover:bg-pink-900/20 flex flex-col items-center justify-center p-1 rounded group transition overflow-hidden relative"><span class="text-[10px] text-slate-500 group-hover:text-pink-300 z-10">Sec R1</span><div id="stock-GF-R1" class="flex flex-col items-center mt-1 pointer-events-none z-10 text-cyan-300 font-bold"></div></button>
+            
+            <button onclick="openMappingModal('GF-L2')" class="border border-dashed border-slate-600 hover:border-pink-400 hover:bg-pink-900/20 flex flex-col items-center justify-center p-1 rounded group transition overflow-hidden relative"><span class="text-[10px] text-slate-500 group-hover:text-pink-300 z-10">Sec L2</span><div id="stock-GF-L2" class="flex flex-col items-center mt-1 pointer-events-none z-10 text-cyan-300 font-bold"></div></button>
+            <button onclick="openMappingModal('GF-R2')" class="border border-dashed border-slate-600 hover:border-pink-400 hover:bg-pink-900/20 flex flex-col items-center justify-center p-1 rounded group transition overflow-hidden relative"><span class="text-[10px] text-slate-500 group-hover:text-pink-300 z-10">Sec R2</span><div id="stock-GF-R2" class="flex flex-col items-center mt-1 pointer-events-none z-10 text-cyan-300 font-bold"></div></button>
+            
+            <button onclick="openMappingModal('GF-L3')" class="border border-dashed border-slate-600 hover:border-pink-400 hover:bg-pink-900/20 flex flex-col items-center justify-center p-1 rounded group transition overflow-hidden relative"><span class="text-[10px] text-slate-500 group-hover:text-pink-300 z-10">Sec L3</span><div id="stock-GF-L3" class="flex flex-col items-center mt-1 pointer-events-none z-10 text-cyan-300 font-bold"></div></button>
+            <!-- Stairs -->
+            <div class="border-2 border-slate-600 bg-slate-800 flex items-center justify-center relative overflow-hidden">
+              <span class="text-xs font-bold text-slate-400 uppercase tracking-widest bg-slate-800 px-1 z-10">Stairs</span>
+              <div class="absolute inset-0 flex flex-col justify-evenly opacity-30 pointer-events-none"><div class="w-full h-px bg-slate-400"></div><div class="w-full h-px bg-slate-400"></div><div class="w-full h-px bg-slate-400"></div></div>
+            </div>
+            
+            <button onclick="openMappingModal('GF-L4')" class="border border-dashed border-slate-600 hover:border-pink-400 hover:bg-pink-900/20 flex flex-col items-center justify-center p-1 rounded group transition overflow-hidden relative"><span class="text-[10px] text-slate-500 group-hover:text-pink-300 z-10">Sec L4</span><div id="stock-GF-L4" class="flex flex-col items-center mt-1 pointer-events-none z-10 text-cyan-300 font-bold"></div></button>
+            <button onclick="openMappingModal('GF-R4')" class="border border-dashed border-slate-600 hover:border-pink-400 hover:bg-pink-900/20 flex flex-col items-center justify-center p-1 rounded group transition overflow-hidden relative"><span class="text-[10px] text-slate-500 group-hover:text-pink-300 z-10">Sec R4</span><div id="stock-GF-R4" class="flex flex-col items-center mt-1 pointer-events-none z-10 text-cyan-300 font-bold"></div></button>
+          </div>
+
+          <!-- FIRST FLOOR MAP -->
+          <div id="map-first" class="hidden relative w-[320px] h-[480px] bg-slate-900 border-2 border-slate-600 grid grid-cols-2 grid-rows-4 gap-1 p-2 shadow-inner">
+            <!-- Cooling Unit -->
+            <div class="absolute -top-3 left-1/2 -ml-8 w-16 h-4 border-2 border-b-0 border-blue-500 bg-blue-900/50 text-[8px] font-bold text-center text-blue-300">COOLING UNIT</div>
+            
+            <button onclick="openMappingModal('FF-L1')" class="border border-dashed border-slate-600 hover:border-pink-400 hover:bg-pink-900/20 flex flex-col items-center justify-center p-1 rounded group transition overflow-hidden relative"><span class="text-[10px] text-slate-500 group-hover:text-pink-300 z-10">Sec L1</span><div id="stock-FF-L1" class="flex flex-col items-center mt-1 pointer-events-none z-10 text-cyan-300 font-bold"></div></button>
+            <button onclick="openMappingModal('FF-R1')" class="border border-dashed border-slate-600 hover:border-pink-400 hover:bg-pink-900/20 flex flex-col items-center justify-center p-1 rounded group transition overflow-hidden relative"><span class="text-[10px] text-slate-500 group-hover:text-pink-300 z-10">Sec R1</span><div id="stock-FF-R1" class="flex flex-col items-center mt-1 pointer-events-none z-10 text-cyan-300 font-bold"></div></button>
+            
+            <button onclick="openMappingModal('FF-L2')" class="border border-dashed border-slate-600 hover:border-pink-400 hover:bg-pink-900/20 flex flex-col items-center justify-center p-1 rounded group transition overflow-hidden relative"><span class="text-[10px] text-slate-500 group-hover:text-pink-300 z-10">Sec L2</span><div id="stock-FF-L2" class="flex flex-col items-center mt-1 pointer-events-none z-10 text-cyan-300 font-bold"></div></button>
+            <button onclick="openMappingModal('FF-R2')" class="border border-dashed border-slate-600 hover:border-pink-400 hover:bg-pink-900/20 flex flex-col items-center justify-center p-1 rounded group transition overflow-hidden relative"><span class="text-[10px] text-slate-500 group-hover:text-pink-300 z-10">Sec R2</span><div id="stock-FF-R2" class="flex flex-col items-center mt-1 pointer-events-none z-10 text-cyan-300 font-bold"></div></button>
+            
+            <button onclick="openMappingModal('FF-L3')" class="border border-dashed border-slate-600 hover:border-pink-400 hover:bg-pink-900/20 flex flex-col items-center justify-center p-1 rounded group transition overflow-hidden relative"><span class="text-[10px] text-slate-500 group-hover:text-pink-300 z-10">Sec L3</span><div id="stock-FF-L3" class="flex flex-col items-center mt-1 pointer-events-none z-10 text-cyan-300 font-bold"></div></button>
+            <div class="border-2 border-slate-600 bg-slate-800 flex items-center justify-center relative overflow-hidden"><span class="text-xs font-bold text-slate-400 uppercase tracking-widest bg-slate-800 px-1 z-10">Stairs</span><div class="absolute inset-0 flex flex-col justify-evenly opacity-30 pointer-events-none"><div class="w-full h-px bg-slate-400"></div><div class="w-full h-px bg-slate-400"></div><div class="w-full h-px bg-slate-400"></div></div></div>
+            
+            <button onclick="openMappingModal('FF-L4')" class="border border-dashed border-slate-600 hover:border-pink-400 hover:bg-pink-900/20 flex flex-col items-center justify-center p-1 rounded group transition overflow-hidden relative"><span class="text-[10px] text-slate-500 group-hover:text-pink-300 z-10">Sec L4</span><div id="stock-FF-L4" class="flex flex-col items-center mt-1 pointer-events-none z-10 text-cyan-300 font-bold"></div></button>
+            <button onclick="openMappingModal('FF-R4')" class="border border-dashed border-slate-600 hover:border-pink-400 hover:bg-pink-900/20 flex flex-col items-center justify-center p-1 rounded group transition overflow-hidden relative"><span class="text-[10px] text-slate-500 group-hover:text-pink-300 z-10">Sec R4</span><div id="stock-FF-R4" class="flex flex-col items-center mt-1 pointer-events-none z-10 text-cyan-300 font-bold"></div></button>
+          </div>
+
+        </div>
+      </section>
+      
     </main>
   </div>
 
@@ -1057,7 +1126,43 @@
       </form>
     </div>
   </div>
+<!-- MODAL: STOCK MAPPING -->
+  <div id="modal-mapping" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-950 border border-slate-800 rounded-2xl w-full max-w-sm p-5 sm:p-6 my-8 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <div>
+          <h3 class="font-bold text-base text-white">Map Stock to Section</h3>
+          <p id="mapping-section-label" class="text-xs text-pink-400 font-mono mt-1">Section: --</p>
+        </div>
+        <button onclick="closeModal('modal-mapping')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
 
+      <form onsubmit="handleSaveMapping(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="mapping-section-id" />
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Gate Pass / Inward # *</label>
+          <input id="mapping-gp" type="text" required placeholder="e.g. GP-102" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-mono uppercase" />
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Party / Description</label>
+          <input id="mapping-desc" type="text" placeholder="e.g. Ramesh Kinnow" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" />
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Quantity Stored (Nugs) *</label>
+          <input id="mapping-qty" type="number" min="1" required placeholder="e.g. 500" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-bold" />
+        </div>
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-800 mt-2">
+          <button type="submit" class="px-5 py-2 w-full bg-pink-600 hover:bg-pink-500 text-white font-bold rounded-lg transition">Save Section Stock</button>
+        </div>
+      </form>
+
+      <div class="pt-3 border-t border-slate-800">
+        <h4 class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-2">Current Mapped Lots Here</h4>
+        <div id="mapping-list-container" class="space-y-1.5 max-h-32 overflow-y-auto pr-1"></div>
+      </div>
+    </div>
+  </div>
+  
   <!-- MODAL: GOOGLE CLOUD CONFIGURATION -->
   <div id="modal-cloud" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
     <div class="bg-slate-950 border border-slate-800 rounded-2xl w-full max-w-lg p-5 sm:p-6 my-8 space-y-4 shadow-2xl">
@@ -1091,7 +1196,18 @@
   <script>
     const CACHE_KEY = 'BAZZ_STORAGE_PROD_V9_SELF_STOCK';
     const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyo_dGbzwRiNpINuJZvL6K0D-UBtYnQIL8oHq40voHlMDMoJnFc7zN38Kq7cOClXkHMXQ/exec";
-
+let appData = {
+      parties: [],
+      inwardSlips: [],
+      outwardSlips: [],
+      selfInwardSlips: [],
+      selfOutwardSlips: [],
+      payments: [],
+      staffAccounts: [],
+      stockMapping: {}, 
+      masterProducts: ['Kinnow Grade A', 'Kinnow Grade B', 'Seed Potato', 'Apple', 'Pomegranate', 'Garlic', 'Kaaju', 'Anjeer', 'Kishmish', 'Chuara'],
+      config: { googleScriptUrl: DEFAULT_SCRIPT_URL }
+    };
     let currentUser = null;
     let appData = {
       parties: [],
@@ -1167,6 +1283,9 @@
         }
         const data = JSON.parse(text);
         if (data && typeof data === 'object' && data.parties) {
+         appData.staffAccounts = data.staffAccounts || [];
+          appData.stockMapping = data.stockMapping || {}; 
+          appData.masterProducts = data.masterProducts || appData.masterProducts;
           appData.parties = data.parties || [];
           appData.inwardSlips = data.inwardSlips || [];
           appData.outwardSlips = data.outwardSlips || [];
@@ -1192,6 +1311,10 @@
 
       updateCloudStatus("Pushing... ⏳", "text-cyan-400 border-cyan-500/40 bg-cyan-950/60");
       const payload = {
+       payments: appData.payments,
+        staffAccounts: appData.staffAccounts,
+        stockMapping: appData.stockMapping, 
+        masterProducts: appData.masterProducts,
         parties: appData.parties,
         inwardSlips: appData.inwardSlips,
         outwardSlips: appData.outwardSlips,
@@ -1373,6 +1496,11 @@
         renderStaffTable();
         populatePartyDropdowns();
         renderPartyLedgerView();
+        renderStaffTable();
+        populatePartyDropdowns();
+        renderPartyLedgerView();
+        renderMapStock(); // 
+      }
       }
     }
 
@@ -4059,6 +4187,124 @@ _For full itemized statement, log in to the BAZZ Customer Portal using mobile: $
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
+    }
+    // =========================================================
+    // 11. STOCK MAPPING ENGINE (PILLAR SECTIONS)
+    // =========================================================
+    function switchFloorMap(floor) {
+      if(floor === 'ground') {
+        document.getElementById('map-ground').classList.remove('hidden');
+        document.getElementById('map-first').classList.add('hidden');
+        document.getElementById('btn-map-ground').classList.replace('bg-slate-800', 'bg-pink-600');
+        document.getElementById('btn-map-ground').classList.remove('text-slate-300');
+        document.getElementById('btn-map-ground').classList.add('text-white');
+        document.getElementById('btn-map-first').classList.replace('bg-pink-600', 'bg-slate-800');
+        document.getElementById('btn-map-first').classList.remove('text-white');
+        document.getElementById('btn-map-first').classList.add('text-slate-300');
+      } else {
+        document.getElementById('map-first').classList.remove('hidden');
+        document.getElementById('map-ground').classList.add('hidden');
+        document.getElementById('btn-map-first').classList.replace('bg-slate-800', 'bg-pink-600');
+        document.getElementById('btn-map-first').classList.remove('text-slate-300');
+        document.getElementById('btn-map-first').classList.add('text-white');
+        document.getElementById('btn-map-ground').classList.replace('bg-pink-600', 'bg-slate-800');
+        document.getElementById('btn-map-ground').classList.remove('text-white');
+        document.getElementById('btn-map-ground').classList.add('text-slate-300');
+      }
+    }
+
+    function openMappingModal(sectionId) {
+      document.getElementById('mapping-section-label').textContent = "Section: " + sectionId;
+      document.getElementById('mapping-section-id').value = sectionId;
+      document.getElementById('mapping-gp').value = '';
+      document.getElementById('mapping-desc').value = '';
+      document.getElementById('mapping-qty').value = '';
+      
+      renderMappingList(sectionId);
+      openModal('modal-mapping');
+    }
+
+    function handleSaveMapping(e) {
+      e.preventDefault();
+      const secId = document.getElementById('mapping-section-id').value;
+      const gp = document.getElementById('mapping-gp').value.trim().toUpperCase();
+      const desc = document.getElementById('mapping-desc').value.trim();
+      const qty = document.getElementById('mapping-qty').value;
+
+      if(!appData.stockMapping) appData.stockMapping = {};
+      if(!appData.stockMapping[secId]) appData.stockMapping[secId] = [];
+
+      appData.stockMapping[secId].push({
+        id: 'MAP-' + Date.now(),
+        gatePass: gp,
+        desc: desc,
+        qty: parseInt(qty, 10),
+        date: new Date().toLocaleDateString('en-IN')
+      });
+
+      pushToGoogle();
+      renderMappingList(secId);
+      renderMapStock();
+      
+      document.getElementById('mapping-gp').value = '';
+      document.getElementById('mapping-desc').value = '';
+      document.getElementById('mapping-qty').value = '';
+    }
+
+    function removeMapping(secId, mapId) {
+      if(!appData.stockMapping || !appData.stockMapping[secId]) return;
+      appData.stockMapping[secId] = appData.stockMapping[secId].filter(m => m.id !== mapId);
+      pushToGoogle();
+      renderMappingList(secId);
+      renderMapStock();
+    }
+
+    function renderMappingList(secId) {
+      const container = document.getElementById('mapping-list-container');
+      const list = (appData.stockMapping && appData.stockMapping[secId]) ? appData.stockMapping[secId] : [];
+      
+      if(list.length === 0) {
+        container.innerHTML = `<p class="text-[11px] text-slate-500 italic">No lots are stored in this section.</p>`;
+        return;
+      }
+
+      container.innerHTML = list.map(m => `
+        <div class="flex justify-between items-center bg-slate-900 border border-slate-700 p-2 rounded">
+          <div>
+            <div class="text-xs font-bold text-white">GP: ${escapeHtml(m.gatePass)}</div>
+            <div class="text-[10px] text-slate-400">${escapeHtml(m.desc)} <span class="text-pink-400 ml-1 font-bold">${m.qty} Nugs</span></div>
+          </div>
+          <button type="button" onclick="removeMapping('${secId}', '${m.id}')" class="text-rose-400 hover:text-rose-300 p-1.5"><i class="fa-solid fa-trash text-[10px]"></i></button>
+        </div>
+      `).join('');
+    }
+
+    function renderMapStock() {
+      if(!appData.stockMapping) return;
+      const sections = ['GF-L1', 'GF-R1', 'GF-L2', 'GF-R2', 'GF-L3', 'GF-L4', 'GF-R4', 'FF-L1', 'FF-R1', 'FF-L2', 'FF-R2', 'FF-L3', 'FF-L4', 'FF-R4'];
+      
+      sections.forEach(secId => {
+        const el = document.getElementById('stock-' + secId);
+        if(!el) return;
+        const list = appData.stockMapping[secId] || [];
+        let totalQty = 0;
+        let gpLabels = [];
+        
+        list.forEach(m => {
+          totalQty += (m.qty || 0);
+          if(!gpLabels.includes(m.gatePass)) gpLabels.push(m.gatePass);
+        });
+
+        if(totalQty > 0) {
+          el.innerHTML = `<div class="text-sm font-black">${totalQty} N</div><div class="text-[8px] font-normal text-slate-300 mt-0.5 truncate w-full text-center tracking-tight">GP: ${escapeHtml(gpLabels.join(', '))}</div>`;
+          el.parentElement.classList.replace('border-slate-600', 'border-cyan-500');
+          el.parentElement.classList.add('bg-cyan-950/40');
+        } else {
+          el.innerHTML = '';
+          el.parentElement.classList.replace('border-cyan-500', 'border-slate-600');
+          el.parentElement.classList.remove('bg-cyan-950/40');
+        }
+      });
     }
   </script>
 </body>
