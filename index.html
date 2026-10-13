@@ -1194,9 +1194,12 @@
 
   <!-- ==================== CORE LOGIC ENGINE ==================== -->
   <script>
+   <script>
     const CACHE_KEY = 'BAZZ_STORAGE_PROD_V9_SELF_STOCK';
     const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyo_dGbzwRiNpINuJZvL6K0D-UBtYnQIL8oHq40voHlMDMoJnFc7zN38Kq7cOClXkHMXQ/exec";
-let appData = {
+
+    let currentUser = null;
+    let appData = {
       parties: [],
       inwardSlips: [],
       outwardSlips: [],
@@ -1480,7 +1483,7 @@ let appData = {
       refreshCurrentView();
     }
 
-    function refreshCurrentView() {
+  function refreshCurrentView() {
       if (!currentUser) return;
       if (currentUser.role === 'customer') {
         renderCustomerPortal();
@@ -1496,14 +1499,9 @@ let appData = {
         renderStaffTable();
         populatePartyDropdowns();
         renderPartyLedgerView();
-        renderStaffTable();
-        populatePartyDropdowns();
-        renderPartyLedgerView();
-        renderMapStock(); // 
-      }
+        renderMapStock();
       }
     }
-
     function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
     function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
