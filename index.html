@@ -577,7 +577,7 @@
     <div class="bg-slate-950 border border-slate-800 rounded-2xl w-full max-w-4xl p-5 sm:p-6 my-8 space-y-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <div>
-          <h3 id="inward-modal-title" class="font-bold base text-white">Generate Inward Receiving Slip / Gate Pass</h3>
+          <h3 id="inward-modal-title" class="font-bold text-base text-white">Generate Inward Receiving Slip / Gate Pass</h3>
           <p class="text-xs text-slate-400">Select items from catalog, manual gate pass, chambers, rent, and labour</p>
         </div>
         <button onclick="closeModal('modal-inward')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -1108,7 +1108,6 @@
     window.addEventListener('DOMContentLoaded', () => {
       loadLocalState();
       checkSavedSession();
-      // pullFromGoogle(); // Disabled auto-pull on page load to safeguard local browser entries
     });
 
     function loadLocalState() {
@@ -1122,7 +1121,7 @@
         }
       }
       if (!appData.masterProducts || appData.masterProducts.length === 0) {
-        appData.masterProducts = ['Kinnow Grade A', 'Kinnow Grade B', 'Seed Potato', 'Apple', 'Kaaju', 'Anjeer', 'Kishmish', 'Chuara'];
+        appData.masterProducts = ['Kinnow Grade A', 'Kinnow Grade B', 'Seed Potato', 'Apple', 'Pomegranate', 'Garlic', 'Kaaju', 'Anjeer', 'Kishmish', 'Chuara'];
       }
       if (!appData.config.googleScriptUrl) {
         appData.config.googleScriptUrl = DEFAULT_SCRIPT_URL;
@@ -1464,7 +1463,7 @@
       document.getElementById('opening-stock-container').innerHTML = '';
 
       if (editId) {
-        const p = appData.parties.find(x => x.id === editId);
+        const p = appData.parties.find(x => String(x.id) === String(editId));
         if (p) {
           document.getElementById('party-modal-title').textContent = "Edit Party Details";
           document.getElementById('party-edit-id').value = p.id;
@@ -1494,7 +1493,7 @@
       div.className = "p-3 bg-slate-950 border border-slate-800 rounded-lg grid grid-cols-1 sm:grid-cols-6 gap-2 items-center text-xs";
 
       const productOptions = appData.masterProducts.map(prod => `
-        <option value="${escapeHtml(prod)}" ${data && data.product === prod ? 'selected' : ''}>${escapeHtml(prod)}</option>
+        <option value="${escapeHtml(prod)}" ${data && String(data.product).trim().toLowerCase() === String(prod).trim().toLowerCase() ? 'selected' : ''}>${escapeHtml(prod)}</option>
       `).join('');
 
       div.innerHTML = `
@@ -1554,7 +1553,7 @@
       const prevBal = parseFloat(document.getElementById('party-prev-bal').value) || 0;
       const prevDate = document.getElementById('party-prev-date').value || new Date().toISOString().split('T')[0];
 
-      const existing = appData.parties.find(x => x.mobile === mobile && x.id !== editId);
+      const existing = appData.parties.find(x => x.mobile === mobile && String(x.id) !== String(editId));
       if (existing) {
         alert("A party with this mobile number is already registered!");
         return;
@@ -1563,8 +1562,8 @@
       const lotRows = document.querySelectorAll('#opening-stock-container > div');
       const openingLots = [];
       lotRows.forEach((r, idx) => {
-        const prod = r.querySelector('.os-product').value;
-        const qty = parseInt(r.querySelector('.os-qty').value) || 0;
+        const prod = r.querySelector('.os-product').value.trim();
+        const qty = parseInt(r.querySelector('.os-qty').value, 10) || 0;
         const pack = r.querySelector('.os-pack').value.trim();
         const cham = r.querySelector('.os-chamber').value;
         const dt = r.querySelector('.os-date').value;
@@ -1583,7 +1582,7 @@
       });
 
       if (editId) {
-        const p = appData.parties.find(x => x.id === editId);
+        const p = appData.parties.find(x => String(x.id) === String(editId));
         if (p) {
           p.name = name;
           p.place = place;
@@ -1663,7 +1662,7 @@
                 <i class="fa-solid ${p.isBlocked ? 'fa-lock-open' : 'fa-ban'}"></i>
               </button>
             ` : ''}
-            ${canDel ? `<button onclick="deletePartyRecord('${p.id}')" title="Delete" class="p-1.5 bg-slate-800 hover:bg-rose-900/60 text-rose-400 rounded"><i class="fa-solid fa-trash"></i></button>` : ''}
+            ${canDel ? `<button onclick="deletePartyRecord('${p.id}')" title="Delete" class="p-1.5 bg-slate-800 hover:bg-rose-950/60 text-rose-400 rounded"><i class="fa-solid fa-trash"></i></button>` : ''}
           </td>
         `;
         tbody.appendChild(tr);
@@ -1672,7 +1671,7 @@
 
     function togglePartyBlock(id) {
       if (currentUser.role !== 'admin') return;
-      const p = appData.parties.find(x => x.id === id);
+      const p = appData.parties.find(x => String(x.id) === String(id));
       if (p) {
         p.isBlocked = !p.isBlocked;
         pushToGoogle();
@@ -1686,10 +1685,17 @@
         return;
       }
       if (confirm("Are you sure you want to delete this party and all associated records?")) {
-        appData.parties = appData.parties.filter(x => x.id !== id);
-        appData.inwardSlips = appData.inwardSlips.filter(x => x.partyId !== id);
-        appData.outwardSlips = appData.outwardSlips.filter(x => x.partyId !== id);
-        appData.payments = appData.payments.filter(x => x.partyId !== id);
+        const party = appData.parties.find(x => String(x.id) === String(id));
+        const pIds = [String(id)];
+        if (party) {
+          if (party.mobile) pIds.push(String(party.mobile));
+          if (party.name) pIds.push(String(party.name));
+        }
+
+        appData.parties = appData.parties.filter(x => !pIds.includes(String(x.id)));
+        appData.inwardSlips = appData.inwardSlips.filter(x => !pIds.includes(String(x.partyId)));
+        appData.outwardSlips = appData.outwardSlips.filter(x => !pIds.includes(String(x.partyId)));
+        appData.payments = appData.payments.filter(x => !pIds.includes(String(x.partyId)));
         pushToGoogle();
         refreshCurrentView();
       }
@@ -1710,7 +1716,7 @@
       document.getElementById('inward-time').value = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
 
       if (editId) {
-        const item = appData.inwardSlips.find(x => x.id === editId);
+        const item = appData.inwardSlips.find(x => String(x.id) === String(editId));
         if (item) {
           document.getElementById('inward-modal-title').textContent = "Edit Inward Slip";
           document.getElementById('inward-edit-id').value = item.id;
@@ -1759,7 +1765,7 @@
       div.className = "p-3 bg-slate-950 border border-slate-800 rounded-lg space-y-2 text-xs";
 
       const productOptions = appData.masterProducts.map(prod => `
-        <option value="${escapeHtml(prod)}" ${data && data.product === prod ? 'selected' : ''}>${escapeHtml(prod)}</option>
+        <option value="${escapeHtml(prod)}" ${data && String(data.product).trim().toLowerCase() === String(prod).trim().toLowerCase() ? 'selected' : ''}>${escapeHtml(prod)}</option>
       `).join('');
 
       div.innerHTML = `
@@ -1829,7 +1835,7 @@
       let totalLabour = 0;
 
       rows.forEach(r => {
-        const qty = parseInt(r.querySelector('.in-qty').value) || 0;
+        const qty = parseInt(r.querySelector('.in-qty').value, 10) || 0;
         const wt = parseFloat(r.querySelector('.in-wt').value) || 0;
         const rate = parseFloat(r.querySelector('.in-rate').value) || 0;
         const labour = parseFloat(r.querySelector('.in-labour').value) || 0;
@@ -1853,7 +1859,7 @@
       const slipNum = document.getElementById('inward-slip-num').value.trim();
       const gatePassNum = document.getElementById('inward-gatepass-num').value.trim();
       const partyId = document.getElementById('inward-party-id').value;
-      const party = appData.parties.find(x => x.id === partyId);
+      const party = appData.parties.find(x => String(x.id) === String(partyId));
 
       if (!party) {
         alert("Please select a valid party.");
@@ -1867,8 +1873,8 @@
       let totalLabour = 0;
 
       rows.forEach(r => {
-        const prod = r.querySelector('.in-prod-select').value;
-        const qty = parseInt(r.querySelector('.in-qty').value) || 0;
+        const prod = r.querySelector('.in-prod-select').value.trim();
+        const qty = parseInt(r.querySelector('.in-qty').value, 10) || 0;
         const pack = r.querySelector('.in-pack').value.trim();
         const wt = parseFloat(r.querySelector('.in-wt').value) || 0;
         const cham = r.querySelector('.in-chamber').value;
@@ -1907,7 +1913,7 @@
       const slipData = {
         id: slipNum,
         gatePassNo: gatePassNum,
-        partyId,
+        partyId: party.id,
         partyName: party.name,
         partyMobile: party.mobile,
         partyPlace: party.place,
@@ -1930,7 +1936,7 @@
           alert("You do not have permission to edit slips.");
           return;
         }
-        const idx = appData.inwardSlips.findIndex(x => x.id === editId);
+        const idx = appData.inwardSlips.findIndex(x => String(x.id) === String(editId));
         if (idx !== -1) appData.inwardSlips[idx] = slipData;
       } else {
         appData.inwardSlips.unshift(slipData);
@@ -2000,14 +2006,14 @@
         return;
       }
       if (confirm("Delete this inward slip?")) {
-        appData.inwardSlips = appData.inwardSlips.filter(x => x.id !== id);
+        appData.inwardSlips = appData.inwardSlips.filter(x => String(x.id) !== String(id));
         pushToGoogle();
         refreshCurrentView();
       }
     }
 
     // =========================================================
-    // 3.5 SELF INWARD (COLD STORAGE OWN INVENTORY W/ MULTI-LOT)
+    // 3.5 SELF INWARD
     // =========================================================
     function openSelfInwardModal(editId = null) {
       const form = document.getElementById('self-inward-form');
@@ -2020,7 +2026,7 @@
       document.getElementById('self-inward-time').value = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
 
       if (editId) {
-        const item = appData.selfInwardSlips.find(x => x.id === editId);
+        const item = appData.selfInwardSlips.find(x => String(x.id) === String(editId));
         if (item) {
           document.getElementById('self-inward-modal-title').textContent = "Edit Self Inward Entry";
           document.getElementById('self-inward-edit-id').value = item.id;
@@ -2056,7 +2062,7 @@
       div.className = "p-3 bg-slate-950 border border-slate-800 rounded-lg space-y-2 text-xs";
 
       const productOptions = appData.masterProducts.map(prod => `
-        <option value="${escapeHtml(prod)}" ${data && data.product === prod ? 'selected' : ''}>${escapeHtml(prod)}</option>
+        <option value="${escapeHtml(prod)}" ${data && String(data.product).trim().toLowerCase() === String(prod).trim().toLowerCase() ? 'selected' : ''}>${escapeHtml(prod)}</option>
       `).join('');
 
       div.innerHTML = `
@@ -2120,9 +2126,9 @@
       const items = [];
 
       rows.forEach(r => {
-        const prod = r.querySelector('.self-in-prod').value;
+        const prod = r.querySelector('.self-in-prod').value.trim();
         const lotNumber = r.querySelector('.self-in-lot').value.trim();
-        const qty = parseInt(r.querySelector('.self-in-qty').value) || 0;
+        const qty = parseInt(r.querySelector('.self-in-qty').value, 10) || 0;
         const packaging = r.querySelector('.self-in-pack').value.trim();
         const chamber = r.querySelector('.self-in-chamber').value;
 
@@ -2156,7 +2162,7 @@
       };
 
       if (editId) {
-        const idx = appData.selfInwardSlips.findIndex(x => x.id === editId);
+        const idx = appData.selfInwardSlips.findIndex(x => String(x.id) === String(editId));
         if (idx !== -1) appData.selfInwardSlips[idx] = slipData;
       } else {
         appData.selfInwardSlips.unshift(slipData);
@@ -2209,7 +2215,7 @@
 
     function deleteSelfInwardSlip(id) {
       if (confirm("Delete this self inward slip?")) {
-        appData.selfInwardSlips = appData.selfInwardSlips.filter(x => x.id !== id);
+        appData.selfInwardSlips = appData.selfInwardSlips.filter(x => String(x.id) !== String(id));
         pushToGoogle();
         refreshCurrentView();
       }
@@ -2243,19 +2249,19 @@
           batches.push({
             product: it.product,
             lotNumber: it.lotNumber,
-            initialQty: it.qty,
-            remainingQty: it.qty,
+            initialQty: parseInt(it.qty, 10) || 0,
+            remainingQty: parseInt(it.qty, 10) || 0,
             date: s.date
           });
         });
       });
 
-      const outwards = appData.selfOutwardSlips.filter(o => o.id !== ignoreId);
+      const outwards = appData.selfOutwardSlips.filter(o => String(o.id) !== String(ignoreId));
       outwards.forEach(o => {
         o.items.forEach(it => {
-          let needed = it.dispatchedQty;
+          let needed = parseInt(it.dispatchedQty, 10) || 0;
           for (let b of batches) {
-            if (b.product === it.product && b.remainingQty > 0) {
+            if (String(b.product).trim().toLowerCase() === String(it.product).trim().toLowerCase() && b.remainingQty > 0) {
               const deduct = Math.min(b.remainingQty, needed);
               b.remainingQty -= deduct;
               needed -= deduct;
@@ -2295,7 +2301,7 @@
           <label class="text-[10px] text-slate-400 block mb-0.5">Select Self Product *</label>
           <select class="self-out-prod-select w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white" onchange="updateSelfOutwardRowStock('${rowId}')">
             <option value="">-- Choose Available Self Product --</option>
-            ${availableProds.map(p => `<option value="${escapeHtml(p.product)}" data-stock="${p.stock}" ${data && data.product === p.product ? 'selected' : ''}>${escapeHtml(p.product)} (Available: ${p.stock})</option>`).join('')}
+            ${availableProds.map(p => `<option value="${escapeHtml(p.product)}" data-stock="${p.stock}" ${data && String(data.product).trim().toLowerCase() === String(p.product).trim().toLowerCase() ? 'selected' : ''}>${escapeHtml(p.product)} (Available: ${p.stock})</option>`).join('')}
           </select>
         </div>
         <div>
@@ -2323,8 +2329,8 @@
 
       const sel = row.querySelector('.self-out-prod-select');
       const opt = sel.options[sel.selectedIndex];
-      const available = opt ? parseInt(opt.getAttribute('data-stock')) || 0 : 0;
-      const qty = parseInt(row.querySelector('.self-out-qty-input').value) || 0;
+      const available = opt ? parseInt(opt.getAttribute('data-stock'), 10) || 0 : 0;
+      const qty = parseInt(row.querySelector('.self-out-qty-input').value, 10) || 0;
 
       if (qty > available) {
         alert(`Cannot dispatch ${qty}! Available self-stock is only ${available}.`);
@@ -2348,8 +2354,8 @@
         const sel = r.querySelector('.self-out-prod-select');
         const opt = sel.options[sel.selectedIndex];
         const prod = sel.value;
-        const prevStock = opt ? parseInt(opt.getAttribute('data-stock')) || 0 : 0;
-        const qty = parseInt(r.querySelector('.self-out-qty-input').value) || 0;
+        const prevStock = opt ? parseInt(opt.getAttribute('data-stock'), 10) || 0 : 0;
+        const qty = parseInt(r.querySelector('.self-out-qty-input').value, 10) || 0;
         const balLeft = prevStock - qty;
 
         if (prod && qty > 0) {
@@ -2381,7 +2387,7 @@
       };
 
       if (editId) {
-        const idx = appData.selfOutwardSlips.findIndex(x => x.id === editId);
+        const idx = appData.selfOutwardSlips.findIndex(x => String(x.id) === String(editId));
         if (idx !== -1) appData.selfOutwardSlips[idx] = passData;
       } else {
         appData.selfOutwardSlips.unshift(passData);
@@ -2436,7 +2442,7 @@
 
     function deleteSelfOutwardSlip(id) {
       if (confirm("Delete this self outward gate pass?")) {
-        appData.selfOutwardSlips = appData.selfOutwardSlips.filter(x => x.id !== id);
+        appData.selfOutwardSlips = appData.selfOutwardSlips.filter(x => String(x.id) !== String(id));
         pushToGoogle();
         refreshCurrentView();
       }
@@ -2456,8 +2462,8 @@
             lotNumber: it.lotNumber,
             packaging: it.packaging,
             chamber: it.chamber,
-            initialQty: it.qty,
-            remainingQty: it.qty
+            initialQty: parseInt(it.qty, 10) || 0,
+            remainingQty: parseInt(it.qty, 10) || 0
           });
         });
       });
@@ -2469,9 +2475,9 @@
 
       outwards.forEach(o => {
         o.items.forEach(it => {
-          let needed = it.dispatchedQty;
+          let needed = parseInt(it.dispatchedQty, 10) || 0;
           for (let b of lotBatches) {
-            if (b.product === it.product && b.remainingQty > 0) {
+            if (String(b.product).trim().toLowerCase() === String(it.product).trim().toLowerCase() && b.remainingQty > 0) {
               const deduct = Math.min(b.remainingQty, needed);
               b.remainingQty -= deduct;
               needed -= deduct;
@@ -2497,11 +2503,12 @@
       });
 
       lots.forEach(l => {
-        if (!productSummary[l.product]) {
-          productSummary[l.product] = { totalStock: 0, activeLots: [] };
+        const matchKey = Object.keys(productSummary).find(k => k.trim().toLowerCase() === String(l.product).trim().toLowerCase()) || l.product;
+        if (!productSummary[matchKey]) {
+          productSummary[matchKey] = { totalStock: 0, activeLots: [] };
         }
-        productSummary[l.product].totalStock += l.remainingQty;
-        productSummary[l.product].activeLots.push(l);
+        productSummary[matchKey].totalStock += l.remainingQty;
+        productSummary[matchKey].activeLots.push(l);
       });
 
       let grandTotal = 0;
@@ -2607,7 +2614,7 @@
       document.getElementById('outward-time').value = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
 
       if (editId) {
-        const item = appData.outwardSlips.find(x => x.id === editId);
+        const item = appData.outwardSlips.find(x => String(x.id) === String(editId));
         if (item) {
           document.getElementById('outward-modal-title').textContent = "Edit Outward Dispatch Gate Pass";
           document.getElementById('outward-edit-id').value = item.id;
@@ -2665,7 +2672,7 @@
           <label class="text-[10px] text-slate-400 block mb-0.5">Select Product *</label>
           <select class="out-prod-select w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white" onchange="updateOutwardRowStock('${rowId}')">
             <option value="">-- Choose Available Product --</option>
-            ${availableProds.map(p => `<option value="${escapeHtml(p.product)}" data-stock="${p.stock}" ${data && data.product === p.product ? 'selected' : ''}>${escapeHtml(p.product)} (Available: ${p.stock})</option>`).join('')}
+            ${availableProds.map(p => `<option value="${escapeHtml(p.product)}" data-stock="${p.stock}" ${data && String(data.product).trim().toLowerCase() === String(p.product).trim().toLowerCase() ? 'selected' : ''}>${escapeHtml(p.product)} (Available: ${p.stock})</option>`).join('')}
           </select>
         </div>
         <div>
@@ -2693,8 +2700,8 @@
 
       const sel = row.querySelector('.out-prod-select');
       const opt = sel.options[sel.selectedIndex];
-      const available = opt ? parseInt(opt.getAttribute('data-stock')) || 0 : 0;
-      const qty = parseInt(row.querySelector('.out-qty-input').value) || 0;
+      const available = opt ? parseInt(opt.getAttribute('data-stock'), 10) || 0 : 0;
+      const qty = parseInt(row.querySelector('.out-qty-input').value, 10) || 0;
 
       if (qty > available) {
         alert(`Cannot dispatch ${qty}! Available balance in cold storage is only ${available}.`);
@@ -2711,7 +2718,7 @@
       const partyId = document.getElementById('outward-party-id').value;
       const slipNum = document.getElementById('outward-slip-num').value.trim();
       const gatePassNum = document.getElementById('outward-gatepass-num').value.trim();
-      const party = appData.parties.find(x => x.id === partyId);
+      const party = appData.parties.find(x => String(x.id) === String(partyId));
       if (!party) return;
 
       const rows = document.querySelectorAll('#outward-products-container > div');
@@ -2720,9 +2727,9 @@
       rows.forEach(r => {
         const sel = r.querySelector('.out-prod-select');
         const opt = sel.options[sel.selectedIndex];
-        const prod = sel.value;
-        const prevStock = opt ? parseInt(opt.getAttribute('data-stock')) || 0 : 0;
-        const qty = parseInt(r.querySelector('.out-qty-input').value) || 0;
+        const prod = sel.value.trim();
+        const prevStock = opt ? parseInt(opt.getAttribute('data-stock'), 10) || 0 : 0;
+        const qty = parseInt(r.querySelector('.out-qty-input').value, 10) || 0;
         const balLeft = prevStock - qty;
 
         if (prod && qty > 0) {
@@ -2743,7 +2750,7 @@
       const passData = {
         id: slipNum,
         gatePassNo: gatePassNum,
-        partyId,
+        partyId: party.id,
         partyName: party.name,
         partyMobile: party.mobile,
         partyPlace: party.place,
@@ -2762,7 +2769,7 @@
           alert("You do not have permission to edit gate passes.");
           return;
         }
-        const idx = appData.outwardSlips.findIndex(x => x.id === editId);
+        const idx = appData.outwardSlips.findIndex(x => String(x.id) === String(editId));
         if (idx !== -1) appData.outwardSlips[idx] = passData;
       } else {
         appData.outwardSlips.unshift(passData);
@@ -2830,7 +2837,7 @@
         return;
       }
       if (confirm("Delete this outward gate pass? Associated stock will be reverted.")) {
-        appData.outwardSlips = appData.outwardSlips.filter(x => x.id !== id);
+        appData.outwardSlips = appData.outwardSlips.filter(x => String(x.id) !== String(id));
         pushToGoogle();
         refreshCurrentView();
       }
@@ -2851,12 +2858,12 @@
     function handleSavePayment(e) {
       e.preventDefault();
       const partyId = document.getElementById('payment-party-id').value;
-      const party = appData.parties.find(x => x.id === partyId);
+      const party = appData.parties.find(x => String(x.id) === String(partyId));
       if (!party) return;
 
       const pmt = {
         id: 'RCPT-' + Date.now().toString().slice(-6),
-        partyId,
+        partyId: party.id,
         partyName: party.name,
         partyMobile: party.mobile,
         date: document.getElementById('payment-date').value,
@@ -2912,7 +2919,7 @@
         return;
       }
       if (confirm("Delete this payment receipt?")) {
-        appData.payments = appData.payments.filter(x => x.id !== id);
+        appData.payments = appData.payments.filter(x => String(x.id) !== String(id));
         pushToGoogle();
         refreshCurrentView();
       }
@@ -2923,7 +2930,7 @@
       document.getElementById('staff-edit-id').value = '';
 
       if (editId) {
-        const s = appData.staffAccounts.find(x => x.id === editId);
+        const s = appData.staffAccounts.find(x => String(x.id) === String(editId));
         if (s) {
           document.getElementById('staff-modal-title').textContent = "Edit Staff Privileges";
           document.getElementById('staff-edit-id').value = s.id;
@@ -2950,14 +2957,14 @@
       const canEdit = document.getElementById('staff-perm-edit').checked;
       const canDelete = document.getElementById('staff-perm-delete').checked;
 
-      const exists = appData.staffAccounts.find(s => s.username === username && s.id !== editId);
+      const exists = appData.staffAccounts.find(s => s.username === username && String(s.id) !== String(editId));
       if (exists) {
         alert("Username already exists!");
         return;
       }
 
       if (editId) {
-        const s = appData.staffAccounts.find(x => x.id === editId);
+        const s = appData.staffAccounts.find(x => String(x.id) === String(editId));
         if (s) {
           s.name = name;
           s.username = username;
@@ -3025,7 +3032,7 @@
     }
 
     function toggleStaffBlock(id) {
-      const s = appData.staffAccounts.find(x => x.id === id);
+      const s = appData.staffAccounts.find(x => String(x.id) === String(id));
       if (s) {
         s.isBlocked = !s.isBlocked;
         pushToGoogle();
@@ -3035,7 +3042,7 @@
 
     function deleteStaff(id) {
       if (confirm("Delete this staff account?")) {
-        appData.staffAccounts = appData.staffAccounts.filter(x => x.id !== id);
+        appData.staffAccounts = appData.staffAccounts.filter(x => String(x.id) !== String(id));
         pushToGoogle();
         refreshCurrentView();
       }
@@ -3044,8 +3051,29 @@
     // =========================================================
     // 6. TRUE FIFO & FINANCIAL CALCULATION ENGINES
     // =========================================================
+
+    // Helper: checks if a record belongs to the requested party across all identity variations
+    function isRecordForParty(record, party) {
+      if (!record || !party) return false;
+      const recPartyId = record.partyId ? String(record.partyId).trim() : '';
+      const pId = party.id ? String(party.id).trim() : '';
+      if (recPartyId && pId && recPartyId === pId) return true;
+
+      const pMobile = party.mobile ? String(party.mobile).trim() : '';
+      const recMobile = record.partyMobile ? String(record.partyMobile).trim() : '';
+      if (recMobile && pMobile && recMobile === pMobile) return true;
+      if (recPartyId && pMobile && recPartyId === pMobile) return true;
+
+      const pName = party.name ? String(party.name).trim().toLowerCase() : '';
+      const recName = record.partyName ? String(record.partyName).trim().toLowerCase() : '';
+      if (recName && pName && recName === pName) return true;
+      if (recPartyId && pName && recPartyId.toLowerCase() === pName) return true;
+
+      return false;
+    }
+
     function getPartyAvailableProducts(partyId, ignoreOutwardId = null) {
-      const party = appData.parties.find(x => x.id === partyId);
+      const party = appData.parties.find(x => String(x.id) === String(partyId));
       if (!party) return [];
 
       const batches = buildPartyBatches(partyId);
@@ -3068,7 +3096,7 @@
     }
 
     function calculatePartyLiveStock(partyId) {
-      const party = appData.parties.find(x => x.id === partyId);
+      const party = appData.parties.find(x => String(x.id) === String(partyId));
       if (!party) return { currentStock: 0, breakdownText: 'No stock' };
 
       const batches = buildPartyBatches(partyId);
@@ -3091,37 +3119,39 @@
     }
 
     function buildPartyBatches(partyId) {
-      const party = appData.parties.find(x => x.id === partyId);
+      const party = appData.parties.find(x => String(x.id) === String(partyId));
       if (!party) return [];
 
       const batches = [];
 
       if (party.openingStockLots) {
         party.openingStockLots.forEach((lot, idx) => {
+          const initQty = parseInt(lot.qty, 10) || 0;
           batches.push({
             batchId: `OPN-${idx+1}`,
             date: lot.cycleStartDate || party.openingBalanceDate || '2026-01-01',
-            product: lot.product,
-            initialQty: lot.qty,
-            remainingQty: lot.qty,
-            rate: lot.rate || 15,
+            product: String(lot.product).trim(),
+            initialQty: initQty,
+            remainingQty: initQty,
+            rate: parseFloat(lot.rate) || 15,
             isOpening: true
           });
         });
       }
 
-      const inwards = appData.inwardSlips.filter(s => s.partyId === partyId);
+      const inwards = appData.inwardSlips.filter(s => isRecordForParty(s, party));
       inwards.forEach(s => {
         const items = s.items ? s.items : [{ product: s.product, qty: s.qty, monthlyRate: s.monthlyRate }];
         items.forEach((it, idx) => {
+          const initQty = parseInt(it.qty, 10) || 0;
           batches.push({
             batchId: `IN-${s.id}-${idx+1}`,
             slipId: s.id,
             date: s.date,
-            product: it.product,
-            initialQty: it.qty,
-            remainingQty: it.qty,
-            rate: it.monthlyRate || 15,
+            product: String(it.product).trim(),
+            initialQty: initQty,
+            remainingQty: initQty,
+            rate: parseFloat(it.monthlyRate) || 15,
             isOpening: false
           });
         });
@@ -3132,14 +3162,25 @@
     }
 
     function applyFIFOOutwardDeductions(batches, partyId, ignoreOutwardId = null) {
-      const outwards = appData.outwardSlips.filter(s => s.partyId === partyId && s.id !== ignoreOutwardId);
+      const party = appData.parties.find(x => String(x.id) === String(partyId));
+      if (!party) return;
+
+      const outwards = appData.outwardSlips.filter(s => {
+        if (ignoreOutwardId && String(s.id) === String(ignoreOutwardId)) return false;
+        return isRecordForParty(s, party);
+      });
+
       outwards.sort((a, b) => new Date(a.date) - new Date(b.date));
 
       outwards.forEach(out => {
+        if (!out.items) return;
         out.items.forEach(it => {
-          let needed = it.dispatchedQty;
+          let needed = parseInt(it.dispatchedQty, 10) || 0;
+          const targetProdName = String(it.product).trim().toLowerCase();
+
           for (let b of batches) {
-            if (b.product === it.product && b.remainingQty > 0) {
+            const batchProdName = String(b.product).trim().toLowerCase();
+            if (batchProdName === targetProdName && b.remainingQty > 0) {
               const deduct = Math.min(b.remainingQty, needed);
               b.remainingQty -= deduct;
               needed -= deduct;
@@ -3151,7 +3192,7 @@
     }
 
     function calculatePartyFinancials(partyId) {
-      const party = appData.parties.find(x => x.id === partyId);
+      const party = appData.parties.find(x => String(x.id) === String(partyId));
       if (!party) return { totalBilled: 0, totalPaid: 0, netDue: 0, entries: [] };
 
       const entries = [];
@@ -3161,23 +3202,23 @@
         entries.push({
           date: party.openingBalanceDate || '2026-01-01',
           particulars: 'Previous Financial Balance (Opening Receivable)',
-          debit: party.openingBalance,
+          debit: parseFloat(party.openingBalance) || 0,
           credit: 0
         });
       }
 
-      const inwards = appData.inwardSlips.filter(s => s.partyId === partyId);
+      const inwards = appData.inwardSlips.filter(s => isRecordForParty(s, party));
       inwards.forEach(s => {
         entries.push({
           date: s.date,
           particulars: `Inward Slip #${s.id} - Total Bill (Rent: ₹${s.totalRentMonth1} + Lab: ₹${s.totalLabour})`,
-          debit: s.initialTotal,
+          debit: parseFloat(s.initialTotal) || 0,
           credit: 0
         });
       });
 
-      const batches = buildPartyBatches(partyId);
-      const outwards = appData.outwardSlips.filter(s => s.partyId === partyId);
+      const batches = buildPartyBatches(party.id);
+      const outwards = appData.outwardSlips.filter(s => isRecordForParty(s, party));
       outwards.sort((a, b) => new Date(a.date) - new Date(b.date));
 
       batches.forEach(b => {
@@ -3206,13 +3247,13 @@
         }
       });
 
-      const pmts = appData.payments.filter(p => p.partyId === partyId);
+      const pmts = appData.payments.filter(p => isRecordForParty(p, party));
       pmts.forEach(p => {
         entries.push({
           date: p.date,
           particulars: `Payment Receipt #${p.id} via ${p.mode} ${p.bankName ? `(${p.bankName})` : ''}`,
           debit: 0,
-          credit: p.amount
+          credit: parseFloat(p.amount) || 0
         });
       });
 
@@ -3247,10 +3288,14 @@
       const relevantOutwards = allOutwards.filter(o => new Date(o.date) <= asOfDate);
 
       relevantOutwards.forEach(out => {
+        if (!out.items) return;
         out.items.forEach(it => {
-          let needed = it.dispatchedQty;
+          let needed = parseInt(it.dispatchedQty, 10) || 0;
+          const targetProdName = String(it.product).trim().toLowerCase();
+
           for (let b of tempBatches) {
-            if (b.product === it.product && b.remainingQty > 0) {
+            const batchProdName = String(b.product).trim().toLowerCase();
+            if (batchProdName === targetProdName && b.remainingQty > 0) {
               const deduct = Math.min(b.remainingQty, needed);
               b.remainingQty -= deduct;
               needed -= deduct;
@@ -3303,11 +3348,11 @@
       }
 
       const partyId = sel.value;
-      const party = appData.parties.find(x => x.id === partyId);
+      const party = appData.parties.find(x => String(x.id) === String(partyId));
       if (!party) return;
 
-      const stockData = calculatePartyLiveStock(partyId);
-      const fin = calculatePartyFinancials(partyId);
+      const stockData = calculatePartyLiveStock(party.id);
+      const fin = calculatePartyFinancials(party.id);
 
       target.innerHTML = `
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -3368,7 +3413,7 @@
     // =========================================================
     function renderCustomerPortal() {
       if (!currentUser || currentUser.role !== 'customer') return;
-      const party = appData.parties.find(x => x.id === currentUser.id);
+      const party = appData.parties.find(x => String(x.id) === String(currentUser.id));
       if (!party) return;
 
       document.getElementById('cust-portal-name').textContent = party.name;
@@ -3378,15 +3423,19 @@
       const fin = calculatePartyFinancials(party.id);
 
       let totalIn = 0;
-      if (party.openingStockLots) party.openingStockLots.forEach(l => totalIn += l.qty);
-      appData.inwardSlips.filter(s => s.partyId === party.id).forEach(s => {
+      if (party.openingStockLots) {
+        party.openingStockLots.forEach(l => totalIn += (parseInt(l.qty, 10) || 0));
+      }
+      appData.inwardSlips.filter(s => isRecordForParty(s, party)).forEach(s => {
         const items = s.items ? s.items : [{ qty: s.qty }];
-        items.forEach(it => totalIn += it.qty);
+        items.forEach(it => totalIn += (parseInt(it.qty, 10) || 0));
       });
 
       let totalOut = 0;
-      appData.outwardSlips.filter(s => s.partyId === party.id).forEach(s => {
-        s.items.forEach(it => totalOut += it.dispatchedQty);
+      appData.outwardSlips.filter(s => isRecordForParty(s, party)).forEach(s => {
+        if (s.items) {
+          s.items.forEach(it => totalOut += (parseInt(it.dispatchedQty, 10) || 0));
+        }
       });
 
       document.getElementById('cust-portal-inward').textContent = `${totalIn} Nugs`;
@@ -3422,10 +3471,10 @@
     }
 
     // =========================================================
-    // 9. PRINT ENGINE (ROBUST & FIXED)
+    // 9. PRINT ENGINE
     // =========================================================
     function printInwardSlip(slipId) {
-      const s = appData.inwardSlips.find(x => x.id === slipId);
+      const s = appData.inwardSlips.find(x => String(x.id) === String(slipId));
       if (!s) return;
 
       const itemsList = s.items ? s.items : [{ product: s.product, qty: s.qty, packaging: s.packaging, singleWeight: s.singleWeight, totalWeightKg: s.totalWeightKg, chamber: s.chamber, monthlyRate: s.monthlyRate, labourRate: s.labourRate, totalRentMonth1: s.totalRentMonth1, totalLabour: s.totalLabour }];
@@ -3442,14 +3491,14 @@
           <table class="grid-table">
             <tr>
               <td width="50%">
-                <div class="row"><b>Inward Slip No:</b> ${s.id}</div>
-                <div class="row"><b>Gate Pass No:</b> ${s.gatePassNo}</div>
-                <div class="row"><b>Deposit Date:</b> ${s.date} | <b>Time:</b> ${s.time}</div>
+                <div class="row"><b>Inward Slip No:</b> ${escapeHtml(s.id)}</div>
+                <div class="row"><b>Gate Pass No:</b> ${escapeHtml(s.gatePassNo)}</div>
+                <div class="row"><b>Deposit Date:</b> ${escapeHtml(s.date)} | <b>Time:</b> ${escapeHtml(s.time)}</div>
               </td>
               <td width="50%">
                 <div class="row"><b>Party Name:</b> ${escapeHtml(s.partyName)}</div>
                 <div class="row"><b>Place / Mandi:</b> ${escapeHtml(s.partyPlace)}</div>
-                <div class="row"><b>Contact Mobile:</b> ${s.partyMobile}</div>
+                <div class="row"><b>Contact Mobile:</b> ${escapeHtml(s.partyMobile)}</div>
               </td>
             </tr>
           </table>
@@ -3504,7 +3553,7 @@
               </td>
               <td width="50%">
                 <div class="row"><b>Driver Name:</b> ${escapeHtml(s.driverName)}</div>
-                <div class="row"><b>Driver Mobile:</b> ${s.driverMobile}</div>
+                <div class="row"><b>Driver Mobile:</b> ${escapeHtml(s.driverMobile)}</div>
               </td>
             </tr>
           </table>
@@ -3520,7 +3569,7 @@
     }
 
     function printSelfInwardSlip(slipId) {
-      const s = appData.selfInwardSlips.find(x => x.id === slipId);
+      const s = appData.selfInwardSlips.find(x => String(x.id) === String(slipId));
       if (!s) return;
 
       const html = `
@@ -3534,14 +3583,14 @@
           <table class="grid-table">
             <tr>
               <td width="50%">
-                <div class="row"><b>Self Inward Slip No:</b> ${s.id}</div>
-                <div class="row"><b>Gate Pass No:</b> ${s.gatePassNo}</div>
-                <div class="row"><b>Arrival Date:</b> ${s.date} | <b>Time:</b> ${s.time}</div>
+                <div class="row"><b>Self Inward Slip No:</b> ${escapeHtml(s.id)}</div>
+                <div class="row"><b>Gate Pass No:</b> ${escapeHtml(s.gatePassNo)}</div>
+                <div class="row"><b>Arrival Date:</b> ${escapeHtml(s.date)} | <b>Time:</b> ${escapeHtml(s.time)}</div>
               </td>
               <td width="50%">
                 <div class="row"><b>Account Owner:</b> Self Inventory (Cold Storage Owned)</div>
                 <div class="row"><b>Vehicle Type:</b> ${escapeHtml(s.vehicleType)} (${escapeHtml(s.vehicleNum)})</div>
-                <div class="row"><b>Driver:</b> ${escapeHtml(s.driverName)} (${s.driverMobile})</div>
+                <div class="row"><b>Driver:</b> ${escapeHtml(s.driverName)} (${escapeHtml(s.driverMobile)})</div>
               </td>
             </tr>
           </table>
@@ -3580,7 +3629,7 @@
     }
 
     function printSelfOutwardSlip(passId) {
-      const s = appData.selfOutwardSlips.find(x => x.id === passId);
+      const s = appData.selfOutwardSlips.find(x => String(x.id) === String(passId));
       if (!s) return;
 
       const html = `
@@ -3594,12 +3643,12 @@
           <table class="grid-table">
             <tr>
               <td width="50%">
-                <div class="row"><b>Self Outward Pass No:</b> ${s.id}</div>
-                <div class="row"><b>Gate Pass No:</b> ${s.gatePassNo}</div>
-                <div class="row"><b>Dispatch Date:</b> ${s.date} | <b>Time:</b> ${s.time}</div>
+                <div class="row"><b>Self Outward Pass No:</b> ${escapeHtml(s.id)}</div>
+                <div class="row"><b>Gate Pass No:</b> ${escapeHtml(s.gatePassNo)}</div>
+                <div class="row"><b>Dispatch Date:</b> ${escapeHtml(s.date)} | <b>Time:</b> ${escapeHtml(s.time)}</div>
               </td>
               <td width="50%">
-                <div class="row"><b>Receiver / Buyer:</b> ${escapeHtml(s.receiverName)} (${s.receiverMobile})</div>
+                <div class="row"><b>Receiver / Buyer:</b> ${escapeHtml(s.receiverName)} (${escapeHtml(s.receiverMobile)})</div>
                 <div class="row"><b>Vehicle:</b> ${escapeHtml(s.vehicleType)} (${escapeHtml(s.vehicleNum)})</div>
               </td>
             </tr>
@@ -3637,7 +3686,7 @@
     }
 
     function printOutwardSlip(passId) {
-      const s = appData.outwardSlips.find(x => x.id === passId);
+      const s = appData.outwardSlips.find(x => String(x.id) === String(passId));
       if (!s) return;
 
       const html = `
@@ -3652,14 +3701,14 @@
           <table class="grid-table">
             <tr>
               <td width="50%">
-                <div class="row"><b>Outward Pass No:</b> ${s.id}</div>
-                <div class="row"><b>Security Gate Pass #:</b> ${s.gatePassNo}</div>
-                <div class="row"><b>Dispatch Date:</b> ${s.date} | <b>Time:</b> ${s.time}</div>
+                <div class="row"><b>Outward Pass No:</b> ${escapeHtml(s.id)}</div>
+                <div class="row"><b>Security Gate Pass #:</b> ${escapeHtml(s.gatePassNo)}</div>
+                <div class="row"><b>Dispatch Date:</b> ${escapeHtml(s.date)} | <b>Time:</b> ${escapeHtml(s.time)}</div>
               </td>
               <td width="50%">
                 <div class="row"><b>Party / Owner:</b> ${escapeHtml(s.partyName)}</div>
                 <div class="row"><b>Place:</b> ${escapeHtml(s.partyPlace)}</div>
-                <div class="row"><b>Party Contact:</b> ${s.partyMobile}</div>
+                <div class="row"><b>Party Contact:</b> ${escapeHtml(s.partyMobile)}</div>
               </td>
             </tr>
           </table>
@@ -3689,7 +3738,7 @@
             <tr>
               <td width="50%">
                 <div class="row"><b>Person Collecting Goods:</b> ${escapeHtml(s.receiverName)}</div>
-                <div class="row"><b>Receiver Mobile #:</b> ${s.receiverMobile}</div>
+                <div class="row"><b>Receiver Mobile #:</b> ${escapeHtml(s.receiverMobile)}</div>
               </td>
               <td width="50%">
                 <div class="row"><b>Transport Vehicle:</b> ${escapeHtml(s.vehicleType)}</div>
@@ -3709,7 +3758,7 @@
     }
 
     function printPaymentReceipt(rcptId) {
-      const p = appData.payments.find(x => x.id === rcptId);
+      const p = appData.payments.find(x => String(x.id) === String(rcptId));
       if (!p) return;
 
       const html = `
@@ -3723,12 +3772,12 @@
           <table class="grid-table">
             <tr>
               <td width="50%">
-                <div class="row"><b>Receipt No:</b> ${p.id}</div>
-                <div class="row"><b>Receipt Date:</b> ${p.date}</div>
+                <div class="row"><b>Receipt No:</b> ${escapeHtml(p.id)}</div>
+                <div class="row"><b>Receipt Date:</b> ${escapeHtml(p.date)}</div>
               </td>
               <td width="50%">
                 <div class="row"><b>Received From:</b> ${escapeHtml(p.partyName)}</div>
-                <div class="row"><b>Party Contact:</b> ${p.partyMobile}</div>
+                <div class="row"><b>Party Contact:</b> ${escapeHtml(p.partyMobile)}</div>
               </td>
             </tr>
           </table>
@@ -3753,7 +3802,7 @@
     function printLedgerView() {
       const sel = document.getElementById('ledger-party-select');
       if (!sel || !sel.value) return;
-      const party = appData.parties.find(x => x.id === sel.value);
+      const party = appData.parties.find(x => String(x.id) === String(sel.value));
       if (!party) return;
 
       const fin = calculatePartyFinancials(party.id);
@@ -3772,7 +3821,7 @@
               <td width="50%">
                 <div class="row"><b>Party Name:</b> ${escapeHtml(party.name)}</div>
                 <div class="row"><b>Place:</b> ${escapeHtml(party.place)}</div>
-                <div class="row"><b>Contact:</b> ${party.mobile}</div>
+                <div class="row"><b>Contact:</b> ${escapeHtml(party.mobile)}</div>
               </td>
               <td width="50%">
                 <div class="row"><b>Statement Date:</b> ${new Date().toLocaleDateString('en-IN')}</div>
@@ -3879,7 +3928,7 @@
     // 10. WHATSAPP ENGINE
     // =========================================================
     function shareInwardWhatsApp(slipId) {
-      const s = appData.inwardSlips.find(x => x.id === slipId);
+      const s = appData.inwardSlips.find(x => String(x.id) === String(slipId));
       if (!s) return;
 
       const itemsList = s.items ? s.items : [{ product: s.product, qty: s.qty, packaging: s.packaging, chamber: s.chamber }];
@@ -3912,7 +3961,7 @@ _Official cold storage inventory receipt._`;
     }
 
     function shareOutwardWhatsApp(passId) {
-      const s = appData.outwardSlips.find(x => x.id === passId);
+      const s = appData.outwardSlips.find(x => String(x.id) === String(passId));
       if (!s) return;
 
       let itemsTxt = s.items.map(it => `• *${it.dispatchedQty}* ${it.product} (Prev: ${it.previousStock} | Balance Left: *${it.balanceLeft}*)`).join('\n');
@@ -3941,7 +3990,7 @@ _Gate pass verified & stock balance updated._`;
     }
 
     function sharePaymentWhatsApp(rcptId) {
-      const p = appData.payments.find(x => x.id === rcptId);
+      const p = appData.payments.find(x => String(x.id) === String(rcptId));
       if (!p) return;
 
       const fin = calculatePartyFinancials(p.partyId);
@@ -3968,7 +4017,7 @@ _Thank you for your payment!_`;
     function shareLedgerWhatsApp() {
       const sel = document.getElementById('ledger-party-select');
       if (!sel || !sel.value) return;
-      const party = appData.parties.find(x => x.id === sel.value);
+      const party = appData.parties.find(x => String(x.id) === String(sel.value));
       if (!party) return;
 
       const fin = calculatePartyFinancials(party.id);
@@ -4003,7 +4052,7 @@ _For full itemized statement, log in to the BAZZ Customer Portal using mobile: $
     }
 
     function escapeHtml(text) {
-      if (!text) return '';
+      if (text === null || text === undefined) return '';
       return text.toString()
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
