@@ -27,50 +27,146 @@
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
 
-  <!-- TOP NAVIGATION BAR -->
-  <header id="top-nav" class="hidden bg-slate-950 border-b border-slate-800 sticky top-0 z-40 px-4 py-3">
-    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
-      <div class="flex items-center space-x-3">
-        <div class="bg-cyan-500 text-slate-950 font-black px-2.5 py-1 rounded tracking-wider text-sm flex items-center gap-1.5">
+  <!-- ==================== SIDEBAR DRAWER (THREE LINES MENU) ==================== -->
+  <div id="sidebar-backdrop" onclick="toggleSidebar(false)" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 transition-opacity"></div>
+  <aside id="sidebar-drawer" class="fixed top-0 left-0 bottom-0 w-72 sm:w-80 bg-slate-950 border-r border-slate-800 z-50 transform -translate-x-full transition-transform duration-200 ease-in-out flex flex-col">
+    <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/60">
+      <div class="flex items-center space-x-2.5">
+        <div class="bg-cyan-500 text-slate-950 font-black px-2 py-1 rounded-lg text-xs flex items-center gap-1">
           <i class="fa-solid fa-snowflake"></i> BAZZ
         </div>
         <div>
-          <h1 class="font-bold text-sm sm:text-base leading-tight">Cold Storage & Logistics</h1>
-          <p class="text-xs text-slate-400">Abohar - Fazilka Bypass, Punjab</p>
+          <h2 class="font-bold text-sm text-white">Cold Storage ERP</h2>
+          <p class="text-[10px] text-slate-400">Navigation Menu</p>
+        </div>
+      </div>
+      <button onclick="toggleSidebar(false)" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+
+    <div class="flex-1 overflow-y-auto p-3 space-y-4">
+      <!-- Section 1 -->
+      <div class="space-y-1">
+        <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 px-3 py-1">Operations & Gate Pass</div>
+        <button onclick="switchTab('inward')" class="drawer-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-900">
+          <span class="flex items-center gap-2.5"><i class="fa-solid fa-arrow-down-to-bracket text-emerald-400"></i> Inward Receiving Slips</span>
+        </button>
+        <button onclick="switchTab('outward')" class="drawer-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-900">
+          <span class="flex items-center gap-2.5"><i class="fa-solid fa-arrow-up-from-bracket text-amber-400"></i> Outward Gate Pass</span>
+        </button>
+        <button onclick="switchTab('mapping')" class="drawer-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-900">
+          <span class="flex items-center gap-2.5"><i class="fa-solid fa-map-location-dot text-pink-400"></i> 4-Chamber Visual Map</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-pink-950 text-pink-300 font-mono">4 Ch</span>
+        </button>
+      </div>
+
+      <!-- Section 2 -->
+      <div class="space-y-1">
+        <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 px-3 py-1">Inventory & Stock Ledgers</div>
+        <button onclick="switchTab('products')" class="drawer-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-900">
+          <span class="flex items-center gap-2.5"><i class="fa-solid fa-boxes-stacked text-teal-400"></i> Products Catalog</span>
+        </button>
+        <button onclick="switchTab('self-inward')" class="drawer-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-900">
+          <span class="flex items-center gap-2.5"><i class="fa-solid fa-warehouse text-indigo-400"></i> Self-Stock Inward</span>
+        </button>
+        <button onclick="switchTab('self-outward')" class="drawer-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-900">
+          <span class="flex items-center gap-2.5"><i class="fa-solid fa-truck-fast text-orange-400"></i> Self-Stock Outward</span>
+        </button>
+        <button onclick="switchTab('self-summary')" class="drawer-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-900">
+          <span class="flex items-center gap-2.5"><i class="fa-solid fa-chart-pie text-violet-400"></i> Self Stock Ledger</span>
+        </button>
+      </div>
+
+      <!-- Section 3 -->
+      <div class="space-y-1">
+        <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 px-3 py-1">Accounts & Parties</div>
+        <button onclick="switchTab('parties')" class="drawer-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-900">
+          <span class="flex items-center gap-2.5"><i class="fa-solid fa-users text-cyan-400"></i> Parties & Chamber Stock</span>
+        </button>
+        <button onclick="switchTab('payments')" class="drawer-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-900">
+          <span class="flex items-center gap-2.5"><i class="fa-solid fa-indian-rupee-sign text-purple-400"></i> Customer Payments</span>
+        </button>
+        <button onclick="switchTab('ledgers')" class="drawer-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-900">
+          <span class="flex items-center gap-2.5"><i class="fa-solid fa-scale-balanced text-blue-400"></i> Party Ledgers</span>
+        </button>
+      </div>
+
+      <!-- Section 4 -->
+      <div class="admin-only space-y-1">
+        <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 px-3 py-1">Administration</div>
+        <button onclick="switchTab('staff')" class="drawer-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-900">
+          <span class="flex items-center gap-2.5"><i class="fa-solid fa-users-gear text-rose-400"></i> Staff Accounts</span>
+        </button>
+      </div>
+
+      <div class="pt-2 border-t border-slate-800">
+        <button onclick="openCloudModal(); toggleSidebar(false);" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold text-emerald-400 hover:bg-emerald-950/30 border border-emerald-500/20">
+          <span class="flex items-center gap-2"><i class="fa-solid fa-cloud"></i> Google Sheets Sync</span>
+          <i class="fa-solid fa-chevron-right text-[10px]"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="p-3 border-t border-slate-800 bg-slate-900/40 flex items-center justify-between">
+      <div>
+        <div id="drawer-user-name" class="text-xs font-bold text-white">Admin</div>
+        <div id="drawer-user-role" class="text-[10px] text-cyan-400 uppercase font-mono">ADMINISTRATOR</div>
+      </div>
+      <button onclick="logout()" class="p-2 text-slate-400 hover:text-rose-400 rounded-lg">
+        <i class="fa-solid fa-right-from-bracket"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ==================== TOP NAVIGATION BAR ==================== -->
+  <header id="top-nav" class="hidden bg-slate-950/95 border-b border-slate-800 sticky top-0 z-40 px-4 py-2.5 backdrop-blur">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center space-x-3">
+        <!-- 3 LINES HAMBURGER BUTTON -->
+        <button onclick="toggleSidebar(true)" class="p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl transition cursor-pointer border border-slate-800" title="Open Menu (Three Lines)">
+          <i class="fa-solid fa-bars text-base"></i>
+        </button>
+
+        <div class="bg-cyan-500 text-slate-950 font-black px-2.5 py-1 rounded-lg tracking-wider text-sm flex items-center gap-1.5 shadow-md shadow-cyan-500/20">
+          <i class="fa-solid fa-snowflake"></i> BAZZ
+        </div>
+        <div>
+          <h1 class="font-extrabold text-sm sm:text-base text-white leading-tight">Cold Storage & Logistics</h1>
+          <p class="text-[11px] text-slate-400">Abohar - Fazilka Bypass, Punjab</p>
         </div>
       </div>
 
       <div class="flex items-center space-x-2 sm:space-x-3">
-        <button onclick="openCloudModal()" id="cloud-pill" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border bg-emerald-950/60 border-emerald-500/40 text-emerald-400 hover:bg-emerald-900/50 transition">
+        <button onclick="openCloudModal()" id="cloud-pill" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border bg-emerald-950/70 border-emerald-500/40 text-emerald-400 hover:bg-emerald-900/60 transition">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
           <span id="cloud-status-text">Cloud Synced ☁️</span>
         </button>
 
         <div class="text-right hidden sm:block">
-          <div id="nav-user-name" class="text-xs font-semibold text-slate-200">Admin</div>
-          <div id="nav-user-role" class="text-[10px] text-cyan-400 uppercase font-mono font-bold tracking-wider">ADMINISTRATOR</div>
+          <div id="nav-user-name" class="text-xs font-bold text-white">Admin</div>
+          <div id="nav-user-role" class="text-[10px] text-cyan-400 uppercase font-mono font-bold">ADMINISTRATOR</div>
         </div>
 
-        <button onclick="logout()" class="px-3 py-1.5 bg-slate-800 hover:bg-red-950/60 hover:text-red-300 text-slate-300 border border-slate-700 rounded-lg text-xs font-medium transition flex items-center gap-1.5">
+        <button onclick="logout()" class="px-3 py-1.5 bg-slate-900 hover:bg-rose-950/60 hover:text-rose-300 text-slate-300 border border-slate-800 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
           <i class="fa-solid fa-right-from-bracket"></i> <span class="hidden sm:inline">Logout</span>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- LOGIN SCREEN -->
-  <div id="view-login" class="flex-1 flex items-center justify-center p-4">
-    <div class="max-w-md w-full bg-slate-950 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+  <!-- ==================== CLEAN ENTERPRISE LOGIN ==================== -->
+  <div id="view-login" class="flex-1 flex items-center justify-center p-4 min-h-[90vh]">
+    <div class="max-w-md w-full bg-slate-950 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
       <div class="text-center mb-6">
-        <div class="inline-flex p-3.5 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 mb-3 text-2xl">
+        <div class="inline-flex p-3 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 mb-3 text-2xl">
           <i class="fa-solid fa-snowflake"></i>
         </div>
-        <h2 class="text-xl font-extrabold tracking-tight text-white">BAZZ Cold Storage</h2>
+        <h2 class="text-2xl font-black tracking-tight text-white">BAZZ Cold Storage</h2>
         <p class="text-xs text-slate-400 mt-1">Management, Gate Pass & Stock Ledger System</p>
         <p class="text-[11px] text-slate-500">Abohar - Fazilka Bypass, Punjab</p>
       </div>
 
-      <!-- In-App Error Alert (Replaces window.alert) -->
       <div id="login-error-box" class="hidden mb-4 p-3 rounded-xl bg-rose-950/80 border border-rose-500/40 text-rose-200 text-xs flex items-center gap-2">
         <i class="fa-solid fa-triangle-exclamation text-rose-400"></i>
         <span id="login-error-text">Invalid login credentials.</span>
@@ -78,101 +174,1050 @@
 
       <form onsubmit="handleLogin(event)" class="space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Username or Mobile</label>
+          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Username or Mobile</label>
           <div class="relative">
             <i class="fa-solid fa-user absolute left-3.5 top-3 text-slate-500 text-sm"></i>
             <input id="login-username" type="text" autocapitalize="none" autocorrect="off" required placeholder="admin, staff1, or 10-digit mobile" 
-                   class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-3 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500" />
+                   class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-3 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400" />
           </div>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1 flex justify-between">
+          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1 flex justify-between">
             <span>Password</span>
             <span class="text-[10px] text-slate-400 font-normal">Case-sensitive</span>
           </label>
           <div class="relative">
             <i class="fa-solid fa-lock absolute left-3.5 top-3 text-slate-500 text-sm"></i>
             <input id="login-password" type="password" required placeholder="Enter password" 
-                   class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-10 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500" />
+                   class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-10 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400" />
             <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-2.5 text-slate-500 hover:text-slate-300 text-sm">
               <i id="pwd-eye-icon" class="fa-solid fa-eye"></i>
             </button>
           </div>
         </div>
 
-        <button type="submit" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-sm shadow-lg shadow-cyan-500/20 transition duration-200">
-          Sign In
+        <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-sm shadow-lg shadow-cyan-500/20 transition duration-200">
+          Sign In to Portal
         </button>
       </form>
 
-      <!-- 1-Click Quick Demo Login Helpers -->
-      <div class="mt-6 pt-5 border-t border-slate-800">
-        <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-          <i class="fa-solid fa-wand-magic-sparkles text-cyan-400"></i> Quick Sign-In (Instant Access)
+      <div class="mt-6 pt-4 border-t border-slate-800/80 text-[11px] text-slate-400 space-y-1.5">
+        <div class="flex items-center gap-1.5 text-slate-300 font-semibold">
+          <i class="fa-solid fa-shield-halved text-cyan-400"></i> Authorized Enterprise Access
         </div>
-        <div class="grid grid-cols-3 gap-2">
-          <button type="button" onclick="quickFill('admin', 'Csetia@1122')" class="px-2.5 py-2 bg-slate-900 hover:bg-cyan-950/40 border border-slate-800 hover:border-cyan-500/50 rounded-xl text-left transition">
-            <div class="text-[11px] font-bold text-cyan-400">👑 Admin</div>
-            <div class="text-[10px] text-slate-400 font-mono mt-0.5">admin</div>
-          </button>
-          <button type="button" onclick="quickFill('staff1', 'staff123')" class="px-2.5 py-2 bg-slate-900 hover:bg-purple-950/40 border border-slate-800 hover:border-purple-500/50 rounded-xl text-left transition">
-            <div class="text-[11px] font-bold text-purple-400">👔 Staff</div>
-            <div class="text-[10px] text-slate-400 font-mono mt-0.5">staff1</div>
-          </button>
-          <button type="button" onclick="quickFill('9876543210', '9876543210')" class="px-2.5 py-2 bg-slate-900 hover:bg-emerald-950/40 border border-slate-800 hover:border-emerald-500/50 rounded-xl text-left transition">
-            <div class="text-[11px] font-bold text-emerald-400">🚜 Farmer</div>
-            <div class="text-[10px] text-slate-400 font-mono mt-0.5">9876543210</div>
-          </button>
-        </div>
+        <p class="text-[11px] text-slate-400">
+          For registered parties and farmers, your 10-digit mobile number functions as your portal ID.
+        </p>
       </div>
     </div>
   </div>
 
+  <!-- ==================== MAIN DASHBOARD ==================== -->
   <div id="view-dashboard" class="hidden flex-1 flex flex-col">
-    <!-- Main Dashboard is mounted here -->
+    <!-- Operations Action Bar with Three Lines Menu -->
+    <div class="bg-slate-950/80 border-b border-slate-800/80 px-4 py-2.5">
+      <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <button onclick="toggleSidebar(true)" class="flex items-center gap-2 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-white transition cursor-pointer">
+            <i class="fa-solid fa-bars text-cyan-400"></i> Menu <span class="text-[10px] text-cyan-400 font-mono">☰</span>
+          </button>
+          <div class="h-4 w-px bg-slate-800 hidden sm:block"></div>
+          <div class="text-xs font-bold text-white flex items-center gap-1.5" id="active-tab-indicator">
+            <i class="fa-solid fa-users text-cyan-400"></i> Parties & Chamber Stock
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 text-[11px]">
+          <div class="px-3 py-1 bg-slate-900 border border-slate-800 rounded-xl text-slate-300 font-mono">
+            <span class="text-slate-400 font-sans">4 Chambers: </span><b id="facility-total-nugs" class="text-emerald-400">0</b> Nugs
+          </div>
+          <button onclick="toggleSidebar(true)" class="text-cyan-400 hover:text-cyan-300 text-xs font-semibold px-2 py-1">
+            Switch Section <i class="fa-solid fa-chevron-right text-[10px]"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
+
+      <!-- PANE 1: PARTIES DIRECTORY -->
+      <section id="pane-parties" class="tab-pane hidden space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-md">
+          <div>
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-users text-cyan-400"></i> Registered Parties Directory
+            </h2>
+            <p class="text-xs text-slate-400">Manage parties, opening money receivable, and opening physical stock lots</p>
+          </div>
+          <button onclick="openPartyModal()" class="px-3.5 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+            <i class="fa-solid fa-user-plus"></i> Add New Party
+          </button>
+        </div>
+
+        <div class="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden shadow-xl">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-900 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+                <tr>
+                  <th class="p-3">Party Name & Place</th>
+                  <th class="p-3">Mobile & Credentials</th>
+                  <th class="p-3">Live Chamber Stock (FIFO)</th>
+                  <th class="p-3">Financial Balance</th>
+                  <th class="p-3">Status</th>
+                  <th class="p-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="party-table-body" class="divide-y divide-slate-800/60 font-medium"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- PANE 2: PRODUCTS CATALOG -->
+      <section id="pane-products" class="tab-pane hidden space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-md">
+          <div>
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-boxes-stacked text-teal-400"></i> Master Products Catalog
+            </h2>
+            <p class="text-xs text-slate-400">Items added here appear automatically in dropdowns for inward and outward entries</p>
+          </div>
+          <button onclick="openProductModal()" class="px-3.5 py-2 bg-teal-500 hover:bg-teal-400 text-slate-950 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+            <i class="fa-solid fa-plus"></i> Add New Product Item
+          </button>
+        </div>
+
+        <div class="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden shadow-xl">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-900 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+              <tr>
+                <th class="p-3">Product Name</th>
+                <th class="p-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="product-table-body" class="divide-y divide-slate-800/60 font-medium"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- PANE 3: INWARD SLIPS -->
+      <section id="pane-inward" class="tab-pane hidden space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-md">
+          <div>
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-arrow-down-to-bracket text-emerald-400"></i> Inward Receiving Slips & Gate Passes
+            </h2>
+            <p class="text-xs text-slate-400">Record incoming stock across Chambers 1 to 4 with monthly rent and labour</p>
+          </div>
+          <button onclick="openInwardModal()" class="px-3.5 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+            <i class="fa-solid fa-plus"></i> New Inward Entry
+          </button>
+        </div>
+
+        <div class="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden shadow-xl">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-900 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+                <tr>
+                  <th class="p-3">Slip # & Date</th>
+                  <th class="p-3">Party Name</th>
+                  <th class="p-3">Multi-Items Deposited</th>
+                  <th class="p-3">Rent + Labour (Mo 1)</th>
+                  <th class="p-3">Vehicle & Driver</th>
+                  <th class="p-3 text-right">Share & Actions</th>
+                </tr>
+              </thead>
+              <tbody id="inward-table-body" class="divide-y divide-slate-800/60 font-medium"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- PANE 4: OUTWARD GATE PASS -->
+      <section id="pane-outward" class="tab-pane hidden space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-md">
+          <div>
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-arrow-up-from-bracket text-amber-400"></i> Outward Dispatches & Gate Passes
+            </h2>
+            <p class="text-xs text-slate-400">Dispatch stock using FIFO deduction with balance left tracking</p>
+          </div>
+          <button onclick="openOutwardModal()" class="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+            <i class="fa-solid fa-truck-ramp-box"></i> Create Outward Pass
+          </button>
+        </div>
+
+        <div class="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden shadow-xl">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-900 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+                <tr>
+                  <th class="p-3">Pass # & Time</th>
+                  <th class="p-3">Party Name</th>
+                  <th class="p-3">Dispatched Items & Balance Left</th>
+                  <th class="p-3">Carrier / "Jo Le Kr Jaa Rha H"</th>
+                  <th class="p-3">Vehicle</th>
+                  <th class="p-3 text-right">Share & Actions</th>
+                </tr>
+              </thead>
+              <tbody id="outward-table-body" class="divide-y divide-slate-800/60 font-medium"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- PANE 5: SELF INWARD -->
+      <section id="pane-self-inward" class="tab-pane hidden space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-md">
+          <div>
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-warehouse text-indigo-400"></i> Self-Stock Inward (Cold Storage Owned Inventory)
+            </h2>
+            <p class="text-xs text-slate-400">Record in-house stock arrivals with multiple lot numbers & batch IDs</p>
+          </div>
+          <button onclick="openSelfInwardModal()" class="px-3.5 py-2 bg-indigo-500 hover:bg-indigo-400 text-slate-950 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+            <i class="fa-solid fa-plus"></i> New Self Inward Entry
+          </button>
+        </div>
+
+        <div class="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden shadow-xl">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-900 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+                <tr>
+                  <th class="p-3">Slip # & Date</th>
+                  <th class="p-3">Multi-Lots & Products</th>
+                  <th class="p-3">Chambers</th>
+                  <th class="p-3">Vehicle & Driver</th>
+                  <th class="p-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="self-inward-table-body" class="divide-y divide-slate-800/60 font-medium"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- PANE 6: SELF OUTWARD -->
+      <section id="pane-self-outward" class="tab-pane hidden space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-md">
+          <div>
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-truck-fast text-orange-400"></i> Self-Stock Outward Dispatches
+            </h2>
+            <p class="text-xs text-slate-400">Dispatch company-owned self-stock using FIFO lot deduction</p>
+          </div>
+          <button onclick="openSelfOutwardModal()" class="px-3.5 py-2 bg-orange-500 hover:bg-orange-400 text-slate-950 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+            <i class="fa-solid fa-truck-ramp-box"></i> Create Self Outward Pass
+          </button>
+        </div>
+
+        <div class="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden shadow-xl">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-900 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+                <tr>
+                  <th class="p-3">Pass # & Time</th>
+                  <th class="p-3">Dispatched Items & Balance Left</th>
+                  <th class="p-3">Carrier / Receiver</th>
+                  <th class="p-3">Vehicle</th>
+                  <th class="p-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="self-outward-table-body" class="divide-y divide-slate-800/60 font-medium"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- PANE 7: SELF STOCK LEDGER & SUMMARY -->
+      <section id="pane-self-summary" class="tab-pane hidden space-y-4">
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-3 shadow-md">
+          <div>
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-chart-pie text-violet-400"></i> Self-Stock Product & Lot Balance Summary
+            </h2>
+            <p class="text-xs text-slate-400">Live breakdown across all master product catalog items and active batch lots</p>
+          </div>
+          <button onclick="renderSelfSummaryView()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-violet-300 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+            <i class="fa-solid fa-rotate"></i> Refresh Stock
+          </button>
+        </div>
+        <div id="self-summary-render-target" class="space-y-6"></div>
+      </section>
+
+      <!-- PANE 8: PAYMENTS -->
+      <section id="pane-payments" class="tab-pane hidden space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-md">
+          <div>
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-indian-rupee-sign text-purple-400"></i> Customer Payment Receipts
+            </h2>
+            <p class="text-xs text-slate-400">Record cash, bank transfer, UPI, or cheque payments received</p>
+          </div>
+          <button onclick="openPaymentModal()" class="px-3.5 py-2 bg-purple-500 hover:bg-purple-400 text-slate-950 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+            <i class="fa-solid fa-receipt"></i> Record Payment
+          </button>
+        </div>
+
+        <div class="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden shadow-xl">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-900 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+                <tr>
+                  <th class="p-3">Receipt # & Date</th>
+                  <th class="p-3">Party Name</th>
+                  <th class="p-3">Amount Received</th>
+                  <th class="p-3">Mode</th>
+                  <th class="p-3">Reference / Bank Details</th>
+                  <th class="p-3 text-right">Share & Actions</th>
+                </tr>
+              </thead>
+              <tbody id="payment-table-body" class="divide-y divide-slate-800/60 font-medium"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- PANE 9: PARTY LEDGERS -->
+      <section id="pane-ledgers" class="tab-pane hidden space-y-4">
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-3 shadow-md">
+          <div class="flex-1 min-w-[240px]">
+            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Select Party To View Ledger</label>
+            <select id="ledger-party-select" onchange="renderPartyLedgerView()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white">
+            </select>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="shareLedgerWhatsApp()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5">
+              <i class="fa-brands fa-whatsapp"></i> Share WhatsApp
+            </button>
+            <button onclick="printLedgerView()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5">
+              <i class="fa-solid fa-print"></i> Print Statement
+            </button>
+          </div>
+        </div>
+        <div id="ledger-render-target" class="space-y-4"></div>
+      </section>
+
+      <!-- PANE 10: STAFF ACCOUNTS (ADMIN ONLY) -->
+      <section id="pane-staff" class="admin-only tab-pane hidden space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-md">
+          <div>
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-users-gear text-rose-400"></i> Staff User Management & Permissions
+            </h2>
+            <p class="text-xs text-slate-400">Admin can grant staff members permissions to Edit or Delete slips</p>
+          </div>
+          <button onclick="openStaffModal()" class="px-3.5 py-2 bg-rose-500 hover:bg-rose-400 text-slate-950 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+            <i class="fa-solid fa-user-shield"></i> Create Staff ID
+          </button>
+        </div>
+
+        <div class="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden shadow-xl">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-900 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+                <tr>
+                  <th class="p-3">Staff Member</th>
+                  <th class="p-3">Username</th>
+                  <th class="p-3">Phone</th>
+                  <th class="p-3">Granted Privileges</th>
+                  <th class="p-3">Status</th>
+                  <th class="p-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="staff-table-body" class="divide-y divide-slate-800/60 font-medium"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- PANE 11: 4-CHAMBERS VISUAL MAP -->
+      <section id="pane-mapping" class="tab-pane hidden space-y-4">
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-3 shadow-md">
+          <div>
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-map-location-dot text-pink-400"></i> 4-Chamber Visual Stock Map
+            </h2>
+            <p class="text-xs text-slate-400">Select any of the 4 facility chambers and floor levels to inspect bays and stored nugs</p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="switchFloorMap('ground')" id="btn-map-ground" class="px-3.5 py-1.5 bg-pink-600 text-white rounded-lg text-xs font-bold transition">Ground Floor</button>
+            <button onclick="switchFloorMap('first')" id="btn-map-first" class="px-3.5 py-1.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-lg text-xs font-bold transition">First Floor</button>
+          </div>
+        </div>
+
+        <!-- 4 Chamber Selector Cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+          <button onclick="switchChamber(1)" id="btn-ch-1" class="ch-btn p-3 rounded-xl border border-cyan-500 bg-cyan-950/40 text-left transition">
+            <div class="flex justify-between items-center">
+              <span class="font-extrabold text-sm text-white">Chamber 1</span>
+              <span class="text-[10px] bg-slate-900 border border-slate-800 text-cyan-300 px-1.5 py-0.5 rounded font-mono">+2.0°C</span>
+            </div>
+            <div class="text-[11px] text-slate-400 mt-1 truncate">Kinnow & Pre-Cooling</div>
+            <div class="text-xs font-mono font-bold text-cyan-300 mt-1.5"><span id="ch1-nugs">0</span> Nugs</div>
+          </button>
+
+          <button onclick="switchChamber(2)" id="btn-ch-2" class="ch-btn p-3 rounded-xl border border-slate-800 bg-slate-900/60 text-left transition hover:border-slate-700">
+            <div class="flex justify-between items-center">
+              <span class="font-extrabold text-sm text-white">Chamber 2</span>
+              <span class="text-[10px] bg-slate-900 border border-slate-800 text-emerald-300 px-1.5 py-0.5 rounded font-mono">+0.8°C</span>
+            </div>
+            <div class="text-[11px] text-slate-400 mt-1 truncate">Apples & Fresh Fruits</div>
+            <div class="text-xs font-mono font-bold text-slate-300 mt-1.5"><span id="ch2-nugs">0</span> Nugs</div>
+          </button>
+
+          <button onclick="switchChamber(3)" id="btn-ch-3" class="ch-btn p-3 rounded-xl border border-slate-800 bg-slate-900/60 text-left transition hover:border-slate-700">
+            <div class="flex justify-between items-center">
+              <span class="font-extrabold text-sm text-white">Chamber 3</span>
+              <span class="text-[10px] bg-slate-900 border border-slate-800 text-amber-300 px-1.5 py-0.5 rounded font-mono">+3.5°C</span>
+            </div>
+            <div class="text-[11px] text-slate-400 mt-1 truncate">Seed Potato & Veg</div>
+            <div class="text-xs font-mono font-bold text-slate-300 mt-1.5"><span id="ch3-nugs">0</span> Nugs</div>
+          </button>
+
+          <button onclick="switchChamber(4)" id="btn-ch-4" class="ch-btn p-3 rounded-xl border border-slate-800 bg-slate-900/60 text-left transition hover:border-slate-700">
+            <div class="flex justify-between items-center">
+              <span class="font-extrabold text-sm text-white">Chamber 4</span>
+              <span class="text-[10px] bg-slate-900 border border-slate-800 text-purple-300 px-1.5 py-0.5 rounded font-mono">+4.0°C</span>
+            </div>
+            <div class="text-[11px] text-slate-400 mt-1 truncate">Dry Fruits & General</div>
+            <div class="text-xs font-mono font-bold text-slate-300 mt-1.5"><span id="ch4-nugs">0</span> Nugs</div>
+          </button>
+        </div>
+
+        <!-- Selected Chamber Telemetry Bar -->
+        <div id="chamber-telemetry-banner" class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between text-xs">
+          <div class="flex items-center gap-2">
+            <span id="ch-active-label" class="font-bold text-white text-sm">Chamber 1 (Ground Floor)</span>
+            <span id="ch-active-type" class="text-slate-400 text-xs">Kinnow Pre-Cooling Unit</span>
+          </div>
+          <div class="flex items-center gap-4 text-slate-300 font-mono text-[11px]">
+            <span><i class="fa-solid fa-temperature-arrow-down text-blue-400"></i> Set: +2.0°C</span>
+            <span><i class="fa-solid fa-droplet text-cyan-400"></i> 92% RH</span>
+          </div>
+        </div>
+
+        <div class="bg-slate-950 rounded-xl border border-slate-800 p-6 flex justify-center overflow-x-auto shadow-xl">
+          <!-- GROUND FLOOR 15-PILLAR MAP -->
+          <div id="map-ground" class="relative w-[340px] h-[480px] bg-slate-900 border-2 border-slate-600 grid grid-cols-2 grid-rows-4 gap-1.5 p-2 rounded-xl shadow-inner">
+            <div class="absolute -top-1.5 -left-1.5 w-3 h-3 bg-slate-400"></div><div class="absolute -top-1.5 left-1/2 -ml-1.5 w-3 h-3 bg-slate-400"></div><div class="absolute -top-1.5 -right-1.5 w-3 h-3 bg-slate-400"></div>
+            <div class="absolute top-1/4 -mt-1.5 -left-1.5 w-3 h-3 bg-slate-400"></div><div class="absolute top-1/4 -mt-1.5 left-1/2 -ml-1.5 w-3 h-3 bg-slate-400"></div><div class="absolute top-1/4 -mt-1.5 -right-1.5 w-3 h-3 bg-slate-400"></div>
+            <div class="absolute top-2/4 -mt-1.5 -left-1.5 w-3 h-3 bg-slate-400"></div><div class="absolute top-2/4 -mt-1.5 left-1/2 -ml-1.5 w-3 h-3 bg-slate-400"></div><div class="absolute top-2/4 -mt-1.5 -right-1.5 w-3 h-3 bg-slate-400"></div>
+            <div class="absolute top-3/4 -mt-1.5 -left-1.5 w-3 h-3 bg-slate-400"></div><div class="absolute top-3/4 -mt-1.5 left-1/2 -ml-1.5 w-3 h-3 bg-slate-400"></div><div class="absolute top-3/4 -mt-1.5 -right-1.5 w-3 h-3 bg-slate-400"></div>
+            <div class="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-slate-400"></div><div class="absolute -bottom-1.5 left-1/2 -ml-1.5 w-3 h-3 bg-slate-400"></div><div class="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-slate-400"></div>
+
+            <div class="absolute -bottom-3 left-1/2 ml-4 w-12 h-3 border-2 border-b-0 border-slate-500 bg-slate-800 text-[8px] font-bold text-center text-slate-300">GATE</div>
+            
+            <button onclick="openChamberMappingModal('L1')" class="bay-cell border border-dashed border-slate-600 flex flex-col items-center justify-center p-1 rounded transition"><span class="text-[10px] text-slate-400">Bay L1</span><div id="bay-L1" class="flex flex-col items-center mt-1 pointer-events-none text-cyan-300 font-bold"></div></button>
+            <button onclick="openChamberMappingModal('R1')" class="bay-cell border border-dashed border-slate-600 flex flex-col items-center justify-center p-1 rounded transition"><span class="text-[10px] text-slate-400">Bay R1</span><div id="bay-R1" class="flex flex-col items-center mt-1 pointer-events-none text-cyan-300 font-bold"></div></button>
+            <button onclick="openChamberMappingModal('L2')" class="bay-cell border border-dashed border-slate-600 flex flex-col items-center justify-center p-1 rounded transition"><span class="text-[10px] text-slate-400">Bay L2</span><div id="bay-L2" class="flex flex-col items-center mt-1 pointer-events-none text-cyan-300 font-bold"></div></button>
+            <button onclick="openChamberMappingModal('R2')" class="bay-cell border border-dashed border-slate-600 flex flex-col items-center justify-center p-1 rounded transition"><span class="text-[10px] text-slate-400">Bay R2</span><div id="bay-R2" class="flex flex-col items-center mt-1 pointer-events-none text-cyan-300 font-bold"></div></button>
+            <button onclick="openChamberMappingModal('L3')" class="bay-cell border border-dashed border-slate-600 flex flex-col items-center justify-center p-1 rounded transition"><span class="text-[10px] text-slate-400">Bay L3</span><div id="bay-L3" class="flex flex-col items-center mt-1 pointer-events-none text-cyan-300 font-bold"></div></button>
+            <div class="border-2 border-slate-600 bg-slate-800 flex items-center justify-center relative"><span class="text-xs font-bold text-slate-400 uppercase tracking-widest bg-slate-800 px-1 z-10">Stairs</span></div>
+            <button onclick="openChamberMappingModal('L4')" class="bay-cell border border-dashed border-slate-600 flex flex-col items-center justify-center p-1 rounded transition"><span class="text-[10px] text-slate-400">Bay L4</span><div id="bay-L4" class="flex flex-col items-center mt-1 pointer-events-none text-cyan-300 font-bold"></div></button>
+            <button onclick="openChamberMappingModal('R4')" class="bay-cell border border-dashed border-slate-600 flex flex-col items-center justify-center p-1 rounded transition"><span class="text-[10px] text-slate-400">Bay R4</span><div id="bay-R4" class="flex flex-col items-center mt-1 pointer-events-none text-cyan-300 font-bold"></div></button>
+          </div>
+
+          <!-- FIRST FLOOR 15-PILLAR MAP -->
+          <div id="map-first" class="hidden relative w-[340px] h-[480px] bg-slate-900 border-2 border-slate-600 grid grid-cols-2 grid-rows-4 gap-1.5 p-2 rounded-xl shadow-inner">
+            <div class="absolute -top-3 left-1/2 -ml-8 w-16 h-4 border-2 border-b-0 border-blue-500 bg-blue-900/50 text-[8px] font-bold text-center text-blue-300">COOLING UNIT</div>
+            
+            <button onclick="openChamberMappingModal('FF-L1')" class="bay-cell border border-dashed border-slate-600 flex flex-col items-center justify-center p-1 rounded transition"><span class="text-[10px] text-slate-400">Bay L1</span><div id="bay-FF-L1" class="flex flex-col items-center mt-1 pointer-events-none text-cyan-300 font-bold"></div></button>
+            <button onclick="openChamberMappingModal('FF-R1')" class="bay-cell border border-dashed border-slate-600 flex flex-col items-center justify-center p-1 rounded transition"><span class="text-[10px] text-slate-400">Bay R1</span><div id="bay-FF-R1" class="flex flex-col items-center mt-1 pointer-events-none text-cyan-300 font-bold"></div></button>
+            <button onclick="openChamberMappingModal('FF-L2')" class="bay-cell border border-dashed border-slate-600 flex flex-col items-center justify-center p-1 rounded transition"><span class="text-[10px] text-slate-400">Bay L2</span><div id="bay-FF-L2" class="flex flex-col items-center mt-1 pointer-events-none text-cyan-300 font-bold"></div></button>
+            <button onclick="openChamberMappingModal('FF-R2')" class="bay-cell border border-dashed border-slate-600 flex flex-col items-center justify-center p-1 rounded transition"><span class="text-[10px] text-slate-400">Bay R2</span><div id="bay-FF-R2" class="flex flex-col items-center mt-1 pointer-events-none text-cyan-300 font-bold"></div></button>
+            <button onclick="openChamberMappingModal('FF-L3')" class="bay-cell border border-dashed border-slate-600 flex flex-col items-center justify-center p-1 rounded transition"><span class="text-[10px] text-slate-400">Bay L3</span><div id="bay-FF-L3" class="flex flex-col items-center mt-1 pointer-events-none text-cyan-300 font-bold"></div></button>
+            <div class="border-2 border-slate-600 bg-slate-800 flex items-center justify-center relative"><span class="text-xs font-bold text-slate-400 uppercase tracking-widest bg-slate-800 px-1 z-10">Stairs</span></div>
+            <button onclick="openChamberMappingModal('FF-L4')" class="bay-cell border border-dashed border-slate-600 flex flex-col items-center justify-center p-1 rounded transition"><span class="text-[10px] text-slate-400">Bay L4</span><div id="bay-FF-L4" class="flex flex-col items-center mt-1 pointer-events-none text-cyan-300 font-bold"></div></button>
+            <button onclick="openChamberMappingModal('FF-R4')" class="bay-cell border border-dashed border-slate-600 flex flex-col items-center justify-center p-1 rounded transition"><span class="text-[10px] text-slate-400">Bay R4</span><div id="bay-FF-R4" class="flex flex-col items-center mt-1 pointer-events-none text-cyan-300 font-bold"></div></button>
+          </div>
+        </div>
+      </section>
+      
+    </main>
   </div>
 
+  <!-- ==================== CUSTOMER PORTAL ==================== -->
   <div id="view-customer-portal" class="hidden flex-1 p-4 sm:p-6 max-w-5xl mx-auto w-full space-y-6">
-    <!-- Customer portal mounted here -->
+    <div class="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 p-6 rounded-2xl border border-cyan-500/30 shadow-2xl">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-cyan-500/20 text-cyan-400 border border-cyan-500/40">Customer Portal</span>
+          <h2 id="cust-portal-name" class="text-xl font-black text-white mt-1">Party Name</h2>
+          <p id="cust-portal-meta" class="text-xs text-slate-400">Place | Contact</p>
+        </div>
+        <div class="text-right">
+          <div class="text-xs text-slate-400">Total Outstanding Balance</div>
+          <div id="cust-portal-balance" class="text-2xl font-black text-rose-400">₹0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+        <div class="text-xs text-slate-400">Total Inward Deposited</div>
+        <div id="cust-portal-inward" class="text-xl font-extrabold text-emerald-400 mt-1">0 Nugs</div>
+      </div>
+      <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+        <div class="text-xs text-slate-400">Total Outward Released</div>
+        <div id="cust-portal-outward" class="text-xl font-extrabold text-amber-400 mt-1">0 Nugs</div>
+      </div>
+      <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+        <div class="text-xs text-slate-400">Active Balance In Chamber</div>
+        <div id="cust-portal-stock" class="text-xl font-extrabold text-cyan-400 mt-1">0 Nugs</div>
+      </div>
+    </div>
+
+    <div class="bg-slate-950 rounded-xl border border-slate-800 p-4 space-y-3">
+      <h3 class="text-sm font-bold text-white flex items-center gap-2">
+        <i class="fa-solid fa-list-check text-cyan-400"></i> My Running Stock & Rent Statement
+      </h3>
+      <div id="cust-portal-ledger-container" class="overflow-x-auto text-xs"></div>
+    </div>
   </div>
 
   <div id="bazz-direct-print" class="hidden"></div>
 
+  <!-- ==================== ALL MODALS ==================== -->
+
+  <!-- MODAL: ADD / EDIT PRODUCT -->
+  <div id="modal-product" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-950 border border-slate-800 rounded-2xl w-full max-w-md p-5 sm:p-6 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h3 class="font-bold text-base text-white">Add Master Product Item</h3>
+        <button onclick="closeModal('modal-product')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <form onsubmit="handleSaveProduct(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Product Name *</label>
+          <input id="prod-name-input" type="text" required placeholder="e.g. Kinnow Grade A, Garlic..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white" />
+        </div>
+        <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
+          <button type="button" onclick="closeModal('modal-product')" class="px-4 py-2 bg-slate-800 text-white rounded-lg">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold rounded-lg">Save Product</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD / EDIT PARTY (CHAMBERS 1 TO 4 SUPPORTED) -->
+  <div id="modal-party" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-950 border border-slate-800 rounded-2xl w-full max-w-2xl p-5 sm:p-6 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h3 id="party-modal-title" class="font-bold text-base text-white">Register New Cold Storage Party</h3>
+        <button onclick="closeModal('modal-party')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <form id="party-form" onsubmit="handleSaveParty(event)" class="space-y-4 text-xs">
+        <input type="hidden" id="party-edit-id" />
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Party / Farmer Name *</label>
+            <input id="party-name" type="text" required placeholder="e.g. Ramesh Kumar Kinnow Co." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white" />
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Place / Mandi / Address *</label>
+            <input id="party-place" type="text" required placeholder="e.g. Abohar Mandi" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white" />
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Mobile Number (Portal Login ID) *</label>
+            <input id="party-mobile" type="tel" required placeholder="10-digit mobile" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white font-mono" />
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Marka / Brand Stamp</label>
+            <input id="party-marka" type="text" placeholder="e.g. BAZZ-RK" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white" />
+          </div>
+        </div>
+
+        <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-xl space-y-3">
+          <div class="font-bold text-amber-400 text-xs flex items-center gap-1.5">
+            <i class="fa-solid fa-wallet"></i> Previous Financial Balance (Money Receivable)
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-slate-400 mb-1">Previous Balance (₹)</label>
+              <input id="party-prev-bal" type="number" min="0" step="any" value="0" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white" />
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Starting Date</label>
+              <input id="party-prev-date" type="date" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white" />
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-xl space-y-3">
+          <div class="flex justify-between items-center">
+            <div class="font-bold text-cyan-400 text-xs flex items-center gap-1.5">
+              <i class="fa-solid fa-boxes-stacked"></i> Opening Physical Stock Lots
+            </div>
+            <button type="button" onclick="addOpeningStockRow()" class="px-2.5 py-1 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 rounded-lg text-[11px] font-bold">
+              + Add Opening Lot
+            </button>
+          </div>
+          <div id="opening-stock-container" class="space-y-2.5"></div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
+          <button type="button" onclick="closeModal('modal-party')" class="px-4 py-2 bg-slate-800 text-white rounded-lg">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-lg">Save Party</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: INWARD SLIP (CHAMBERS 1 TO 4 SUPPORTED) -->
+  <div id="modal-inward" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-950 border border-slate-800 rounded-2xl w-full max-w-4xl p-5 sm:p-6 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <div>
+          <h3 id="inward-modal-title" class="font-bold text-base text-white">Generate Inward Receiving Slip / Gate Pass</h3>
+          <p class="text-xs text-slate-400">Select catalog items, chambers 1 to 4, rent, and labour</p>
+        </div>
+        <button onclick="closeModal('modal-inward')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <form id="inward-form" onsubmit="handleSaveInward(event)" class="space-y-4 text-xs">
+        <input type="hidden" id="inward-edit-id" />
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+          <div>
+            <label class="block text-cyan-400 font-bold mb-1">Inward Slip # *</label>
+            <input id="inward-slip-num" type="text" required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white font-mono font-bold" />
+          </div>
+          <div>
+            <label class="block text-cyan-400 font-bold mb-1">Security Gate Pass # *</label>
+            <input id="inward-gatepass-num" type="text" required placeholder="Gate pass #" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white font-mono font-bold" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Select Party *</label>
+            <select id="inward-party-id" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white"></select>
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Deposit Date *</label>
+            <input id="inward-date" type="date" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" />
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Slip Time</label>
+            <input id="inward-time" type="text" readonly class="w-full bg-slate-800/80 border border-slate-700 rounded-lg p-2 text-slate-300 font-mono" />
+          </div>
+        </div>
+
+        <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-xl space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="font-bold text-cyan-400 text-xs flex items-center gap-1.5">
+              <i class="fa-solid fa-boxes-stacked"></i> Inward Product Items (Chambers 1 - 4)
+            </span>
+            <button type="button" onclick="addInwardItemRow()" class="px-2.5 py-1 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 rounded-lg text-[11px] font-bold">
+              + Add Product Item
+            </button>
+          </div>
+          <div id="inward-items-container" class="space-y-3"></div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 border-t border-slate-800 pt-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Vehicle Type *</label>
+            <select id="inward-veh-type" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white">
+              <option value="Pickup / Bolero">Pickup / Bolero</option>
+              <option value="Truck">Truck</option>
+              <option value="Tractor Trolley">Tractor Trolley</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Vehicle Reg # *</label>
+            <input id="inward-veh-num" type="text" required placeholder="PB 22 X 1234" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white uppercase font-mono" />
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Driver Name *</label>
+            <input id="inward-driver-name" type="text" required placeholder="Driver name" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" />
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Driver Mobile # *</label>
+            <input id="inward-driver-mobile" type="tel" required placeholder="Mobile #" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" />
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
+          <button type="button" onclick="closeModal('modal-inward')" class="px-4 py-2 bg-slate-800 text-white rounded-lg">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-lg">Generate Slip</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: OUTWARD GATE PASS -->
+  <div id="modal-outward" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-950 border border-slate-800 rounded-2xl w-full max-w-3xl p-5 sm:p-6 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <div>
+          <h3 id="outward-modal-title" class="font-bold text-base text-white">Generate Outward Dispatch Gate Pass</h3>
+          <p class="text-xs text-slate-400">Release goods with automated FIFO stock deduction</p>
+        </div>
+        <button onclick="closeModal('modal-outward')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <form id="outward-form" onsubmit="handleSaveOutward(event)" class="space-y-4 text-xs">
+        <input type="hidden" id="outward-edit-id" />
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+          <div>
+            <label class="block text-amber-400 font-bold mb-1">Outward Slip # *</label>
+            <input id="outward-slip-num" type="text" required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white font-mono font-bold" />
+          </div>
+          <div>
+            <label class="block text-amber-400 font-bold mb-1">Security Gate Pass # *</label>
+            <input id="outward-gatepass-num" type="text" required placeholder="Enter gate pass #" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white font-mono font-bold" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Select Party *</label>
+            <select id="outward-party-id" required onchange="handleOutwardPartySelect()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white"></select>
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Dispatch Date *</label>
+            <input id="outward-date" type="date" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" />
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Time</label>
+            <input id="outward-time" type="text" readonly class="w-full bg-slate-800/80 border border-slate-700 rounded-lg p-2 text-slate-300 font-mono" />
+          </div>
+        </div>
+
+        <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-xl space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="font-bold text-amber-400 text-xs flex items-center gap-1.5">
+              <i class="fa-solid fa-cart-flatbed"></i> Products to Dispatch (FIFO Deducted)
+            </span>
+            <button type="button" onclick="addOutwardProductRow()" class="px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-lg text-[11px] font-bold">
+              + Add Product
+            </button>
+          </div>
+          <div id="outward-products-container" class="space-y-2.5"></div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Person Collecting "Jo Le Kr Jaa Rha H" *</label>
+            <input id="outward-receiver-name" type="text" required placeholder="Person collecting goods" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" />
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Receiver Mobile # *</label>
+            <input id="outward-receiver-mobile" type="tel" required placeholder="10-digit mobile" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" />
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Vehicle Type *</label>
+            <select id="outward-veh-type" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white">
+              <option value="Pickup / Bolero">Pickup / Bolero</option>
+              <option value="Truck">Truck</option>
+              <option value="Tractor Trolley">Tractor Trolley</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Vehicle Reg # *</label>
+            <input id="outward-veh-num" type="text" required placeholder="PB 22 X 1234" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white uppercase font-mono" />
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
+          <button type="button" onclick="closeModal('modal-outward')" class="px-4 py-2 bg-slate-800 text-white rounded-lg">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg">Generate Gate Pass</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: SELF INWARD SLIP -->
+  <div id="modal-self-inward" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-950 border border-slate-800 rounded-2xl w-full max-w-4xl p-5 sm:p-6 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h3 class="font-bold text-base text-white">New Self Inward Entry (Multiple Lots)</h3>
+        <button onclick="closeModal('modal-self-inward')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <form id="self-inward-form" onsubmit="handleSaveSelfInward(event)" class="space-y-4 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+          <div>
+            <label class="block text-indigo-400 font-bold mb-1">Self Slip # *</label>
+            <input id="self-inward-slip-num" type="text" required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white font-mono font-bold" />
+          </div>
+          <div>
+            <label class="block text-indigo-400 font-bold mb-1">Gate Pass # *</label>
+            <input id="self-inward-gatepass-num" type="text" required placeholder="Gate pass #" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white font-mono font-bold" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Arrival Date *</label>
+            <input id="self-inward-date" type="date" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" />
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Time</label>
+            <input id="self-inward-time" type="text" readonly class="w-full bg-slate-800/80 border border-slate-700 rounded-lg p-2 text-slate-300 font-mono" />
+          </div>
+        </div>
+
+        <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-xl space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="font-bold text-indigo-400 text-xs flex items-center gap-1.5">
+              <i class="fa-solid fa-boxes-stacked"></i> Lots to Store
+            </span>
+            <button type="button" onclick="addSelfInwardItemRow()" class="px-2.5 py-1 bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 rounded-lg text-[11px] font-bold">
+              + Add Lot
+            </button>
+          </div>
+          <div id="self-inward-items-container" class="space-y-3"></div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
+          <button type="button" onclick="closeModal('modal-self-inward')" class="px-4 py-2 bg-slate-800 text-white rounded-lg">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-indigo-500 hover:bg-indigo-400 text-slate-950 font-bold rounded-lg">Save Entry</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: SELF OUTWARD PASS -->
+  <div id="modal-self-outward" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-950 border border-slate-800 rounded-2xl w-full max-w-3xl p-5 sm:p-6 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h3 class="font-bold text-base text-white">Create Self Outward Pass</h3>
+        <button onclick="closeModal('modal-self-outward')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <form id="self-outward-form" onsubmit="handleSaveSelfOutward(event)" class="space-y-4 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+          <div>
+            <label class="block text-orange-400 font-bold mb-1">Self Pass # *</label>
+            <input id="self-outward-slip-num" type="text" required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white font-mono font-bold" />
+          </div>
+          <div>
+            <label class="block text-orange-400 font-bold mb-1">Gate Pass # *</label>
+            <input id="self-outward-gatepass-num" type="text" required placeholder="Gate pass #" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white font-mono font-bold" />
+          </div>
+        </div>
+
+        <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-xl space-y-3">
+          <div id="self-outward-products-container" class="space-y-2.5"></div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Receiver Name / Buyer *</label>
+            <input id="self-outward-receiver-name" type="text" required placeholder="Collector name" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" />
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Receiver Mobile *</label>
+            <input id="self-outward-receiver-mobile" type="tel" required placeholder="10-digit mobile" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" />
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
+          <button type="button" onclick="closeModal('modal-self-outward')" class="px-4 py-2 bg-slate-800 text-white rounded-lg">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-orange-500 hover:bg-orange-400 text-slate-950 font-bold rounded-lg">Generate Pass</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: RECORD PAYMENT -->
+  <div id="modal-payment" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-950 border border-slate-800 rounded-2xl w-full max-w-lg p-5 sm:p-6 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h3 class="font-bold text-base text-white">Record Customer Payment Receipt</h3>
+        <button onclick="closeModal('modal-payment')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <form id="payment-form" onsubmit="handleSavePayment(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Select Party *</label>
+          <select id="payment-party-id" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white"></select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Payment Date *</label>
+            <input id="payment-date" type="date" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" />
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Amount (₹) *</label>
+            <input id="payment-amount" type="number" min="1" step="any" required placeholder="Amount" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-bold" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Payment Mode *</label>
+            <select id="payment-mode" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white">
+              <option value="Cash">Cash</option>
+              <option value="Bank Transfer">Bank Transfer</option>
+              <option value="UPI / QR">UPI / QR</option>
+              <option value="Cheque">Cheque</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Bank / Counter Name</label>
+            <input id="payment-bank-name" type="text" placeholder="e.g. HDFC / Counter" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Remarks / Transaction Ref #</label>
+          <input id="payment-remarks" type="text" placeholder="Transaction ref or cheque #" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" />
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
+          <button type="button" onclick="closeModal('modal-payment')" class="px-4 py-2 bg-slate-800 text-white rounded-lg">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-purple-500 hover:bg-purple-400 text-slate-950 font-bold rounded-lg">Save Payment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: STAFF MANAGEMENT (ADMIN ONLY) -->
+  <div id="modal-staff" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-950 border border-slate-800 rounded-2xl w-full max-w-md p-5 sm:p-6 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h3 id="staff-modal-title" class="font-bold text-base text-white">Create Staff Login & Permissions</h3>
+        <button onclick="closeModal('modal-staff')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <form id="staff-form" onsubmit="handleSaveStaff(event)" class="space-y-4 text-xs">
+        <input type="hidden" id="staff-edit-id" />
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Full Name *</label>
+          <input id="staff-name" type="text" required placeholder="Staff member name" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white" />
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Username *</label>
+          <input id="staff-user" type="text" required placeholder="Username" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white font-mono" />
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Password *</label>
+          <input id="staff-pass" type="password" required placeholder="Set password" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white font-mono" />
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Mobile Contact</label>
+          <input id="staff-phone" type="tel" placeholder="Mobile" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white" />
+        </div>
+
+        <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-xl space-y-2">
+          <div class="font-bold text-rose-400 text-xs">Admin Privileges</div>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input id="staff-perm-edit" type="checkbox" class="w-4 h-4 rounded text-rose-500" />
+            <span class="text-slate-200">Allow staff to <b>Edit</b> slips</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input id="staff-perm-delete" type="checkbox" class="w-4 h-4 rounded text-rose-500" />
+            <span class="text-slate-200">Allow staff to <b>Delete</b> slips</span>
+          </label>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
+          <button type="button" onclick="closeModal('modal-staff')" class="px-4 py-2 bg-slate-800 text-white rounded-lg">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-rose-500 hover:bg-rose-400 text-slate-950 font-bold rounded-lg">Save Staff</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: 4-CHAMBER STOCK MAPPING -->
+  <div id="modal-mapping" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-950 border border-slate-800 rounded-2xl w-full max-w-sm p-5 sm:p-6 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <div>
+          <h3 class="font-bold text-base text-white">Map Bay Stock</h3>
+          <p id="mapping-section-label" class="text-xs text-pink-400 font-mono mt-0.5">Bay: --</p>
+        </div>
+        <button onclick="closeModal('modal-mapping')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <form onsubmit="handleSaveMapping(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="mapping-section-id" />
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Gate Pass / Slip # *</label>
+          <input id="mapping-gp" type="text" required placeholder="e.g. GP-102" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-mono uppercase" />
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Party / Lot Description</label>
+          <input id="mapping-desc" type="text" placeholder="e.g. Ramesh Kinnow Grade A" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" />
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Quantity Stored (Nugs) *</label>
+          <input id="mapping-qty" type="number" min="1" required placeholder="e.g. 300" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-bold" />
+        </div>
+        <button type="submit" class="w-full py-2 bg-pink-600 hover:bg-pink-500 text-white font-bold rounded-lg transition">Save Bay Stock</button>
+      </form>
+
+      <div class="pt-3 border-t border-slate-800 space-y-2">
+        <span class="text-[10px] uppercase font-bold text-slate-400">Current Lots in this Bay</span>
+        <div id="mapping-list-container" class="space-y-1.5 max-h-36 overflow-y-auto pr-1"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: GOOGLE CLOUD SYNC -->
+  <div id="modal-cloud" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-950 border border-slate-800 rounded-2xl w-full max-w-lg p-5 sm:p-6 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h3 class="font-bold text-base text-white flex items-center gap-2">
+          <i class="fa-solid fa-cloud text-cyan-400"></i> Google Cloud Database Sync
+        </h3>
+        <button onclick="closeModal('modal-cloud')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div class="space-y-3 text-xs text-slate-300">
+        <p>Google Apps Script Web App URL synchronizes parties, slips, and ledgers in real time.</p>
+        <div>
+          <label class="block text-slate-400 mb-1 font-semibold">Web App URL (/exec)</label>
+          <input id="cloud-url-input" type="url" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white font-mono text-[11px]" />
+        </div>
+      </div>
+      <div class="flex justify-between items-center pt-3 border-t border-slate-800">
+        <button onclick="manualSync()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-400 rounded-lg text-xs font-bold flex items-center gap-1.5">
+          <i class="fa-solid fa-rotate"></i> Sync Now
+        </button>
+        <button onclick="saveCloudUrl()" class="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-lg text-xs">
+          Save & Reconnect
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== CORE JAVASCRIPT LOGIC ENGINE ==================== -->
   <script>
     const CACHE_KEY = 'BAZZ_STORAGE_PROD_V9_SELF_STOCK';
+    const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyo_dGbzwRiNpINuJZvL6K0D-UBtYnQIL8oHq40voHlMDMoJnFc7zN38Kq7cOClXkHMXQ/exec";
+
     let currentUser = null;
+    let selectedChamberNum = 1;
+    let currentMapFloor = 'ground';
 
     let appData = {
-      parties: [
-        {
-          id: 'PARTY-1',
-          name: 'Ramesh Kumar Kinnow Co.',
-          place: 'Abohar Mandi',
-          mobile: '9876543210',
-          marka: 'BAZZ-RK',
-          password: 'password123',
-          openingBalance: 15000,
-          openingBalanceDate: '2026-01-01',
-          openingStockLots: [
-            { lotId: 'OPN-1', product: 'Kinnow Grade A', qty: 250, packaging: 'Crates', chamber: 'Chamber 1 - Ground Floor', rate: 15, cycleStartDate: '2026-01-15' }
-          ],
-          isBlocked: false,
-          createdAt: new Date().toISOString()
-        }
-      ],
+      parties: [],
       inwardSlips: [],
       outwardSlips: [],
       selfInwardSlips: [],
       selfOutwardSlips: [],
       payments: [],
-      staffAccounts: [
-        { id: 'STAFF-1', name: 'Gurpreet Singh', username: 'staff1', password: 'staff123', phone: '9876500001', canEdit: true, canDelete: false, isBlocked: false, createdAt: new Date().toISOString() }
-      ],
-      stockMapping: {},
+      staffAccounts: [],
+      stockMapping: {}, 
       masterProducts: ['Kinnow Grade A', 'Kinnow Grade B', 'Seed Potato', 'Apple', 'Pomegranate', 'Garlic', 'Kaaju', 'Anjeer', 'Kishmish', 'Chuara'],
-      config: { googleScriptUrl: '' }
+      config: { googleScriptUrl: DEFAULT_SCRIPT_URL }
     };
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadLocalState();
+      checkSavedSession();
+      pullFromGoogle();
+    });
 
     function cleanPhone(str) {
       if (!str) return '';
@@ -180,6 +1225,18 @@
       if (d.length === 12 && d.startsWith('91')) d = d.slice(2);
       if (d.length === 11 && d.startsWith('0')) d = d.slice(1);
       return d;
+    }
+
+    function toggleSidebar(open) {
+      const drawer = document.getElementById('sidebar-drawer');
+      const backdrop = document.getElementById('sidebar-backdrop');
+      if (open) {
+        drawer.classList.remove('-translate-x-full');
+        backdrop.classList.remove('hidden');
+      } else {
+        drawer.classList.add('-translate-x-full');
+        backdrop.classList.add('hidden');
+      }
     }
 
     function togglePasswordVisibility() {
@@ -194,18 +1251,168 @@
       }
     }
 
-    function quickFill(u, p) {
-      document.getElementById('login-username').value = u;
-      document.getElementById('login-password').value = p;
-      handleLogin(new Event('submit'));
-    }
-
     function showLoginError(msg) {
       const box = document.getElementById('login-error-box');
       const txt = document.getElementById('login-error-text');
       if (box && txt) {
         txt.textContent = msg;
         box.classList.remove('hidden');
+      }
+    }
+
+    function loadLocalState() {
+      try {
+        const saved = localStorage.getItem(CACHE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          appData = Object.assign(appData, parsed);
+        }
+      } catch (e) {
+        console.warn("Storage warning:", e);
+      }
+      if (!appData.masterProducts || appData.masterProducts.length === 0) {
+        appData.masterProducts = ['Kinnow Grade A', 'Kinnow Grade B', 'Seed Potato', 'Apple', 'Pomegranate', 'Garlic', 'Kaaju', 'Anjeer', 'Kishmish', 'Chuara'];
+      }
+      if (!appData.config || !appData.config.googleScriptUrl) {
+        appData.config = { googleScriptUrl: DEFAULT_SCRIPT_URL };
+      }
+    }
+
+    function saveLocalState() {
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify(appData));
+      } catch (e) {
+        console.warn("Could not save to localStorage:", e);
+      }
+    }
+
+    function userCanEdit() {
+      if (!currentUser) return false;
+      if (currentUser.role === 'admin') return true;
+      if (currentUser.role === 'staff') {
+        const staff = appData.staffAccounts.find(s => s.id === currentUser.id);
+        return staff && staff.canEdit === true;
+      }
+      return false;
+    }
+
+    function userCanDelete() {
+      if (!currentUser) return false;
+      if (currentUser.role === 'admin') return true;
+      if (currentUser.role === 'staff') {
+        const staff = appData.staffAccounts.find(s => s.id === currentUser.id);
+        return staff && staff.canDelete === true;
+      }
+      return false;
+    }
+
+    // --- GOOGLE SHEETS CLOUD SYNC ---
+    async function pullFromGoogle() {
+      const url = appData.config?.googleScriptUrl;
+      if (!url) return;
+      updateCloudStatus("Syncing... ⏳", "text-amber-400 border-amber-500/40 bg-amber-950/60");
+
+      try {
+        const response = await fetch(url);
+        const text = await response.text();
+        if (!text || text.trim() === "") {
+          pushToGoogle();
+          return;
+        }
+        const data = JSON.parse(text);
+        if (data && typeof data === 'object' && Array.isArray(data.parties)) {
+          appData.parties = data.parties || [];
+          appData.inwardSlips = data.inwardSlips || [];
+          appData.outwardSlips = data.outwardSlips || [];
+          appData.selfInwardSlips = data.selfInwardSlips || [];
+          appData.selfOutwardSlips = data.selfOutwardSlips || [];
+          appData.payments = data.payments || [];
+          appData.staffAccounts = data.staffAccounts || [];
+          appData.stockMapping = data.stockMapping || {}; 
+          appData.masterProducts = data.masterProducts || appData.masterProducts;
+          saveLocalState();
+          refreshCurrentView();
+          updateCloudStatus("Cloud Synced ☁️", "text-emerald-400 border-emerald-500/40 bg-emerald-950/60");
+        }
+      } catch (err) {
+        console.warn("Pull fallback:", err);
+        updateCloudStatus("Local Only 💾", "text-slate-400 border-slate-700 bg-slate-900");
+      }
+    }
+
+    function pushToGoogle() {
+      saveLocalState();
+      const url = appData.config?.googleScriptUrl;
+      if (!url) return;
+
+      updateCloudStatus("Pushing... ⏳", "text-cyan-400 border-cyan-500/40 bg-cyan-950/60");
+      const payload = {
+        parties: appData.parties,
+        inwardSlips: appData.inwardSlips,
+        outwardSlips: appData.outwardSlips,
+        selfInwardSlips: appData.selfInwardSlips,
+        selfOutwardSlips: appData.selfOutwardSlips,
+        payments: appData.payments,
+        staffAccounts: appData.staffAccounts,
+        stockMapping: appData.stockMapping, 
+        masterProducts: appData.masterProducts,
+        timestamp: new Date().toISOString()
+      };
+
+      fetch(url, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }).then(() => {
+        updateCloudStatus("Cloud Synced ☁️", "text-emerald-400 border-emerald-500/40 bg-emerald-950/60");
+      }).catch(err => {
+        console.error("Push failed:", err);
+        updateCloudStatus("Sync Failed ⚠", "text-rose-400 border-rose-500/40 bg-rose-950/60");
+      });
+    }
+
+    function updateCloudStatus(text, classes) {
+      const el = document.getElementById('cloud-pill');
+      const txt = document.getElementById('cloud-status-text');
+      if (el && txt) {
+        txt.textContent = text;
+        el.className = `flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition ${classes}`;
+      }
+    }
+
+    function manualSync() {
+      pullFromGoogle();
+      closeModal('modal-cloud');
+    }
+
+    function saveCloudUrl() {
+      const val = document.getElementById('cloud-url-input').value.trim();
+      if (val) {
+        appData.config.googleScriptUrl = val;
+        saveLocalState();
+        pullFromGoogle();
+      }
+      closeModal('modal-cloud');
+    }
+
+    function openCloudModal() {
+      document.getElementById('cloud-url-input').value = appData.config?.googleScriptUrl || DEFAULT_SCRIPT_URL;
+      openModal('modal-cloud');
+    }
+
+    // --- AUTHENTICATION ENGINE ---
+    function checkSavedSession() {
+      try {
+        const savedUser = sessionStorage.getItem('BAZZ_ACTIVE_USER');
+        if (savedUser) {
+          currentUser = JSON.parse(savedUser);
+          activateUserView();
+        } else {
+          showLoginView();
+        }
+      } catch (e) {
+        showLoginView();
       }
     }
 
@@ -218,24 +1425,24 @@
       document.getElementById('login-error-box')?.classList.add('hidden');
 
       if (!uRaw || !pRaw) {
-        showLoginError("Please enter your username and password.");
+        showLoginError("Please enter username and password.");
         return;
       }
 
-      // 1. ADMIN CHECK (Case-insensitive, supports Csetia@1122 and backup passwords)
+      // 1. ADMIN CHECK (Case-insensitive)
       if (uLower === 'admin' || uLower === 'superadmin') {
-        const validPasswords = ['Csetia@1122', 'csetia@1122', 'admin', 'admin123', 'bazz123'];
-        if (validPasswords.includes(pRaw)) {
+        const validAdminPass = ['Csetia@1122', 'csetia@1122', 'admin', 'admin123', 'bazz123'];
+        if (validAdminPass.includes(pRaw)) {
           currentUser = { role: 'admin', name: 'Super Admin', id: 'admin' };
           loginSuccess();
           return;
         } else {
-          showLoginError("Incorrect password for Admin. (Hint: Csetia@1122 or admin123)");
+          showLoginError("Incorrect password for Admin.");
           return;
         }
       }
 
-      // 2. STAFF CHECK (Case-insensitive username)
+      // 2. STAFF CHECK
       const staff = appData.staffAccounts.find(s => s.username.toLowerCase() === uLower || cleanPhone(s.phone) === cleanPhone(uRaw));
       if (staff) {
         if (staff.isBlocked) {
@@ -252,7 +1459,7 @@
         }
       }
 
-      // 3. PARTY / CUSTOMER CHECK (Phone normalization & fallback)
+      // 3. PARTY / CUSTOMER CHECK
       const uNorm = cleanPhone(uRaw);
       const party = appData.parties.find(p_item => {
         if (uNorm && cleanPhone(p_item.mobile) === uNorm) return true;
@@ -275,7 +1482,7 @@
           loginSuccess();
           return;
         } else {
-          showLoginError(`Incorrect password for ${party.name}. (Default is your 10-digit mobile: ${party.mobile})`);
+          showLoginError(`Incorrect password for ${party.name}.`);
           return;
         }
       }
@@ -285,18 +1492,1706 @@
 
     function loginSuccess() {
       sessionStorage.setItem('BAZZ_ACTIVE_USER', JSON.stringify(currentUser));
-      document.getElementById('view-login').classList.add('hidden');
-      document.getElementById('top-nav').classList.remove('hidden');
-      document.getElementById('nav-user-name').textContent = currentUser.name;
-      document.getElementById('nav-user-role').textContent = currentUser.role.toUpperCase();
-      // Render user view
+      document.getElementById('login-username').value = '';
+      document.getElementById('login-password').value = '';
+      activateUserView();
     }
 
     function logout() {
       sessionStorage.removeItem('BAZZ_ACTIVE_USER');
       currentUser = null;
+      toggleSidebar(false);
+      showLoginView();
+    }
+
+    function showLoginView() {
       document.getElementById('top-nav').classList.add('hidden');
+      document.getElementById('view-dashboard').classList.add('hidden');
+      document.getElementById('view-customer-portal').classList.add('hidden');
       document.getElementById('view-login').classList.remove('hidden');
+    }
+
+    function activateUserView() {
+      document.getElementById('view-login').classList.add('hidden');
+      document.getElementById('top-nav').classList.remove('hidden');
+
+      document.getElementById('nav-user-name').textContent = currentUser.name;
+      document.getElementById('nav-user-role').textContent = currentUser.role.toUpperCase();
+      document.getElementById('drawer-user-name').textContent = currentUser.name;
+      document.getElementById('drawer-user-role').textContent = currentUser.role.toUpperCase();
+
+      if (currentUser.role === 'customer') {
+        document.getElementById('view-dashboard').classList.add('hidden');
+        document.getElementById('view-customer-portal').classList.remove('hidden');
+        renderCustomerPortal();
+      } else {
+        document.getElementById('view-customer-portal').classList.add('hidden');
+        document.getElementById('view-dashboard').classList.remove('hidden');
+
+        const adminElements = document.querySelectorAll('.admin-only');
+        adminElements.forEach(el => {
+          if (currentUser.role === 'admin') el.classList.remove('hidden');
+          else el.classList.add('hidden');
+        });
+
+        switchTab('parties');
+      }
+    }
+
+    function switchTab(tabKey) {
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
+      const activePane = document.getElementById(`pane-${tabKey}`);
+      if (activePane) activePane.classList.remove('hidden');
+
+      const labels = {
+        'parties': '<i class="fa-solid fa-users text-cyan-400"></i> Parties & Chamber Stock',
+        'products': '<i class="fa-solid fa-boxes-stacked text-teal-400"></i> Master Products Catalog',
+        'inward': '<i class="fa-solid fa-arrow-down-to-bracket text-emerald-400"></i> Inward Receiving Slips',
+        'outward': '<i class="fa-solid fa-arrow-up-from-bracket text-amber-400"></i> Outward Gate Pass',
+        'self-inward': '<i class="fa-solid fa-warehouse text-indigo-400"></i> Self-Stock Inward',
+        'self-outward': '<i class="fa-solid fa-truck-fast text-orange-400"></i> Self-Stock Outward',
+        'self-summary': '<i class="fa-solid fa-chart-pie text-violet-400"></i> Self Stock Ledger',
+        'payments': '<i class="fa-solid fa-indian-rupee-sign text-purple-400"></i> Customer Payments',
+        'ledgers': '<i class="fa-solid fa-scale-balanced text-blue-400"></i> Party Ledgers',
+        'staff': '<i class="fa-solid fa-users-gear text-rose-400"></i> Staff Accounts',
+        'mapping': '<i class="fa-solid fa-map-location-dot text-pink-400"></i> 4-Chamber Visual Map',
+      };
+
+      const ind = document.getElementById('active-tab-indicator');
+      if (ind && labels[tabKey]) ind.innerHTML = labels[tabKey];
+
+      toggleSidebar(false);
+      refreshCurrentView();
+    }
+
+    function refreshCurrentView() {
+      if (!currentUser) return;
+      if (currentUser.role === 'customer') {
+        renderCustomerPortal();
+      } else {
+        renderPartiesTable();
+        renderProductsTable();
+        renderInwardTable();
+        renderOutwardTable();
+        renderSelfInwardTable();
+        renderSelfOutwardTable();
+        renderSelfSummaryView();
+        renderPaymentsTable();
+        renderStaffTable();
+        populatePartyDropdowns();
+        renderPartyLedgerView();
+        render4ChambersMap();
+      }
+    }
+
+    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+    // =========================================================
+    // 1. 4-CHAMBERS VISUAL MAP ENGINE
+    // =========================================================
+    function switchChamber(chNum) {
+      selectedChamberNum = chNum;
+      for (let i = 1; i <= 4; i++) {
+        const btn = document.getElementById(`btn-ch-${i}`);
+        if (i === chNum) {
+          btn.className = "ch-btn p-3 rounded-xl border border-cyan-500 bg-cyan-950/40 text-left transition shadow-md";
+        } else {
+          btn.className = "ch-btn p-3 rounded-xl border border-slate-800 bg-slate-900/60 text-left transition hover:border-slate-700";
+        }
+      }
+
+      const types = {
+        1: { name: 'Chamber 1', type: 'Kinnow & Pre-Cooling Unit', temp: '+2.0°C', rh: '92% RH' },
+        2: { name: 'Chamber 2', type: 'Apple & Fresh Fruit Cold Store', temp: '+0.8°C', rh: '94% RH' },
+        3: { name: 'Chamber 3', type: 'Seed Potato & Root Vegetables', temp: '+3.5°C', rh: '90% RH' },
+        4: { name: 'Chamber 4', type: 'Dry Fruits, Garlic & General Goods', temp: '+4.0°C', rh: '85% RH' },
+      };
+
+      const info = types[chNum] || types[1];
+      document.getElementById('ch-active-label').textContent = `${info.name} (${currentMapFloor === 'ground' ? 'Ground Floor' : 'First Floor'})`;
+      document.getElementById('ch-active-type').textContent = info.type;
+
+      render4ChambersMap();
+    }
+
+    function switchFloorMap(fl) {
+      currentMapFloor = fl;
+      if (fl === 'ground') {
+        document.getElementById('map-ground').classList.remove('hidden');
+        document.getElementById('map-first').classList.add('hidden');
+        document.getElementById('btn-map-ground').className = "px-3.5 py-1.5 bg-pink-600 text-white rounded-lg text-xs font-bold transition";
+        document.getElementById('btn-map-first').className = "px-3.5 py-1.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-lg text-xs font-bold transition";
+      } else {
+        document.getElementById('map-first').classList.remove('hidden');
+        document.getElementById('map-ground').classList.add('hidden');
+        document.getElementById('btn-map-first').className = "px-3.5 py-1.5 bg-pink-600 text-white rounded-lg text-xs font-bold transition";
+        document.getElementById('btn-map-ground').className = "px-3.5 py-1.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-lg text-xs font-bold transition";
+      }
+      switchChamber(selectedChamberNum);
+    }
+
+    function openChamberMappingModal(bayCode) {
+      const floorStr = currentMapFloor === 'ground' ? 'GF' : 'FF';
+      const fullSecKey = `CH${selectedChamberNum}-${floorStr}-${bayCode.replace('FF-', '')}`;
+      document.getElementById('mapping-section-label').textContent = `Chamber ${selectedChamberNum} • ${currentMapFloor === 'ground' ? 'Ground Floor' : '1st Floor'} • Bay ${bayCode.replace('FF-', '')}`;
+      document.getElementById('mapping-section-id').value = fullSecKey;
+      document.getElementById('mapping-gp').value = '';
+      document.getElementById('mapping-desc').value = '';
+      document.getElementById('mapping-qty').value = '';
+      
+      renderBayMappingList(fullSecKey);
+      openModal('modal-mapping');
+    }
+
+    function handleSaveMapping(e) {
+      e.preventDefault();
+      const secKey = document.getElementById('mapping-section-id').value;
+      const gp = document.getElementById('mapping-gp').value.trim().toUpperCase();
+      const desc = document.getElementById('mapping-desc').value.trim();
+      const qty = parseInt(document.getElementById('mapping-qty').value, 10) || 0;
+
+      if (!appData.stockMapping) appData.stockMapping = {};
+      if (!appData.stockMapping[secKey]) appData.stockMapping[secKey] = [];
+
+      appData.stockMapping[secKey].push({
+        id: 'MAP-' + Date.now(),
+        gatePass: gp,
+        desc: desc,
+        qty: qty,
+        date: new Date().toLocaleDateString('en-IN')
+      });
+
+      pushToGoogle();
+      renderBayMappingList(secKey);
+      render4ChambersMap();
+      
+      document.getElementById('mapping-gp').value = '';
+      document.getElementById('mapping-desc').value = '';
+      document.getElementById('mapping-qty').value = '';
+    }
+
+    function removeBayMapping(secKey, mapId) {
+      if (!appData.stockMapping) return;
+      const legacyKey = secKey.replace(/^CH1-/, '');
+      if (appData.stockMapping[secKey]) {
+        appData.stockMapping[secKey] = appData.stockMapping[secKey].filter(m => m.id !== mapId);
+      }
+      if (appData.stockMapping[legacyKey]) {
+        appData.stockMapping[legacyKey] = appData.stockMapping[legacyKey].filter(m => m.id !== mapId);
+      }
+      pushToGoogle();
+      renderBayMappingList(secKey);
+      render4ChambersMap();
+    }
+
+    function renderBayMappingList(secKey) {
+      const container = document.getElementById('mapping-list-container');
+      const legacyKey = secKey.replace(/^CH1-/, '');
+      const list = [
+        ...(appData.stockMapping[secKey] || []),
+        ...(secKey.startsWith('CH1-') ? (appData.stockMapping[legacyKey] || []) : [])
+      ];
+
+      if (list.length === 0) {
+        container.innerHTML = `<p class="text-[11px] text-slate-500 italic">No lots are stored in this bay.</p>`;
+        return;
+      }
+
+      container.innerHTML = list.map(m => `
+        <div class="flex justify-between items-center bg-slate-900 border border-slate-700 p-2 rounded-lg">
+          <div>
+            <div class="text-xs font-bold text-white">GP: ${escapeHtml(m.gatePass)}</div>
+            <div class="text-[10px] text-slate-400">${escapeHtml(m.desc)} <span class="text-pink-400 font-bold ml-1">${m.qty} Nugs</span></div>
+          </div>
+          <button type="button" onclick="removeBayMapping('${secKey}', '${m.id}')" class="text-rose-400 hover:text-rose-300 p-1.5"><i class="fa-solid fa-trash text-[10px]"></i></button>
+        </div>
+      `).join('');
+    }
+
+    function render4ChambersMap() {
+      if (!appData.stockMapping) appData.stockMapping = {};
+
+      // 1. Calculate and update chamber summary counts
+      let facilityTotal = 0;
+      for (let ch = 1; ch <= 4; ch++) {
+        let chTotal = 0;
+        const prefix = `CH${ch}-`;
+        Object.keys(appData.stockMapping).forEach(k => {
+          if (k.startsWith(prefix) || (ch === 1 && (k.startsWith('GF-') || k.startsWith('FF-')))) {
+            chTotal += (appData.stockMapping[k] || []).reduce((a, c) => a + (c.qty || 0), 0);
+          }
+        });
+        const nugsEl = document.getElementById(`ch${ch}-nugs`);
+        if (nugsEl) nugsEl.textContent = chTotal.toLocaleString('en-IN');
+        facilityTotal += chTotal;
+      }
+      const facEl = document.getElementById('facility-total-nugs');
+      if (facEl) facEl.textContent = facilityTotal.toLocaleString('en-IN');
+
+      // 2. Render bays on the active floor
+      const bays = ['L1', 'R1', 'L2', 'R2', 'L3', 'L4', 'R4'];
+      const isGF = currentMapFloor === 'ground';
+      const floorStr = isGF ? 'GF' : 'FF';
+
+      bays.forEach(bayCode => {
+        const fullKey = `CH${selectedChamberNum}-${floorStr}-${bayCode}`;
+        const legacyKey = `${floorStr}-${bayCode}`;
+        const list = [
+          ...(appData.stockMapping[fullKey] || []),
+          ...(selectedChamberNum === 1 ? (appData.stockMapping[legacyKey] || []) : [])
+        ];
+
+        let totalQty = 0;
+        let gpLabels = [];
+        list.forEach(m => {
+          totalQty += (m.qty || 0);
+          if (!gpLabels.includes(m.gatePass)) gpLabels.push(m.gatePass);
+        });
+
+        const elId = isGF ? `bay-${bayCode}` : `bay-FF-${bayCode}`;
+        const el = document.getElementById(elId);
+        if (el) {
+          if (totalQty > 0) {
+            el.innerHTML = `<div class="text-sm font-black text-cyan-300">${totalQty} N</div><div class="text-[8px] text-slate-300 truncate w-full text-center">GP: ${escapeHtml(gpLabels.join(', '))}</div>`;
+            el.parentElement.className = "bay-cell border border-cyan-500 bg-cyan-950/40 flex flex-col items-center justify-center p-1 rounded transition shadow-inner";
+          } else {
+            el.innerHTML = '';
+            el.parentElement.className = "bay-cell border border-dashed border-slate-600 flex flex-col items-center justify-center p-1 rounded transition hover:border-pink-400";
+          }
+        }
+      });
+    }
+
+    // =========================================================
+    // 2. MASTER PRODUCTS CATALOG
+    // =========================================================
+    function openProductModal() {
+      document.getElementById('prod-name-input').value = '';
+      openModal('modal-product');
+    }
+
+    function handleSaveProduct(e) {
+      e.preventDefault();
+      const val = document.getElementById('prod-name-input').value.trim();
+      if (!val) return;
+      if (!appData.masterProducts.includes(val)) {
+        appData.masterProducts.push(val);
+        pushToGoogle();
+        refreshCurrentView();
+      }
+      closeModal('modal-product');
+    }
+
+    function renderProductsTable() {
+      const tbody = document.getElementById('product-table-body');
+      tbody.innerHTML = '';
+      appData.masterProducts.forEach((prod) => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-900/50 transition";
+        tr.innerHTML = `
+          <td class="p-3 font-bold text-white text-sm"><i class="fa-solid fa-box text-teal-400 mr-2"></i> ${escapeHtml(prod)}</td>
+          <td class="p-3 text-right">
+            ${userCanDelete() ? `<button onclick="deleteMasterProduct('${escapeHtml(prod)}')" class="p-1.5 bg-slate-800 hover:bg-rose-950 text-rose-400 rounded"><i class="fa-solid fa-trash"></i></button>` : ''}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function deleteMasterProduct(prodName) {
+      if (!userCanDelete()) return;
+      if (confirm(`Remove "${prodName}" from catalog?`)) {
+        appData.masterProducts = appData.masterProducts.filter(p => p !== prodName);
+        pushToGoogle();
+        refreshCurrentView();
+      }
+    }
+
+    // =========================================================
+    // 3. PARTIES & LIVE CHAMBER STOCK
+    // =========================================================
+    function openPartyModal(editId = null) {
+      const form = document.getElementById('party-form');
+      form.reset();
+      document.getElementById('party-edit-id').value = '';
+      document.getElementById('opening-stock-container').innerHTML = '';
+
+      if (editId) {
+        const p = appData.parties.find(x => String(x.id) === String(editId));
+        if (p) {
+          document.getElementById('party-modal-title').textContent = "Edit Party Details";
+          document.getElementById('party-edit-id').value = p.id;
+          document.getElementById('party-name').value = p.name;
+          document.getElementById('party-place').value = p.place;
+          document.getElementById('party-mobile').value = p.mobile;
+          document.getElementById('party-marka').value = p.marka || '';
+          document.getElementById('party-prev-bal').value = p.openingBalance || 0;
+          document.getElementById('party-prev-date').value = p.openingBalanceDate || '';
+
+          if (p.openingStockLots && p.openingStockLots.length > 0) {
+            p.openingStockLots.forEach(lot => addOpeningStockRow(lot));
+          }
+        }
+      } else {
+        document.getElementById('party-modal-title').textContent = "Register New Cold Storage Party";
+        document.getElementById('party-prev-date').value = new Date().toISOString().split('T')[0];
+      }
+      openModal('modal-party');
+    }
+
+    function addOpeningStockRow(data = null) {
+      const container = document.getElementById('opening-stock-container');
+      const rowId = 'os-row-' + Date.now() + '-' + Math.floor(Math.random()*1000);
+      const div = document.createElement('div');
+      div.id = rowId;
+      div.className = "p-3 bg-slate-950 border border-slate-800 rounded-lg grid grid-cols-1 sm:grid-cols-6 gap-2 items-center text-xs";
+
+      const productOptions = appData.masterProducts.map(prod => `
+        <option value="${escapeHtml(prod)}" ${data && String(data.product).trim().toLowerCase() === String(prod).trim().toLowerCase() ? 'selected' : ''}>${escapeHtml(prod)}</option>
+      `).join('');
+
+      div.innerHTML = `
+        <div class="sm:col-span-2">
+          <label class="text-[10px] text-slate-400 block mb-0.5">Product</label>
+          <select class="os-product w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white">
+            <option value="">-- Select Product --</option>
+            ${productOptions}
+          </select>
+        </div>
+        <div>
+          <label class="text-[10px] text-slate-400 block mb-0.5">Opening Qty</label>
+          <input type="number" placeholder="Qty" min="1" value="${data ? data.qty : ''}" required class="os-qty w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white font-bold" />
+        </div>
+        <div>
+          <label class="text-[10px] text-slate-400 block mb-0.5">Packaging</label>
+          <input type="text" placeholder="Boxes/Crates" value="${data ? data.packaging : 'Boxes'}" required class="os-pack w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white" />
+        </div>
+        <div>
+          <label class="text-[10px] text-slate-400 block mb-0.5">Chamber (1-4)</label>
+          <select class="os-chamber w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white text-[11px]">
+            <option value="Chamber 1 - Ground Floor">Ch 1 - GF</option>
+            <option value="Chamber 1 - 1st Floor">Ch 1 - 1F</option>
+            <option value="Chamber 2 - Ground Floor">Ch 2 - GF</option>
+            <option value="Chamber 2 - 1st Floor">Ch 2 - 1F</option>
+            <option value="Chamber 3 - Ground Floor">Ch 3 - GF</option>
+            <option value="Chamber 3 - 1st Floor">Ch 3 - 1F</option>
+            <option value="Chamber 4 - Ground Floor">Ch 4 - GF</option>
+            <option value="Chamber 4 - 1st Floor">Ch 4 - 1F</option>
+          </select>
+        </div>
+        <div class="flex items-center gap-1.5 pt-3 sm:pt-0">
+          <div class="flex-1">
+            <label class="text-[10px] text-slate-400 block mb-0.5">Date</label>
+            <input type="date" value="${data ? data.cycleStartDate : new Date().toISOString().split('T')[0]}" class="os-date w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white text-[10px]" />
+          </div>
+          <button type="button" onclick="document.getElementById('${rowId}').remove()" class="text-rose-400 hover:text-rose-300 p-2 mt-3"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      `;
+      container.appendChild(div);
+
+      if (data && data.product) div.querySelector('.os-product').value = data.product;
+      if (data && data.chamber) div.querySelector('.os-chamber').value = data.chamber;
+    }
+
+    function handleSaveParty(e) {
+      e.preventDefault();
+      const editId = document.getElementById('party-edit-id').value;
+      const name = document.getElementById('party-name').value.trim();
+      const place = document.getElementById('party-place').value.trim();
+      const mobile = document.getElementById('party-mobile').value.trim();
+      const marka = document.getElementById('party-marka').value.trim();
+      const prevBal = parseFloat(document.getElementById('party-prev-bal').value) || 0;
+      const prevDate = document.getElementById('party-prev-date').value || new Date().toISOString().split('T')[0];
+
+      const lotRows = document.querySelectorAll('#opening-stock-container > div');
+      const openingLots = [];
+      lotRows.forEach((r, idx) => {
+        const prod = r.querySelector('.os-product').value.trim();
+        const qty = parseInt(r.querySelector('.os-qty').value, 10) || 0;
+        const pack = r.querySelector('.os-pack').value.trim();
+        const cham = r.querySelector('.os-chamber').value;
+        const dt = r.querySelector('.os-date').value;
+
+        if (prod && qty > 0) {
+          openingLots.push({
+            lotId: 'OPN-LOT-' + (idx + 1),
+            product: prod,
+            qty: qty,
+            packaging: pack,
+            chamber: cham,
+            rate: 15,
+            cycleStartDate: dt
+          });
+        }
+      });
+
+      if (editId) {
+        const p = appData.parties.find(x => String(x.id) === String(editId));
+        if (p) {
+          p.name = name;
+          p.place = place;
+          p.mobile = mobile;
+          p.marka = marka;
+          p.openingBalance = prevBal;
+          p.openingBalanceDate = prevDate;
+          p.openingStockLots = openingLots;
+        }
+      } else {
+        const newParty = {
+          id: 'PARTY-' + Date.now(),
+          name,
+          place,
+          mobile,
+          marka,
+          password: mobile,
+          openingBalance: prevBal,
+          openingBalanceDate: prevDate,
+          openingStockLots: openingLots,
+          isBlocked: false,
+          createdAt: new Date().toISOString()
+        };
+        appData.parties.unshift(newParty);
+      }
+
+      pushToGoogle();
+      closeModal('modal-party');
+      refreshCurrentView();
+    }
+
+    function renderPartiesTable() {
+      const tbody = document.getElementById('party-table-body');
+      tbody.innerHTML = '';
+
+      if (appData.parties.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-500">No parties registered yet.</td></tr>`;
+        return;
+      }
+
+      appData.parties.forEach(p => {
+        const stockData = calculatePartyLiveStock(p.id);
+        const balData = calculatePartyFinancials(p.id);
+
+        const tr = document.createElement('tr');
+        tr.className = p.isBlocked ? "bg-rose-950/20 text-slate-400" : "hover:bg-slate-900/50 transition";
+        tr.innerHTML = `
+          <td class="p-3">
+            <div class="font-bold text-white text-sm">${escapeHtml(p.name)}</div>
+            <div class="text-[11px] text-slate-400">${escapeHtml(p.place)} ${p.marka ? `<span class="text-cyan-400 font-mono">(${escapeHtml(p.marka)})</span>` : ''}</div>
+          </td>
+          <td class="p-3">
+            <div class="text-slate-200 font-mono">${p.mobile}</div>
+            <div class="text-[10px] text-emerald-400">Portal Pass: ${p.password || p.mobile}</div>
+          </td>
+          <td class="p-3">
+            <div class="text-cyan-400 font-bold text-sm">${stockData.currentStock} Nugs</div>
+            <div class="text-[10px] text-slate-400">${stockData.breakdownText}</div>
+          </td>
+          <td class="p-3">
+            <div class="font-bold ${balData.netDue > 0 ? 'text-rose-400' : 'text-emerald-400'}">₹${balData.netDue.toLocaleString('en-IN')}</div>
+            <div class="text-[10px] text-slate-400">Billed: ₹${balData.totalBilled.toLocaleString('en-IN')}</div>
+          </td>
+          <td class="p-3">
+            ${p.isBlocked 
+              ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/40">Blocked</span>'
+              : '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">Active</span>'
+            }
+          </td>
+          <td class="p-3 text-right space-x-1 whitespace-nowrap">
+            <button onclick="viewPartyInLedger('${p.id}')" title="View Ledger" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-blue-400 rounded"><i class="fa-solid fa-scale-balanced"></i></button>
+            ${userCanEdit() ? `<button onclick="openPartyModal('${p.id}')" title="Edit Party" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-amber-400 rounded"><i class="fa-solid fa-pen-to-square"></i></button>` : ''}
+            ${currentUser.role === 'admin' ? `
+              <button onclick="togglePartyBlock('${p.id}')" title="${p.isBlocked ? 'Unblock' : 'Block'}" class="p-1.5 bg-slate-800 hover:bg-slate-700 ${p.isBlocked ? 'text-emerald-400' : 'text-orange-400'} rounded">
+                <i class="fa-solid ${p.isBlocked ? 'fa-lock-open' : 'fa-ban'}"></i>
+              </button>
+            ` : ''}
+            ${userCanDelete() ? `<button onclick="deletePartyRecord('${p.id}')" title="Delete" class="p-1.5 bg-slate-800 hover:bg-rose-950 text-rose-400 rounded"><i class="fa-solid fa-trash"></i></button>` : ''}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function togglePartyBlock(id) {
+      const p = appData.parties.find(x => String(x.id) === String(id));
+      if (p) {
+        p.isBlocked = !p.isBlocked;
+        pushToGoogle();
+        refreshCurrentView();
+      }
+    }
+
+    function deletePartyRecord(id) {
+      if (!userCanDelete()) return;
+      if (confirm("Delete this party and associated ledger entries?")) {
+        appData.parties = appData.parties.filter(x => String(x.id) !== String(id));
+        pushToGoogle();
+        refreshCurrentView();
+      }
+    }
+
+    // =========================================================
+    // 4. INWARD RECEIVING SLIPS
+    // =========================================================
+    function openInwardModal(editId = null) {
+      const form = document.getElementById('inward-form');
+      form.reset();
+      document.getElementById('inward-edit-id').value = '';
+      document.getElementById('inward-items-container').innerHTML = '';
+      populatePartyDropdowns();
+
+      const now = new Date();
+      document.getElementById('inward-date').value = now.toISOString().split('T')[0];
+      document.getElementById('inward-time').value = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+      if (editId) {
+        const item = appData.inwardSlips.find(x => String(x.id) === String(editId));
+        if (item) {
+          document.getElementById('inward-modal-title').textContent = "Edit Inward Slip";
+          document.getElementById('inward-edit-id').value = item.id;
+          document.getElementById('inward-slip-num').value = item.id;
+          document.getElementById('inward-gatepass-num').value = item.gatePassNo;
+          document.getElementById('inward-party-id').value = item.partyId;
+          document.getElementById('inward-date').value = item.date;
+          document.getElementById('inward-time').value = item.time;
+          document.getElementById('inward-veh-type').value = item.vehicleType;
+          document.getElementById('inward-veh-num').value = item.vehicleNum;
+          document.getElementById('inward-driver-name').value = item.driverName;
+          document.getElementById('inward-driver-mobile').value = item.driverMobile;
+
+          if (item.items && item.items.length > 0) {
+            item.items.forEach(it => addInwardItemRow(it));
+          }
+        }
+      } else {
+        document.getElementById('inward-modal-title').textContent = "Generate Inward Receiving Slip / Gate Pass";
+        document.getElementById('inward-slip-num').value = appData.inwardSlips.length + 1;
+        document.getElementById('inward-gatepass-num').value = 'GP-' + (200 + appData.inwardSlips.length + 1);
+        addInwardItemRow();
+      }
+
+      openModal('modal-inward');
+    }
+
+    function addInwardItemRow(data = null) {
+      const container = document.getElementById('inward-items-container');
+      const rowId = 'in-item-' + Date.now() + '-' + Math.floor(Math.random()*1000);
+      const div = document.createElement('div');
+      div.id = rowId;
+      div.className = "p-3 bg-slate-950 border border-slate-800 rounded-lg space-y-2 text-xs";
+
+      const productOptions = appData.masterProducts.map(prod => `
+        <option value="${escapeHtml(prod)}" ${data && String(data.product).trim().toLowerCase() === String(prod).trim().toLowerCase() ? 'selected' : ''}>${escapeHtml(prod)}</option>
+      `).join('');
+
+      div.innerHTML = `
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+          <div>
+            <label class="text-[10px] text-slate-400 block mb-0.5">Product Name *</label>
+            <select class="in-prod-select w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white" required>
+              <option value="">-- Choose Product --</option>
+              ${productOptions}
+            </select>
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-400 block mb-0.5">Quantity (Nugs) *</label>
+            <input type="number" min="1" placeholder="Qty" value="${data ? data.qty : ''}" required class="in-qty w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white font-bold" />
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-400 block mb-0.5">Packaging *</label>
+            <input type="text" placeholder="Boxes/Crates" value="${data ? data.packaging : 'Boxes'}" required class="in-pack w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white" />
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-400 block mb-0.5">Single Wt (Kg)</label>
+            <input type="number" step="0.1" placeholder="Wt" value="${data ? data.singleWeight : ''}" class="in-wt w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white" />
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 items-center">
+          <div class="sm:col-span-2">
+            <label class="text-[10px] text-slate-400 block mb-0.5">Chamber & Floor (Chambers 1-4) *</label>
+            <select class="in-chamber w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white text-[11px]">
+              <option value="Chamber 1 - Ground Floor">Chamber 1 - Ground Floor</option>
+              <option value="Chamber 1 - 1st Floor">Chamber 1 - 1st Floor</option>
+              <option value="Chamber 2 - Ground Floor">Chamber 2 - Ground Floor</option>
+              <option value="Chamber 2 - 1st Floor">Chamber 2 - 1st Floor</option>
+              <option value="Chamber 3 - Ground Floor">Chamber 3 - Ground Floor</option>
+              <option value="Chamber 3 - 1st Floor">Chamber 3 - 1st Floor</option>
+              <option value="Chamber 4 - Ground Floor">Chamber 4 - Ground Floor</option>
+              <option value="Chamber 4 - 1st Floor">Chamber 4 - 1st Floor</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-400 block mb-0.5">Rent/Nug (₹)</label>
+            <input type="number" min="0" step="any" value="${data ? data.monthlyRate : 15}" required class="in-rate w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white" />
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="flex-1">
+              <label class="text-[10px] text-slate-400 block mb-0.5">Labour/Nug (₹)</label>
+              <input type="number" min="0" step="any" value="${data ? data.labourRate : 2}" required class="in-labour w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white" />
+            </div>
+            <button type="button" onclick="document.getElementById('${rowId}').remove()" class="text-rose-400 hover:text-rose-300 p-2 mt-4"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </div>
+      `;
+      container.appendChild(div);
+
+      if (data && data.product) div.querySelector('.in-prod-select').value = data.product;
+      if (data && data.chamber) div.querySelector('.in-chamber').value = data.chamber;
+    }
+
+    function handleSaveInward(e) {
+      e.preventDefault();
+      const editId = document.getElementById('inward-edit-id').value;
+      const slipNum = document.getElementById('inward-slip-num').value.trim();
+      const gatePassNum = document.getElementById('inward-gatepass-num').value.trim();
+      const partyId = document.getElementById('inward-party-id').value;
+      const party = appData.parties.find(x => String(x.id) === String(partyId));
+
+      if (!party) {
+        alert("Please select a party.");
+        return;
+      }
+
+      const rows = document.querySelectorAll('#inward-items-container > div');
+      const items = [];
+      let totalWt = 0;
+      let totalRent = 0;
+      let totalLabour = 0;
+
+      rows.forEach(r => {
+        const prod = r.querySelector('.in-prod-select').value.trim();
+        const qty = parseInt(r.querySelector('.in-qty').value, 10) || 0;
+        const pack = r.querySelector('.in-pack').value.trim();
+        const wt = parseFloat(r.querySelector('.in-wt').value) || 0;
+        const cham = r.querySelector('.in-chamber').value;
+        const rate = parseFloat(r.querySelector('.in-rate').value) || 0;
+        const labour = parseFloat(r.querySelector('.in-labour').value) || 0;
+
+        if (prod && qty > 0) {
+          const itemWt = qty * wt;
+          const itemRent = qty * rate;
+          const itemLab = qty * labour;
+
+          totalWt += itemWt;
+          totalRent += itemRent;
+          totalLabour += itemLab;
+
+          items.push({
+            product: prod,
+            qty,
+            packaging: pack,
+            singleWeight: wt,
+            totalWeightKg: itemWt,
+            chamber: cham,
+            monthlyRate: rate,
+            labourRate: labour,
+            totalRentMonth1: itemRent,
+            totalLabour: itemLab
+          });
+        }
+      });
+
+      if (items.length === 0) {
+        alert("Please add at least one product lot.");
+        return;
+      }
+
+      const slipData = {
+        id: slipNum,
+        gatePassNo: gatePassNum,
+        partyId: party.id,
+        partyName: party.name,
+        partyMobile: party.mobile,
+        partyPlace: party.place,
+        date: document.getElementById('inward-date').value,
+        time: document.getElementById('inward-time').value,
+        items,
+        totalWeightKg: totalWt,
+        totalRentMonth1: totalRent,
+        totalLabour: totalLabour,
+        initialTotal: totalRent + totalLabour,
+        vehicleType: document.getElementById('inward-veh-type').value,
+        vehicleNum: document.getElementById('inward-veh-num').value.trim().toUpperCase(),
+        driverName: document.getElementById('inward-driver-name').value.trim(),
+        driverMobile: document.getElementById('inward-driver-mobile').value.trim(),
+        createdAt: new Date().toISOString()
+      };
+
+      if (editId) {
+        const idx = appData.inwardSlips.findIndex(x => String(x.id) === String(editId));
+        if (idx !== -1) appData.inwardSlips[idx] = slipData;
+      } else {
+        appData.inwardSlips.unshift(slipData);
+      }
+
+      pushToGoogle();
+      closeModal('modal-inward');
+      refreshCurrentView();
+    }
+
+    function renderInwardTable() {
+      const tbody = document.getElementById('inward-table-body');
+      tbody.innerHTML = '';
+
+      if (appData.inwardSlips.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-500">No inward slips recorded yet.</td></tr>`;
+        return;
+      }
+
+      appData.inwardSlips.forEach(s => {
+        const itemsList = s.items || [];
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-900/50 transition";
+        tr.innerHTML = `
+          <td class="p-3">
+            <div class="font-bold text-white">#${s.id}</div>
+            <div class="text-[10px] text-emerald-400 font-mono">GP: ${s.gatePassNo} | ${s.date}</div>
+          </td>
+          <td class="p-3">
+            <div class="font-bold text-slate-200">${escapeHtml(s.partyName)}</div>
+            <div class="text-[10px] text-slate-400">${escapeHtml(s.partyPlace)}</div>
+          </td>
+          <td class="p-3">
+            ${itemsList.map(it => `
+              <div class="text-xs text-white">
+                <span class="font-bold text-cyan-400">${it.qty} ${escapeHtml(it.packaging)}</span> of ${escapeHtml(it.product)} 
+                <span class="text-[10px] text-slate-400">(${escapeHtml(it.chamber)})</span>
+              </div>
+            `).join('')}
+          </td>
+          <td class="p-3">
+            <div class="font-bold text-emerald-400">₹${(s.initialTotal || 0).toLocaleString('en-IN')}</div>
+            <div class="text-[10px] text-slate-400">Rent: ₹${s.totalRentMonth1} + Lab: ₹${s.totalLabour}</div>
+          </td>
+          <td class="p-3">
+            <div class="font-mono text-slate-200">${escapeHtml(s.vehicleNum)}</div>
+            <div class="text-[10px] text-slate-400">${escapeHtml(s.driverName)} (${s.driverMobile})</div>
+          </td>
+          <td class="p-3 text-right space-x-1 whitespace-nowrap">
+            <button onclick="printInwardSlip('${s.id}')" title="Print Slip" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-400 rounded"><i class="fa-solid fa-print"></i></button>
+            <button onclick="shareInwardWhatsApp('${s.id}')" title="Share WhatsApp" class="p-1.5 bg-slate-800 hover:bg-emerald-950 text-emerald-400 rounded"><i class="fa-brands fa-whatsapp"></i></button>
+            ${userCanEdit() ? `<button onclick="openInwardModal('${s.id}')" title="Edit Slip" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-amber-400 rounded"><i class="fa-solid fa-pen-to-square"></i></button>` : ''}
+            ${userCanDelete() ? `<button onclick="deleteInwardSlip('${s.id}')" title="Delete Slip" class="p-1.5 bg-slate-800 hover:bg-rose-950 text-rose-400 rounded"><i class="fa-solid fa-trash"></i></button>` : ''}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function deleteInwardSlip(id) {
+      if (!userCanDelete()) return;
+      if (confirm("Delete this inward slip?")) {
+        appData.inwardSlips = appData.inwardSlips.filter(x => String(x.id) !== String(id));
+        pushToGoogle();
+        refreshCurrentView();
+      }
+    }
+
+    // =========================================================
+    // 5. OUTWARD GATE PASS (FIFO DEDUCTION)
+    // =========================================================
+    function openOutwardModal(editId = null) {
+      const form = document.getElementById('outward-form');
+      form.reset();
+      document.getElementById('outward-edit-id').value = '';
+      document.getElementById('outward-products-container').innerHTML = '';
+      populatePartyDropdowns();
+
+      const now = new Date();
+      document.getElementById('outward-date').value = now.toISOString().split('T')[0];
+      document.getElementById('outward-time').value = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+      document.getElementById('outward-slip-num').value = appData.outwardSlips.length + 1;
+      document.getElementById('outward-gatepass-num').value = 'OGP-' + (300 + appData.outwardSlips.length + 1);
+
+      handleOutwardPartySelect();
+      openModal('modal-outward');
+    }
+
+    function handleOutwardPartySelect() {
+      const container = document.getElementById('outward-products-container');
+      container.innerHTML = '';
+      addOutwardProductRow();
+    }
+
+    function addOutwardProductRow(data = null) {
+      const partyId = document.getElementById('outward-party-id').value;
+      const container = document.getElementById('outward-products-container');
+      const rowId = 'out-row-' + Date.now() + '-' + Math.floor(Math.random()*1000);
+      const availableProds = getPartyAvailableProducts(partyId);
+
+      const div = document.createElement('div');
+      div.id = rowId;
+      div.className = "p-3 bg-slate-950 border border-slate-800 rounded-lg grid grid-cols-1 sm:grid-cols-4 gap-2 items-center text-xs";
+
+      div.innerHTML = `
+        <div class="sm:col-span-2">
+          <label class="text-[10px] text-slate-400 block mb-0.5">Select Available Product *</label>
+          <select class="out-prod-select w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white" onchange="updateOutwardRowStock('${rowId}')">
+            <option value="">-- Choose Product --</option>
+            ${availableProds.map(p => `<option value="${escapeHtml(p.product)}" data-stock="${p.stock}">${escapeHtml(p.product)} (Available: ${p.stock} Nugs)</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label class="text-[10px] text-slate-400 block mb-0.5">Dispatch Qty *</label>
+          <input type="number" min="1" placeholder="Qty" value="${data ? data.dispatchedQty : 10}" required class="out-qty-input w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white font-bold" oninput="updateOutwardRowStock('${rowId}')" />
+        </div>
+        <div class="flex items-center gap-1.5 pt-3 sm:pt-0">
+          <div class="flex-1">
+            <label class="text-[10px] text-slate-400 block mb-0.5">Balance Left</label>
+            <input type="text" readonly value="0" class="out-bal-output w-full bg-slate-800/90 border border-slate-700 rounded p-1.5 text-cyan-400 font-bold" />
+          </div>
+          <button type="button" onclick="document.getElementById('${rowId}').remove()" class="text-rose-400 hover:text-rose-300 p-2 mt-3"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      `;
+      container.appendChild(div);
+      updateOutwardRowStock(rowId);
+    }
+
+    function updateOutwardRowStock(rowId) {
+      const row = document.getElementById(rowId);
+      if (!row) return;
+
+      const sel = row.querySelector('.out-prod-select');
+      const opt = sel.options[sel.selectedIndex];
+      const available = opt ? parseInt(opt.getAttribute('data-stock'), 10) || 0 : 0;
+      const qty = parseInt(row.querySelector('.out-qty-input').value, 10) || 0;
+
+      if (qty > available) {
+        alert(`Cannot dispatch ${qty}! Available balance is only ${available}.`);
+        row.querySelector('.out-qty-input').value = available;
+        row.querySelector('.out-bal-output').value = 0;
+      } else {
+        row.querySelector('.out-bal-output').value = (available - qty);
+      }
+    }
+
+    function handleSaveOutward(e) {
+      e.preventDefault();
+      const partyId = document.getElementById('outward-party-id').value;
+      const slipNum = document.getElementById('outward-slip-num').value.trim();
+      const gatePassNum = document.getElementById('outward-gatepass-num').value.trim();
+      const party = appData.parties.find(x => String(x.id) === String(partyId));
+      if (!party) return;
+
+      const rows = document.querySelectorAll('#outward-products-container > div');
+      const items = [];
+
+      rows.forEach(r => {
+        const sel = r.querySelector('.out-prod-select');
+        const opt = sel.options[sel.selectedIndex];
+        const prod = sel.value.trim();
+        const prevStock = opt ? parseInt(opt.getAttribute('data-stock'), 10) || 0 : 0;
+        const qty = parseInt(r.querySelector('.out-qty-input').value, 10) || 0;
+        const balLeft = prevStock - qty;
+
+        if (prod && qty > 0) {
+          items.push({
+            product: prod,
+            previousStock: prevStock,
+            dispatchedQty: qty,
+            balanceLeft: balLeft
+          });
+        }
+      });
+
+      if (items.length === 0) {
+        alert("Please select at least one product to dispatch.");
+        return;
+      }
+
+      const passData = {
+        id: slipNum,
+        gatePassNo: gatePassNum,
+        partyId: party.id,
+        partyName: party.name,
+        partyMobile: party.mobile,
+        partyPlace: party.place,
+        date: document.getElementById('outward-date').value,
+        time: document.getElementById('outward-time').value,
+        items,
+        receiverName: document.getElementById('outward-receiver-name').value.trim(),
+        receiverMobile: document.getElementById('outward-receiver-mobile').value.trim(),
+        vehicleType: document.getElementById('outward-veh-type').value,
+        vehicleNum: document.getElementById('outward-veh-num').value.trim().toUpperCase(),
+        createdAt: new Date().toISOString()
+      };
+
+      appData.outwardSlips.unshift(passData);
+      pushToGoogle();
+      closeModal('modal-outward');
+      refreshCurrentView();
+    }
+
+    function renderOutwardTable() {
+      const tbody = document.getElementById('outward-table-body');
+      tbody.innerHTML = '';
+
+      if (appData.outwardSlips.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-500">No outward gate passes recorded yet.</td></tr>`;
+        return;
+      }
+
+      appData.outwardSlips.forEach(s => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-900/50 transition";
+        tr.innerHTML = `
+          <td class="p-3">
+            <div class="font-bold text-white">#${s.id}</div>
+            <div class="text-[10px] text-amber-400 font-mono">GP: ${s.gatePassNo} | ${s.date}</div>
+          </td>
+          <td class="p-3">
+            <div class="font-bold text-slate-200">${escapeHtml(s.partyName)}</div>
+            <div class="text-[10px] text-slate-400">${escapeHtml(s.partyPlace)}</div>
+          </td>
+          <td class="p-3">
+            ${(s.items || []).map(it => `
+              <div class="text-xs text-white">
+                <span class="font-bold text-amber-400">${it.dispatchedQty} Nugs</span> of ${escapeHtml(it.product)} 
+                <span class="text-[10px] text-cyan-400 font-mono">(Prev: ${it.previousStock} → <b>Bal: ${it.balanceLeft}</b>)</span>
+              </div>
+            `).join('')}
+          </td>
+          <td class="p-3">
+            <div class="font-bold text-slate-200">${escapeHtml(s.receiverName)}</div>
+            <div class="text-[10px] text-slate-400">${s.receiverMobile}</div>
+          </td>
+          <td class="p-3">
+            <div class="font-mono text-slate-200">${escapeHtml(s.vehicleNum)}</div>
+            <div class="text-[10px] text-slate-400">${escapeHtml(s.vehicleType)}</div>
+          </td>
+          <td class="p-3 text-right space-x-1 whitespace-nowrap">
+            <button onclick="printOutwardSlip('${s.id}')" title="Print Gate Pass" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-400 rounded"><i class="fa-solid fa-print"></i></button>
+            <button onclick="shareOutwardWhatsApp('${s.id}')" title="Share WhatsApp" class="p-1.5 bg-slate-800 hover:bg-emerald-950 text-emerald-400 rounded"><i class="fa-brands fa-whatsapp"></i></button>
+            ${userCanDelete() ? `<button onclick="deleteOutwardSlip('${s.id}')" title="Delete Pass" class="p-1.5 bg-slate-800 hover:bg-rose-950 text-rose-400 rounded"><i class="fa-solid fa-trash"></i></button>` : ''}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function deleteOutwardSlip(id) {
+      if (!userCanDelete()) return;
+      if (confirm("Delete this outward gate pass?")) {
+        appData.outwardSlips = appData.outwardSlips.filter(x => String(x.id) !== String(id));
+        pushToGoogle();
+        refreshCurrentView();
+      }
+    }
+
+    // =========================================================
+    // 6. PAYMENTS & STAFF
+    // =========================================================
+    function openPaymentModal() {
+      document.getElementById('payment-form').reset();
+      populatePartyDropdowns();
+      document.getElementById('payment-date').value = new Date().toISOString().split('T')[0];
+      openModal('modal-payment');
+    }
+
+    function handleSavePayment(e) {
+      e.preventDefault();
+      const partyId = document.getElementById('payment-party-id').value;
+      const party = appData.parties.find(x => String(x.id) === String(partyId));
+      if (!party) return;
+
+      const pmt = {
+        id: 'RCPT-' + Date.now().toString().slice(-6),
+        partyId: party.id,
+        partyName: party.name,
+        partyMobile: party.mobile,
+        date: document.getElementById('payment-date').value,
+        amount: parseFloat(document.getElementById('payment-amount').value) || 0,
+        mode: document.getElementById('payment-mode').value,
+        bankName: document.getElementById('payment-bank-name').value.trim(),
+        remarks: document.getElementById('payment-remarks').value.trim(),
+        createdAt: new Date().toISOString()
+      };
+
+      appData.payments.unshift(pmt);
+      pushToGoogle();
+      closeModal('modal-payment');
+      refreshCurrentView();
+    }
+
+    function renderPaymentsTable() {
+      const tbody = document.getElementById('payment-table-body');
+      tbody.innerHTML = '';
+      if (appData.payments.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-500">No payment receipts recorded yet.</td></tr>`;
+        return;
+      }
+
+      appData.payments.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-900/50 transition";
+        tr.innerHTML = `
+          <td class="p-3">
+            <div class="font-bold text-white">${p.id}</div>
+            <div class="text-[10px] text-purple-400 font-mono">${p.date}</div>
+          </td>
+          <td class="p-3 font-bold text-slate-200">${escapeHtml(p.partyName)}</td>
+          <td class="p-3 font-black text-emerald-400 text-sm">₹${p.amount.toLocaleString('en-IN')}</td>
+          <td class="p-3 text-slate-300">${escapeHtml(p.mode)}</td>
+          <td class="p-3 text-slate-400 text-[11px]">${escapeHtml(p.bankName || '-')} ${p.remarks ? `<br><i>${escapeHtml(p.remarks)}</i>` : ''}</td>
+          <td class="p-3 text-right space-x-1 whitespace-nowrap">
+            <button onclick="printPaymentReceipt('${p.id}')" title="Print Receipt" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-400 rounded"><i class="fa-solid fa-print"></i></button>
+            <button onclick="sharePaymentWhatsApp('${p.id}')" title="Share WhatsApp" class="p-1.5 bg-slate-800 hover:bg-emerald-950 text-emerald-400 rounded"><i class="fa-brands fa-whatsapp"></i></button>
+            ${userCanDelete() ? `<button onclick="deletePayment('${p.id}')" title="Delete" class="p-1.5 bg-slate-800 hover:bg-rose-950 text-rose-400 rounded"><i class="fa-solid fa-trash"></i></button>` : ''}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function deletePayment(id) {
+      if (!userCanDelete()) return;
+      if (confirm("Delete this payment receipt?")) {
+        appData.payments = appData.payments.filter(x => String(x.id) !== String(id));
+        pushToGoogle();
+        refreshCurrentView();
+      }
+    }
+
+    function openStaffModal(editId = null) {
+      document.getElementById('staff-form').reset();
+      document.getElementById('staff-edit-id').value = '';
+
+      if (editId) {
+        const s = appData.staffAccounts.find(x => String(x.id) === String(editId));
+        if (s) {
+          document.getElementById('staff-modal-title').textContent = "Edit Staff Privileges";
+          document.getElementById('staff-edit-id').value = s.id;
+          document.getElementById('staff-name').value = s.name;
+          document.getElementById('staff-user').value = s.username;
+          document.getElementById('staff-pass').value = s.password;
+          document.getElementById('staff-phone').value = s.phone || '';
+          document.getElementById('staff-perm-edit').checked = !!s.canEdit;
+          document.getElementById('staff-perm-delete').checked = !!s.canDelete;
+        }
+      } else {
+        document.getElementById('staff-modal-title').textContent = "Create Staff Login & Permissions";
+      }
+      openModal('modal-staff');
+    }
+
+    function handleSaveStaff(e) {
+      e.preventDefault();
+      const editId = document.getElementById('staff-edit-id').value;
+      const name = document.getElementById('staff-name').value.trim();
+      const username = document.getElementById('staff-user').value.trim().toLowerCase();
+      const password = document.getElementById('staff-pass').value.trim();
+      const phone = document.getElementById('staff-phone').value.trim();
+      const canEdit = document.getElementById('staff-perm-edit').checked;
+      const canDelete = document.getElementById('staff-perm-delete').checked;
+
+      if (editId) {
+        const s = appData.staffAccounts.find(x => String(x.id) === String(editId));
+        if (s) {
+          s.name = name;
+          s.username = username;
+          s.password = password;
+          s.phone = phone;
+          s.canEdit = canEdit;
+          s.canDelete = canDelete;
+        }
+      } else {
+        appData.staffAccounts.push({
+          id: 'STAFF-' + Date.now(),
+          name,
+          username,
+          password,
+          phone,
+          canEdit,
+          canDelete,
+          isBlocked: false,
+          createdAt: new Date().toISOString()
+        });
+      }
+
+      pushToGoogle();
+      closeModal('modal-staff');
+      refreshCurrentView();
+    }
+
+    function renderStaffTable() {
+      const tbody = document.getElementById('staff-table-body');
+      tbody.innerHTML = '';
+      appData.staffAccounts.forEach(s => {
+        const tr = document.createElement('tr');
+        tr.className = s.isBlocked ? "bg-rose-950/20 text-slate-400" : "hover:bg-slate-900/50 transition";
+        tr.innerHTML = `
+          <td class="p-3 font-bold text-white">${escapeHtml(s.name)}</td>
+          <td class="p-3 font-mono text-cyan-400">${escapeHtml(s.username)}</td>
+          <td class="p-3 text-slate-300">${escapeHtml(s.phone || '-')}</td>
+          <td class="p-3 space-x-1">
+            ${s.canEdit ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400">Can Edit</span>' : ''}
+            ${s.canDelete ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-400">Can Delete</span>' : ''}
+          </td>
+          <td class="p-3">
+            ${s.isBlocked 
+              ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-400">Blocked</span>'
+              : '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400">Active</span>'
+            }
+          </td>
+          <td class="p-3 text-right space-x-1 whitespace-nowrap">
+            <button onclick="openStaffModal('${s.id}')" title="Edit Privileges" class="p-1.5 bg-slate-800 text-amber-400 rounded"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button onclick="deleteStaff('${s.id}')" title="Delete" class="p-1.5 bg-slate-800 text-rose-400 rounded"><i class="fa-solid fa-trash"></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function deleteStaff(id) {
+      if (confirm("Delete this staff account?")) {
+        appData.staffAccounts = appData.staffAccounts.filter(x => String(x.id) !== String(id));
+        pushToGoogle();
+        refreshCurrentView();
+      }
+    }
+
+    // =========================================================
+    // 7. FIFO ENGINE & FINANCIALS (ZERO INFINITE LOOPS)
+    // =========================================================
+    function isRecordForParty(record, party) {
+      if (!record || !party) return false;
+      if (record.partyId && party.id && String(record.partyId) === String(party.id)) return true;
+      if (cleanPhone(record.partyMobile) && cleanPhone(party.mobile) === cleanPhone(record.partyMobile)) return true;
+      if (record.partyName && party.name && record.partyName.toLowerCase() === party.name.toLowerCase()) return true;
+      return false;
+    }
+
+    function buildPartyBatches(partyId) {
+      const party = appData.parties.find(x => String(x.id) === String(partyId));
+      if (!party) return [];
+
+      const batches = [];
+      if (party.openingStockLots) {
+        party.openingStockLots.forEach((lot, idx) => {
+          batches.push({
+            batchId: `OPN-${idx+1}`,
+            date: lot.cycleStartDate || party.openingBalanceDate || '2026-01-01',
+            product: String(lot.product).trim(),
+            initialQty: parseInt(lot.qty, 10) || 0,
+            remainingQty: parseInt(lot.qty, 10) || 0,
+            rate: parseFloat(lot.rate) || 15,
+            isOpening: true
+          });
+        });
+      }
+
+      const inwards = appData.inwardSlips.filter(s => isRecordForParty(s, party));
+      inwards.forEach(s => {
+        (s.items || []).forEach((it, idx) => {
+          batches.push({
+            batchId: `IN-${s.id}-${idx+1}`,
+            slipId: s.id,
+            date: s.date,
+            product: String(it.product).trim(),
+            initialQty: parseInt(it.qty, 10) || 0,
+            remainingQty: parseInt(it.qty, 10) || 0,
+            rate: parseFloat(it.monthlyRate) || 15,
+            isOpening: false
+          });
+        });
+      });
+
+      batches.sort((a, b) => new Date(a.date) - new Date(b.date));
+      return batches;
+    }
+
+    function applyFIFOOutwardDeductions(batches, partyId) {
+      const party = appData.parties.find(x => String(x.id) === String(partyId));
+      if (!party) return;
+
+      const outwards = appData.outwardSlips.filter(s => isRecordForParty(s, party));
+      outwards.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      outwards.forEach(out => {
+        (out.items || []).forEach(it => {
+          let needed = parseInt(it.dispatchedQty, 10) || 0;
+          const targetProd = String(it.product).trim().toLowerCase();
+          for (let b of batches) {
+            if (String(b.product).trim().toLowerCase() === targetProd && b.remainingQty > 0) {
+              const deduct = Math.min(b.remainingQty, needed);
+              b.remainingQty -= deduct;
+              needed -= deduct;
+              if (needed <= 0) break;
+            }
+          }
+        });
+      });
+    }
+
+    function getPartyAvailableProducts(partyId) {
+      const batches = buildPartyBatches(partyId);
+      applyFIFOOutwardDeductions(batches, partyId);
+
+      const stockMap = {};
+      batches.forEach(b => {
+        if (b.remainingQty > 0) stockMap[b.product] = (stockMap[b.product] || 0) + b.remainingQty;
+      });
+
+      const list = [];
+      for (const prod in stockMap) {
+        if (stockMap[prod] > 0) list.push({ product: prod, stock: stockMap[prod] });
+      }
+      return list;
+    }
+
+    function calculatePartyLiveStock(partyId) {
+      const batches = buildPartyBatches(partyId);
+      applyFIFOOutwardDeductions(batches, partyId);
+
+      const stockMap = {};
+      let total = 0;
+      batches.forEach(b => {
+        if (b.remainingQty > 0) {
+          stockMap[b.product] = (stockMap[b.product] || 0) + b.remainingQty;
+          total += b.remainingQty;
+        }
+      });
+
+      const breakdown = Object.keys(stockMap).filter(k => stockMap[k] > 0).map(k => `${stockMap[k]} ${k}`).join(', ');
+      return { currentStock: total, breakdownText: breakdown || '0 Nugs left' };
+    }
+
+    function calculatePartyFinancials(partyId) {
+      const party = appData.parties.find(x => String(x.id) === String(partyId));
+      if (!party) return { totalBilled: 0, totalPaid: 0, netDue: 0, entries: [] };
+
+      const entries = [];
+      const today = new Date();
+
+      if (party.openingBalance > 0) {
+        entries.push({
+          date: party.openingBalanceDate || '2026-01-01',
+          particulars: 'Previous Financial Balance (Opening Receivable)',
+          debit: parseFloat(party.openingBalance) || 0,
+          credit: 0
+        });
+      }
+
+      const inwards = appData.inwardSlips.filter(s => isRecordForParty(s, party));
+      inwards.forEach(s => {
+        entries.push({
+          date: s.date,
+          particulars: `Inward Slip #${s.id} - Bill (Rent: ₹${s.totalRentMonth1} + Lab: ₹${s.totalLabour})`,
+          debit: parseFloat(s.initialTotal) || 0,
+          credit: 0
+        });
+      });
+
+      // Safe monthly recurrence loop with max 60 cycles
+      const batches = buildPartyBatches(party.id);
+      const outwards = appData.outwardSlips.filter(s => isRecordForParty(s, party));
+
+      batches.forEach(b => {
+        const batchStart = new Date(b.date);
+        if (isNaN(batchStart.getTime())) return;
+
+        let monthCycle = 1;
+        while (monthCycle <= 60) {
+          const milestone = new Date(batchStart);
+          milestone.setMonth(milestone.getMonth() + monthCycle);
+          if (isNaN(milestone.getTime()) || milestone > today) break;
+
+          let rem = b.initialQty;
+          outwards.filter(o => new Date(o.date) <= milestone).forEach(o => {
+            (o.items || []).forEach(it => {
+              if (it.product === b.product) rem -= (parseInt(it.dispatchedQty, 10) || 0);
+            });
+          });
+
+          if (rem > 0) {
+            entries.push({
+              date: milestone.toISOString().split('T')[0],
+              particulars: `Month ${monthCycle + 1} Storage Rent: ${rem} ${b.product} @ ₹${b.rate}/mo`,
+              debit: rem * b.rate,
+              credit: 0
+            });
+          } else {
+            break;
+          }
+          monthCycle++;
+        }
+      });
+
+      const pmts = appData.payments.filter(p => isRecordForParty(p, party));
+      pmts.forEach(p => {
+        entries.push({
+          date: p.date,
+          particulars: `Payment Receipt #${p.id} via ${p.mode} ${p.bankName ? `(${p.bankName})` : ''}`,
+          debit: 0,
+          credit: parseFloat(p.amount) || 0
+        });
+      });
+
+      entries.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      let runningBal = 0;
+      let totalBilled = 0;
+      let totalPaid = 0;
+      entries.forEach(e => {
+        runningBal += (e.debit - e.credit);
+        e.balance = runningBal;
+        totalBilled += e.debit;
+        totalPaid += e.credit;
+      });
+
+      return { totalBilled, totalPaid, netDue: runningBal, entries };
+    }
+
+    // =========================================================
+    // 8. LEDGER & CUSTOMER VIEWS
+    // =========================================================
+    function populatePartyDropdowns() {
+      const inwardSel = document.getElementById('inward-party-id');
+      const outwardSel = document.getElementById('outward-party-id');
+      const pmtSel = document.getElementById('payment-party-id');
+      const ledgerSel = document.getElementById('ledger-party-select');
+
+      const options = appData.parties.map(p => `<option value="${p.id}">${escapeHtml(p.name)} (${escapeHtml(p.place)})</option>`).join('');
+
+      if (inwardSel) inwardSel.innerHTML = options || '<option value="">No parties registered</option>';
+      if (outwardSel) outwardSel.innerHTML = options || '<option value="">No parties registered</option>';
+      if (pmtSel) pmtSel.innerHTML = options || '<option value="">No parties registered</option>';
+      if (ledgerSel) {
+        const cur = ledgerSel.value;
+        ledgerSel.innerHTML = options || '<option value="">No parties registered</option>';
+        if (cur) ledgerSel.value = cur;
+      }
+    }
+
+    function viewPartyInLedger(partyId) {
+      switchTab('ledgers');
+      const sel = document.getElementById('ledger-party-select');
+      if (sel) {
+        sel.value = partyId;
+        renderPartyLedgerView();
+      }
+    }
+
+    function renderPartyLedgerView() {
+      const sel = document.getElementById('ledger-party-select');
+      const target = document.getElementById('ledger-render-target');
+      if (!sel || !sel.value) {
+        target.innerHTML = `<div class="p-8 bg-slate-950 border border-slate-800 rounded-xl text-center text-slate-500">Please select a party to view ledger statement.</div>`;
+        return;
+      }
+
+      const party = appData.parties.find(x => String(x.id) === String(sel.value));
+      if (!party) return;
+
+      const stockData = calculatePartyLiveStock(party.id);
+      const fin = calculatePartyFinancials(party.id);
+
+      target.innerHTML = `
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+            <div class="text-xs text-slate-400">Total Billed</div>
+            <div class="text-xl font-bold text-white mt-1">₹${fin.totalBilled.toLocaleString('en-IN')}</div>
+          </div>
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+            <div class="text-xs text-slate-400">Total Payments Received</div>
+            <div class="text-xl font-bold text-emerald-400 mt-1">₹${fin.totalPaid.toLocaleString('en-IN')}</div>
+          </div>
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+            <div class="text-xs text-slate-400">Net Outstanding Balance</div>
+            <div class="text-xl font-black ${fin.netDue > 0 ? 'text-rose-400' : 'text-emerald-400'} mt-1">₹${fin.netDue.toLocaleString('en-IN')}</div>
+          </div>
+        </div>
+
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+          <div class="text-xs font-bold text-cyan-400 uppercase tracking-wider">Live Stock In Chambers (FIFO)</div>
+          <div class="text-sm font-semibold text-white mt-0.5">${stockData.currentStock} Nugs Total <span class="text-xs text-slate-400 font-normal">(${stockData.breakdownText})</span></div>
+        </div>
+
+        <div class="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden shadow-xl">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-900 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+                <tr>
+                  <th class="p-3">Date</th>
+                  <th class="p-3">Particulars & Description</th>
+                  <th class="p-3 text-right">Debit (₹)</th>
+                  <th class="p-3 text-right">Credit (₹)</th>
+                  <th class="p-3 text-right">Balance Due (₹)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800/60 font-mono">
+                ${fin.entries.map(e => `
+                  <tr class="hover:bg-slate-900/50 transition">
+                    <td class="p-3 text-slate-400">${e.date}</td>
+                    <td class="p-3 text-slate-200 font-sans">${escapeHtml(e.particulars)}</td>
+                    <td class="p-3 text-right text-rose-400 font-semibold">${e.debit > 0 ? '₹' + e.debit.toLocaleString('en-IN') : '-'}</td>
+                    <td class="p-3 text-right text-emerald-400 font-semibold">${e.credit > 0 ? '₹' + e.credit.toLocaleString('en-IN') : '-'}</td>
+                    <td class="p-3 text-right font-bold ${e.balance > 0 ? 'text-rose-300' : 'text-emerald-300'}">₹${e.balance.toLocaleString('en-IN')}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderCustomerPortal() {
+      if (!currentUser || currentUser.role !== 'customer') return;
+      const party = appData.parties.find(x => String(x.id) === String(currentUser.id) || cleanPhone(x.mobile) === cleanPhone(currentUser.mobile));
+      if (!party) return;
+
+      document.getElementById('cust-portal-name').textContent = party.name;
+      document.getElementById('cust-portal-meta').textContent = `${party.place} | Phone: ${party.mobile} ${party.marka ? `| Marka: ${party.marka}` : ''}`;
+
+      const stockData = calculatePartyLiveStock(party.id);
+      const fin = calculatePartyFinancials(party.id);
+
+      document.getElementById('cust-portal-stock').textContent = `${stockData.currentStock} Nugs`;
+      document.getElementById('cust-portal-balance').textContent = `₹${fin.netDue.toLocaleString('en-IN')}`;
+
+      const container = document.getElementById('cust-portal-ledger-container');
+      container.innerHTML = `
+        <table class="w-full text-left text-xs font-mono">
+          <thead class="bg-slate-900 text-slate-400 uppercase text-[10px] border-b border-slate-800">
+            <tr>
+              <th class="p-3">Date</th>
+              <th class="p-3 font-sans">Details</th>
+              <th class="p-3 text-right">Debit</th>
+              <th class="p-3 text-right">Paid</th>
+              <th class="p-3 text-right">Balance Due</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/60">
+            ${fin.entries.map(e => `
+              <tr>
+                <td class="p-3 text-slate-400">${e.date}</td>
+                <td class="p-3 font-sans text-slate-200">${escapeHtml(e.particulars)}</td>
+                <td class="p-3 text-right text-rose-400">${e.debit > 0 ? '₹' + e.debit.toLocaleString('en-IN') : '-'}</td>
+                <td class="p-3 text-right text-emerald-400">${e.credit > 0 ? '₹' + e.credit.toLocaleString('en-IN') : '-'}</td>
+                <td class="p-3 text-right font-bold text-white">₹${e.balance.toLocaleString('en-IN')}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    // =========================================================
+    // 9. PRINT & WHATSAPP
+    // =========================================================
+    function printInwardSlip(slipId) {
+      const s = appData.inwardSlips.find(x => String(x.id) === String(slipId));
+      if (!s) return;
+      const html = `
+        <div style="border: 2px solid #000; padding: 18px; font-family: sans-serif; color: #000;">
+          <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px;">
+            <div style="font-size: 20px; font-weight: 800; text-transform: uppercase;">BAZZ COLD STORAGE & PRE-COOLING PLANT</div>
+            <div style="font-size: 11px;">Abohar - Fazilka Bypass, Dist. Fazilka, Punjab - 152116</div>
+            <div style="display:inline-block; background:#000; color:#fff; padding:3px 10px; font-size:11px; font-weight:bold; margin-top:4px;">INWARD RECEIVING SLIP / GATE PASS</div>
+          </div>
+          <table style="width:100%; font-size:12px; margin-bottom:10px;">
+            <tr>
+              <td width="50%"><b>Slip #:</b> ${s.id}<br><b>Gate Pass #:</b> ${s.gatePassNo}<br><b>Date:</b> ${s.date} ${s.time}</td>
+              <td width="50%"><b>Party:</b> ${s.partyName}<br><b>Place:</b> ${s.partyPlace}<br><b>Phone:</b> ${s.partyMobile}</td>
+            </tr>
+          </table>
+          <table style="width:100%; border-collapse:collapse; margin:10px 0; font-size:12px;">
+            <thead>
+              <tr style="background:#eee;">
+                <th style="border:1px solid #000; padding:5px;">Product</th>
+                <th style="border:1px solid #000; padding:5px; text-align:right;">Qty</th>
+                <th style="border:1px solid #000; padding:5px;">Chamber & Floor</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${(s.items || []).map(it => `
+                <tr>
+                  <td style="border:1px solid #000; padding:5px;">${escapeHtml(it.product)}</td>
+                  <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold;">${it.qty} ${escapeHtml(it.packaging)}</td>
+                  <td style="border:1px solid #000; padding:5px;">${escapeHtml(it.chamber)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <div style="margin-top:10px; font-size:12px;"><b>Total Initial Bill:</b> ₹${(s.initialTotal || 0).toLocaleString('en-IN')}</div>
+        </div>
+      `;
+      executePrint(html);
+    }
+
+    function printOutwardSlip(passId) {
+      const s = appData.outwardSlips.find(x => String(x.id) === String(passId));
+      if (!s) return;
+      const html = `
+        <div style="border: 2px solid #000; padding: 18px; font-family: sans-serif; color: #000;">
+          <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px;">
+            <div style="font-size: 20px; font-weight: 800; text-transform: uppercase;">BAZZ COLD STORAGE & PRE-COOLING PLANT</div>
+            <div style="font-size: 11px;">Abohar - Fazilka Bypass, Dist. Fazilka, Punjab - 152116</div>
+            <div style="display:inline-block; background:#b45309; color:#fff; padding:3px 10px; font-size:11px; font-weight:bold; margin-top:4px;">OUTWARD GATE PASS</div>
+          </div>
+          <table style="width:100%; font-size:12px; margin-bottom:10px;">
+            <tr>
+              <td width="50%"><b>Pass #:</b> ${s.id}<br><b>Gate Pass #:</b> ${s.gatePassNo}<br><b>Date:</b> ${s.date} ${s.time}</td>
+              <td width="50%"><b>Party:</b> ${s.partyName}<br><b>Carrier:</b> ${s.receiverName} (${s.receiverMobile})</td>
+            </tr>
+          </table>
+          <table style="width:100%; border-collapse:collapse; margin:10px 0; font-size:12px;">
+            <thead>
+              <tr style="background:#eee;">
+                <th style="border:1px solid #000; padding:5px;">Item</th>
+                <th style="border:1px solid #000; padding:5px; text-align:right;">Dispatched</th>
+                <th style="border:1px solid #000; padding:5px; text-align:right;">Balance Left</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${(s.items || []).map(it => `
+                <tr>
+                  <td style="border:1px solid #000; padding:5px;">${escapeHtml(it.product)}</td>
+                  <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold;">${it.dispatchedQty} Nugs</td>
+                  <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold; color:#b45309;">${it.balanceLeft} Nugs</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+      executePrint(html);
+    }
+
+    function printPaymentReceipt(id) {
+      const p = appData.payments.find(x => String(x.id) === String(id));
+      if (!p) return;
+      const html = `
+        <div style="border: 2px solid #000; padding: 18px; font-family: sans-serif; color: #000;">
+          <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px;">
+            <div style="font-size: 20px; font-weight: 800; text-transform: uppercase;">BAZZ COLD STORAGE & PRE-COOLING PLANT</div>
+            <div style="font-size: 11px;">Abohar - Fazilka Bypass, Dist. Fazilka, Punjab - 152116</div>
+            <div style="display:inline-block; background:#6b21a8; color:#fff; padding:3px 10px; font-size:11px; font-weight:bold; margin-top:4px;">PAYMENT RECEIPT</div>
+          </div>
+          <div style="margin:20px 0; padding:15px; border:2px dashed #000; text-align:center;">
+            <div style="font-size:12px;">AMOUNT RECEIVED</div>
+            <div style="font-size:28px; font-weight:bold;">₹${p.amount.toLocaleString('en-IN')}</div>
+            <div style="font-size:12px; margin-top:4px;">Received from: ${escapeHtml(p.partyName)} via ${escapeHtml(p.mode)}</div>
+          </div>
+        </div>
+      `;
+      executePrint(html);
+    }
+
+    function printLedgerView() {
+      const sel = document.getElementById('ledger-party-select');
+      if (!sel || !sel.value) return;
+      const party = appData.parties.find(x => String(x.id) === String(sel.value));
+      if (!party) return;
+      const fin = calculatePartyFinancials(party.id);
+      const stock = calculatePartyLiveStock(party.id);
+
+      const html = `
+        <div style="border: 2px solid #000; padding: 18px; font-family: sans-serif; color: #000;">
+          <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px;">
+            <div style="font-size: 20px; font-weight: 800; text-transform: uppercase;">BAZZ COLD STORAGE & PRE-COOLING PLANT</div>
+            <div style="font-size: 11px;">Abohar - Fazilka Bypass, Dist. Fazilka, Punjab - 152116</div>
+            <div style="display:inline-block; background:#000; color:#fff; padding:3px 10px; font-size:11px; font-weight:bold; margin-top:4px;">RUNNING ACCOUNT STATEMENT</div>
+          </div>
+          <table style="width:100%; font-size:12px; margin-bottom:10px;">
+            <tr>
+              <td width="50%"><b>Party:</b> ${party.name}<br><b>Phone:</b> ${party.mobile}</td>
+              <td width="50%"><b>Current Stock:</b> ${stock.currentStock} Nugs<br><b>Net Due:</b> ₹${fin.netDue.toLocaleString('en-IN')}</td>
+            </tr>
+          </table>
+          <table style="width:100%; border-collapse:collapse; margin:10px 0; font-size:12px;">
+            <thead>
+              <tr style="background:#eee;">
+                <th style="border:1px solid #000; padding:5px;">Date</th>
+                <th style="border:1px solid #000; padding:5px;">Particulars</th>
+                <th style="border:1px solid #000; padding:5px; text-align:right;">Debit</th>
+                <th style="border:1px solid #000; padding:5px; text-align:right;">Credit</th>
+                <th style="border:1px solid #000; padding:5px; text-align:right;">Balance</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${fin.entries.map(e => `
+                <tr>
+                  <td style="border:1px solid #000; padding:5px;">${e.date}</td>
+                  <td style="border:1px solid #000; padding:5px;">${escapeHtml(e.particulars)}</td>
+                  <td style="border:1px solid #000; padding:5px; text-align:right;">${e.debit > 0 ? '₹' + e.debit.toLocaleString('en-IN') : '-'}</td>
+                  <td style="border:1px solid #000; padding:5px; text-align:right;">${e.credit > 0 ? '₹' + e.credit.toLocaleString('en-IN') : '-'}</td>
+                  <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold;">₹${e.balance.toLocaleString('en-IN')}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+      executePrint(html);
+    }
+
+    function executePrint(html) {
+      let printFrame = document.getElementById('bazz-print-iframe');
+      if (printFrame) printFrame.remove();
+
+      printFrame = document.createElement('iframe');
+      printFrame.id = 'bazz-print-iframe';
+      printFrame.style.position = 'fixed';
+      printFrame.style.width = '0';
+      printFrame.style.height = '0';
+      printFrame.style.border = '0';
+      document.body.appendChild(printFrame);
+
+      const doc = printFrame.contentWindow.document;
+      doc.open();
+      doc.write(`<!DOCTYPE html><html><head><title>Print Document</title></head><body>${html}</body></html>`);
+      doc.close();
+
+      setTimeout(() => {
+        printFrame.contentWindow.focus();
+        printFrame.contentWindow.print();
+      }, 250);
+    }
+
+    function shareInwardWhatsApp(slipId) {
+      const s = appData.inwardSlips.find(x => String(x.id) === String(slipId));
+      if (!s) return;
+      const text = `*❄️ BAZZ COLD STORAGE*\n*INWARD SLIP #${s.id} (GP #${s.gatePassNo})*\nParty: ${s.partyName}\nDate: ${s.date} ${s.time}\nInitial Bill: ₹${s.initialTotal.toLocaleString('en-IN')}\nVehicle: ${s.vehicleNum}`;
+      openWhatsApp(s.partyMobile, text);
+    }
+
+    function shareOutwardWhatsApp(passId) {
+      const s = appData.outwardSlips.find(x => String(x.id) === String(passId));
+      if (!s) return;
+      const text = `*❄️ BAZZ COLD STORAGE*\n*OUTWARD PASS #${s.id} (GP #${s.gatePassNo})*\nParty: ${s.partyName}\nDate: ${s.date} ${s.time}\nCollector: ${s.receiverName}`;
+      openWhatsApp(s.partyMobile, text);
+    }
+
+    function sharePaymentWhatsApp(rcptId) {
+      const p = appData.payments.find(x => String(x.id) === String(rcptId));
+      if (!p) return;
+      const text = `*❄️ BAZZ COLD STORAGE*\n*PAYMENT RECEIPT #${p.id}*\nReceived From: ${p.partyName}\nAmount: ₹${p.amount.toLocaleString('en-IN')} via ${p.mode}`;
+      openWhatsApp(p.partyMobile, text);
+    }
+
+    function shareLedgerWhatsApp() {
+      const sel = document.getElementById('ledger-party-select');
+      if (!sel || !sel.value) return;
+      const party = appData.parties.find(x => String(x.id) === String(sel.value));
+      if (!party) return;
+      const fin = calculatePartyFinancials(party.id);
+      const stock = calculatePartyLiveStock(party.id);
+      const text = `*❄️ BAZZ COLD STORAGE*\n*STATEMENT FOR ${party.name}*\nLive Stock in Chambers: ${stock.currentStock} Nugs\nTotal Billed: ₹${fin.totalBilled.toLocaleString('en-IN')}\nOutstanding Balance Due: ₹${fin.netDue.toLocaleString('en-IN')}`;
+      openWhatsApp(party.mobile, text);
+    }
+
+    function openWhatsApp(phone, msg) {
+      let clean = cleanPhone(phone);
+      if (clean.length === 10) clean = '91' + clean;
+      window.open(`https://api.whatsapp.com/send?phone=${clean}&text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
   </script>
 </body>
