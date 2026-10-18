@@ -389,7 +389,7 @@
                   <th class="p-3">Slip # & Date</th>
                   <th class="p-3">Multi-Lots & Products</th>
                   <th class="p-3">Chambers</th>
-                  <th class="p-3">Vehicle & Driver</th>
+                  <th class="p-3">Gate Pass</th>
                   <th class="p-3 text-right">Actions</th>
                 </tr>
               </thead>
@@ -421,7 +421,7 @@
                   <th class="p-3">Pass # & Time</th>
                   <th class="p-3">Dispatched Items & Balance Left</th>
                   <th class="p-3">Carrier / Receiver</th>
-                  <th class="p-3">Vehicle</th>
+                  <th class="p-3">Gate Pass</th>
                   <th class="p-3 text-right">Actions</th>
                 </tr>
               </thead>
@@ -1006,6 +1006,14 @@
         </div>
 
         <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-xl space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="font-bold text-orange-400 text-xs flex items-center gap-1.5">
+              <i class="fa-solid fa-cart-flatbed"></i> Self-Stock Products to Dispatch
+            </span>
+            <button type="button" onclick="addSelfOutwardProductRow()" class="px-2.5 py-1 bg-orange-500/20 text-orange-300 border border-orange-500/40 rounded-lg text-[11px] font-bold">
+              + Add Product
+            </button>
+          </div>
           <div id="self-outward-products-container" class="space-y-2.5"></div>
         </div>
 
@@ -1221,7 +1229,7 @@
 
     function cleanPhone(str) {
       if (!str) return '';
-      let d = str.replace(/\D/g, '');
+      let d = str.toString().replace(/\D/g, '');
       if (d.length === 12 && d.startsWith('91')) d = d.slice(2);
       if (d.length === 11 && d.startsWith('0')) d = d.slice(1);
       return d;
@@ -1306,33 +1314,46 @@
       return false;
     }
 
-    // --- GOOGLE SHEETS CLOUD SYNC ---
+    // --- GOOGLE SHEETS CLOUD SYNC (FIXED & CRASH-PROOF) ---
     async function pullFromGoogle() {
       const url = appData.config?.googleScriptUrl;
       if (!url) return;
       updateCloudStatus("Syncing... ⏳", "text-amber-400 border-amber-500/40 bg-amber-950/60");
 
       try {
-        const response = await fetch(url);
+        const sep = url.includes('?') ? '&' : '?';
+        const response = await fetch(url + sep + "t=" + Date.now(), {
+          method: "GET",
+          redirect: "follow"
+        });
         const text = await response.text();
-        if (!text || text.trim() === "") {
+        if (!text || text.trim() === "" || text.trim() === "{}") {
           pushToGoogle();
           return;
         }
-        const data = JSON.parse(text);
-        if (data && typeof data === 'object' && Array.isArray(data.parties)) {
-          appData.parties = data.parties || [];
-          appData.inwardSlips = data.inwardSlips || [];
-          appData.outwardSlips = data.outwardSlips || [];
-          appData.selfInwardSlips = data.selfInwardSlips || [];
-          appData.selfOutwardSlips = data.selfOutwardSlips || [];
-          appData.payments = data.payments || [];
-          appData.staffAccounts = data.staffAccounts || [];
-          appData.stockMapping = data.stockMapping || {}; 
-          appData.masterProducts = data.masterProducts || appData.masterProducts;
+        let data = JSON.parse(text);
+        if (typeof data === 'string') {
+          try { data = JSON.parse(data); } catch (e) {}
+        }
+        if (data && typeof data === 'object') {
+          appData.parties = Array.isArray(data.parties) ? data.parties : (appData.parties || []);
+          appData.inwardSlips = Array.isArray(data.inwardSlips) ? data.inwardSlips : (appData.inwardSlips || []);
+          appData.outwardSlips = Array.isArray(data.outwardSlips) ? data.outwardSlips : (appData.outwardSlips || []);
+          appData.selfInwardSlips = Array.isArray(data.selfInwardSlips) ? data.selfInwardSlips : (appData.selfInwardSlips || []);
+          appData.selfOutwardSlips = Array.isArray(data.selfOutwardSlips) ? data.selfOutwardSlips : (appData.selfOutwardSlips || []);
+          appData.payments = Array.isArray(data.payments) ? data.payments : (appData.payments || []);
+          appData.staffAccounts = Array.isArray(data.staffAccounts) ? data.staffAccounts : (appData.staffAccounts || []);
+          appData.stockMapping = (data.stockMapping && typeof data.stockMapping === 'object') ? data.stockMapping : (appData.stockMapping || {});
+          if (Array.isArray(data.masterProducts) && data.masterProducts.length > 0) {
+            appData.masterProducts = data.masterProducts;
+          }
           saveLocalState();
-          refreshCurrentView();
           updateCloudStatus("Cloud Synced ☁️", "text-emerald-400 border-emerald-500/40 bg-emerald-950/60");
+          try {
+            refreshCurrentView();
+          } catch (uiErr) {
+            console.warn("UI render error after sync:", uiErr);
+          }
         }
       } catch (err) {
         console.warn("Pull fallback:", err);
@@ -1362,7 +1383,7 @@
       fetch(url, {
         method: "POST",
         mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload)
       }).then(() => {
         updateCloudStatus("Cloud Synced ☁️", "text-emerald-400 border-emerald-500/40 bg-emerald-950/60");
@@ -1712,7 +1733,6 @@
     function render4ChambersMap() {
       if (!appData.stockMapping) appData.stockMapping = {};
 
-      // 1. Calculate and update chamber summary counts
       let facilityTotal = 0;
       for (let ch = 1; ch <= 4; ch++) {
         let chTotal = 0;
@@ -1729,7 +1749,6 @@
       const facEl = document.getElementById('facility-total-nugs');
       if (facEl) facEl.textContent = facilityTotal.toLocaleString('en-IN');
 
-      // 2. Render bays on the active floor
       const bays = ['L1', 'R1', 'L2', 'R2', 'L3', 'L4', 'R4'];
       const isGF = currentMapFloor === 'ground';
       const floorStr = isGF ? 'GF' : 'FF';
@@ -1785,6 +1804,7 @@
 
     function renderProductsTable() {
       const tbody = document.getElementById('product-table-body');
+      if (!tbody) return;
       tbody.innerHTML = '';
       appData.masterProducts.forEach((prod) => {
         const tr = document.createElement('tr');
@@ -1961,6 +1981,7 @@
 
     function renderPartiesTable() {
       const tbody = document.getElementById('party-table-body');
+      if (!tbody) return;
       tbody.innerHTML = '';
 
       if (appData.parties.length === 0) {
@@ -2231,6 +2252,7 @@
 
     function renderInwardTable() {
       const tbody = document.getElementById('inward-table-body');
+      if (!tbody) return;
       tbody.innerHTML = '';
 
       if (appData.inwardSlips.length === 0) {
@@ -2425,6 +2447,7 @@
 
     function renderOutwardTable() {
       const tbody = document.getElementById('outward-table-body');
+      if (!tbody) return;
       tbody.innerHTML = '';
 
       if (appData.outwardSlips.length === 0) {
@@ -2480,6 +2503,383 @@
     }
 
     // =========================================================
+    // 5B. SELF-STOCK INWARD, OUTWARD & SUMMARY (RESTORED!)
+    // =========================================================
+    function openSelfInwardModal() {
+      const form = document.getElementById('self-inward-form');
+      if (form) form.reset();
+      document.getElementById('self-inward-items-container').innerHTML = '';
+
+      const now = new Date();
+      document.getElementById('self-inward-date').value = now.toISOString().split('T')[0];
+      document.getElementById('self-inward-time').value = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+      document.getElementById('self-inward-slip-num').value = 'SI-' + ((appData.selfInwardSlips || []).length + 1);
+      document.getElementById('self-inward-gatepass-num').value = 'SGP-' + (500 + (appData.selfInwardSlips || []).length + 1);
+
+      addSelfInwardItemRow();
+      openModal('modal-self-inward');
+    }
+
+    function addSelfInwardItemRow(data = null) {
+      const container = document.getElementById('self-inward-items-container');
+      const rowId = 'si-item-' + Date.now() + '-' + Math.floor(Math.random()*1000);
+      const div = document.createElement('div');
+      div.id = rowId;
+      div.className = "p-3 bg-slate-950 border border-slate-800 rounded-lg grid grid-cols-1 sm:grid-cols-5 gap-2 items-center text-xs";
+
+      const productOptions = appData.masterProducts.map(prod => `
+        <option value="${escapeHtml(prod)}" ${data && data.product === prod ? 'selected' : ''}>${escapeHtml(prod)}</option>
+      `).join('');
+
+      div.innerHTML = `
+        <div>
+          <label class="text-[10px] text-slate-400 block mb-0.5">Lot / Batch # *</label>
+          <input type="text" placeholder="LOT-101" value="${data ? data.lotNo : 'LOT-' + Math.floor(100 + Math.random()*899)}" required class="si-lot w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white font-mono uppercase" />
+        </div>
+        <div>
+          <label class="text-[10px] text-slate-400 block mb-0.5">Product *</label>
+          <select class="si-prod w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white" required>
+            <option value="">-- Select --</option>
+            ${productOptions}
+          </select>
+        </div>
+        <div>
+          <label class="text-[10px] text-slate-400 block mb-0.5">Qty (Nugs) *</label>
+          <input type="number" min="1" placeholder="Qty" value="${data ? data.qty : ''}" required class="si-qty w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white font-bold" />
+        </div>
+        <div>
+          <label class="text-[10px] text-slate-400 block mb-0.5">Packaging *</label>
+          <input type="text" placeholder="Boxes/Crates" value="${data ? data.packaging : 'Crates'}" required class="si-pack w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white" />
+        </div>
+        <div class="flex items-center gap-1.5">
+          <div class="flex-1">
+            <label class="text-[10px] text-slate-400 block mb-0.5">Chamber</label>
+            <select class="si-chamber w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white text-[11px]">
+              <option value="Chamber 1 - Ground Floor">Ch 1 - GF</option>
+              <option value="Chamber 1 - 1st Floor">Ch 1 - 1F</option>
+              <option value="Chamber 2 - Ground Floor">Ch 2 - GF</option>
+              <option value="Chamber 2 - 1st Floor">Ch 2 - 1F</option>
+              <option value="Chamber 3 - Ground Floor">Ch 3 - GF</option>
+              <option value="Chamber 3 - 1st Floor">Ch 3 - 1F</option>
+              <option value="Chamber 4 - Ground Floor">Ch 4 - GF</option>
+              <option value="Chamber 4 - 1st Floor">Ch 4 - 1F</option>
+            </select>
+          </div>
+          <button type="button" onclick="document.getElementById('${rowId}').remove()" class="text-rose-400 hover:text-rose-300 p-2 mt-3"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      `;
+      container.appendChild(div);
+    }
+
+    function handleSaveSelfInward(e) {
+      e.preventDefault();
+      const slipNum = document.getElementById('self-inward-slip-num').value.trim();
+      const gatePassNo = document.getElementById('self-inward-gatepass-num').value.trim();
+      const date = document.getElementById('self-inward-date').value;
+      const time = document.getElementById('self-inward-time').value;
+
+      const rows = document.querySelectorAll('#self-inward-items-container > div');
+      const items = [];
+      rows.forEach(r => {
+        const lotNo = r.querySelector('.si-lot').value.trim();
+        const product = r.querySelector('.si-prod').value.trim();
+        const qty = parseInt(r.querySelector('.si-qty').value, 10) || 0;
+        const packaging = r.querySelector('.si-pack').value.trim();
+        const chamber = r.querySelector('.si-chamber').value;
+        if (product && qty > 0) {
+          items.push({ lotNo, product, qty, packaging, chamber });
+        }
+      });
+
+      if (items.length === 0) {
+        alert("Please add at least one self-stock lot.");
+        return;
+      }
+
+      if (!Array.isArray(appData.selfInwardSlips)) appData.selfInwardSlips = [];
+      appData.selfInwardSlips.unshift({
+        id: slipNum,
+        gatePassNo,
+        date,
+        time,
+        items,
+        createdAt: new Date().toISOString()
+      });
+
+      pushToGoogle();
+      closeModal('modal-self-inward');
+      refreshCurrentView();
+    }
+
+    function renderSelfInwardTable() {
+      const tbody = document.getElementById('self-inward-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      const list = appData.selfInwardSlips || [];
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-slate-500">No self-stock inward entries recorded yet.</td></tr>`;
+        return;
+      }
+
+      list.forEach(s => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-900/50 transition";
+        const chambers = [...new Set((s.items || []).map(i => i.chamber))].join(', ');
+        tr.innerHTML = `
+          <td class="p-3">
+            <div class="font-bold text-white">${escapeHtml(s.id)}</div>
+            <div class="text-[10px] text-indigo-400 font-mono">${s.date} ${s.time || ''}</div>
+          </td>
+          <td class="p-3">
+            ${(s.items || []).map(it => `
+              <div class="text-xs text-white">
+                <span class="font-mono text-indigo-300">[${escapeHtml(it.lotNo || 'LOT')}]</span>
+                <span class="font-bold text-cyan-400">${it.qty} ${escapeHtml(it.packaging || 'Nugs')}</span> of ${escapeHtml(it.product)}
+              </div>
+            `).join('')}
+          </td>
+          <td class="p-3 text-slate-300 text-xs">${escapeHtml(chambers || '-')}</td>
+          <td class="p-3 font-mono text-slate-300 text-xs">GP: ${escapeHtml(s.gatePassNo || '-')}</td>
+          <td class="p-3 text-right">
+            ${userCanDelete() ? `<button onclick="deleteSelfInward('${escapeHtml(s.id)}')" class="p-1.5 bg-slate-800 hover:bg-rose-950 text-rose-400 rounded"><i class="fa-solid fa-trash"></i></button>` : ''}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function deleteSelfInward(id) {
+      if (!userCanDelete()) return;
+      if (confirm("Delete this self-stock inward entry?")) {
+        appData.selfInwardSlips = (appData.selfInwardSlips || []).filter(x => String(x.id) !== String(id));
+        pushToGoogle();
+        refreshCurrentView();
+      }
+    }
+
+    function getSelfAvailableProducts() {
+      const stockMap = {};
+      (appData.selfInwardSlips || []).forEach(s => {
+        (s.items || []).forEach(it => {
+          stockMap[it.product] = (stockMap[it.product] || 0) + (parseInt(it.qty, 10) || 0);
+        });
+      });
+      (appData.selfOutwardSlips || []).forEach(s => {
+        (s.items || []).forEach(it => {
+          stockMap[it.product] = (stockMap[it.product] || 0) - (parseInt(it.dispatchedQty, 10) || 0);
+        });
+      });
+      return Object.keys(stockMap)
+        .filter(k => stockMap[k] > 0)
+        .map(k => ({ product: k, stock: stockMap[k] }));
+    }
+
+    function openSelfOutwardModal() {
+      const form = document.getElementById('self-outward-form');
+      if (form) form.reset();
+      document.getElementById('self-outward-products-container').innerHTML = '';
+      document.getElementById('self-outward-slip-num').value = 'SO-' + ((appData.selfOutwardSlips || []).length + 1);
+      document.getElementById('self-outward-gatepass-num').value = 'SOGP-' + (600 + (appData.selfOutwardSlips || []).length + 1);
+
+      addSelfOutwardProductRow();
+      openModal('modal-self-outward');
+    }
+
+    function addSelfOutwardProductRow() {
+      const container = document.getElementById('self-outward-products-container');
+      const rowId = 'so-row-' + Date.now() + '-' + Math.floor(Math.random()*1000);
+      const available = getSelfAvailableProducts();
+
+      const div = document.createElement('div');
+      div.id = rowId;
+      div.className = "p-3 bg-slate-950 border border-slate-800 rounded-lg grid grid-cols-1 sm:grid-cols-4 gap-2 items-center text-xs";
+
+      div.innerHTML = `
+        <div class="sm:col-span-2">
+          <label class="text-[10px] text-slate-400 block mb-0.5">Select Self-Stock Product *</label>
+          <select class="so-prod-select w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white" onchange="updateSelfOutwardRow('${rowId}')">
+            <option value="">-- Choose Product --</option>
+            ${available.map(p => `<option value="${escapeHtml(p.product)}" data-stock="${p.stock}">${escapeHtml(p.product)} (Available: ${p.stock} Nugs)</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label class="text-[10px] text-slate-400 block mb-0.5">Dispatch Qty *</label>
+          <input type="number" min="1" value="10" required class="so-qty-input w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white font-bold" oninput="updateSelfOutwardRow('${rowId}')" />
+        </div>
+        <div class="flex items-center gap-1.5">
+          <div class="flex-1">
+            <label class="text-[10px] text-slate-400 block mb-0.5">Balance Left</label>
+            <input type="text" readonly value="0" class="so-bal-output w-full bg-slate-800/90 border border-slate-700 rounded p-1.5 text-orange-400 font-bold" />
+          </div>
+          <button type="button" onclick="document.getElementById('${rowId}').remove()" class="text-rose-400 hover:text-rose-300 p-2 mt-3"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      `;
+      container.appendChild(div);
+      updateSelfOutwardRow(rowId);
+    }
+
+    function updateSelfOutwardRow(rowId) {
+      const row = document.getElementById(rowId);
+      if (!row) return;
+      const sel = row.querySelector('.so-prod-select');
+      const opt = sel.options[sel.selectedIndex];
+      const avail = opt ? parseInt(opt.getAttribute('data-stock'), 10) || 0 : 0;
+      const qty = parseInt(row.querySelector('.so-qty-input').value, 10) || 0;
+      if (qty > avail) {
+        row.querySelector('.so-qty-input').value = avail;
+        row.querySelector('.so-bal-output').value = 0;
+      } else {
+        row.querySelector('.so-bal-output').value = avail - qty;
+      }
+    }
+
+    function handleSaveSelfOutward(e) {
+      e.preventDefault();
+      const slipNum = document.getElementById('self-outward-slip-num').value.trim();
+      const gatePassNo = document.getElementById('self-outward-gatepass-num').value.trim();
+      const receiverName = document.getElementById('self-outward-receiver-name').value.trim();
+      const receiverMobile = document.getElementById('self-outward-receiver-mobile').value.trim();
+
+      const rows = document.querySelectorAll('#self-outward-products-container > div');
+      const items = [];
+      rows.forEach(r => {
+        const sel = r.querySelector('.so-prod-select');
+        const opt = sel.options[sel.selectedIndex];
+        const prod = sel.value.trim();
+        const prevStock = opt ? parseInt(opt.getAttribute('data-stock'), 10) || 0 : 0;
+        const qty = parseInt(r.querySelector('.so-qty-input').value, 10) || 0;
+        if (prod && qty > 0) {
+          items.push({ product: prod, previousStock: prevStock, dispatchedQty: qty, balanceLeft: prevStock - qty });
+        }
+      });
+
+      if (items.length === 0) {
+        alert("Please select at least one product to dispatch.");
+        return;
+      }
+
+      const now = new Date();
+      if (!Array.isArray(appData.selfOutwardSlips)) appData.selfOutwardSlips = [];
+      appData.selfOutwardSlips.unshift({
+        id: slipNum,
+        gatePassNo,
+        date: now.toISOString().split('T')[0],
+        time: now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }),
+        items,
+        receiverName,
+        receiverMobile,
+        createdAt: now.toISOString()
+      });
+
+      pushToGoogle();
+      closeModal('modal-self-outward');
+      refreshCurrentView();
+    }
+
+    function renderSelfOutwardTable() {
+      const tbody = document.getElementById('self-outward-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      const list = appData.selfOutwardSlips || [];
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-slate-500">No self-stock outward dispatches recorded yet.</td></tr>`;
+        return;
+      }
+
+      list.forEach(s => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-900/50 transition";
+        tr.innerHTML = `
+          <td class="p-3">
+            <div class="font-bold text-white">${escapeHtml(s.id)}</div>
+            <div class="text-[10px] text-orange-400 font-mono">${s.date || ''} ${s.time || ''}</div>
+          </td>
+          <td class="p-3">
+            ${(s.items || []).map(it => `
+              <div class="text-xs text-white">
+                <span class="font-bold text-orange-400">${it.dispatchedQty} Nugs</span> of ${escapeHtml(it.product)}
+                <span class="text-[10px] text-cyan-400 font-mono">(Bal: ${it.balanceLeft})</span>
+              </div>
+            `).join('')}
+          </td>
+          <td class="p-3">
+            <div class="font-bold text-slate-200">${escapeHtml(s.receiverName || '-')}</div>
+            <div class="text-[10px] text-slate-400">${escapeHtml(s.receiverMobile || '')}</div>
+          </td>
+          <td class="p-3 font-mono text-slate-300 text-xs">GP: ${escapeHtml(s.gatePassNo || '-')}</td>
+          <td class="p-3 text-right">
+            ${userCanDelete() ? `<button onclick="deleteSelfOutward('${escapeHtml(s.id)}')" class="p-1.5 bg-slate-800 hover:bg-rose-950 text-rose-400 rounded"><i class="fa-solid fa-trash"></i></button>` : ''}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function deleteSelfOutward(id) {
+      if (!userCanDelete()) return;
+      if (confirm("Delete this self-stock outward pass?")) {
+        appData.selfOutwardSlips = (appData.selfOutwardSlips || []).filter(x => String(x.id) !== String(id));
+        pushToGoogle();
+        refreshCurrentView();
+      }
+    }
+
+    function renderSelfSummaryView() {
+      const target = document.getElementById('self-summary-render-target');
+      if (!target) return;
+
+      const summary = {};
+      (appData.selfInwardSlips || []).forEach(s => {
+        (s.items || []).forEach(it => {
+          if (!summary[it.product]) summary[it.product] = { inward: 0, outward: 0 };
+          summary[it.product].inward += (parseInt(it.qty, 10) || 0);
+        });
+      });
+      (appData.selfOutwardSlips || []).forEach(s => {
+        (s.items || []).forEach(it => {
+          if (!summary[it.product]) summary[it.product] = { inward: 0, outward: 0 };
+          summary[it.product].outward += (parseInt(it.dispatchedQty, 10) || 0);
+        });
+      });
+
+      const keys = Object.keys(summary);
+      if (keys.length === 0) {
+        target.innerHTML = `<div class="p-8 bg-slate-950 border border-slate-800 rounded-xl text-center text-slate-500">No self-stock inventory recorded yet.</div>`;
+        return;
+      }
+
+      target.innerHTML = `
+        <div class="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden shadow-xl">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-900 text-slate-400 uppercase text-[10px] border-b border-slate-800">
+              <tr>
+                <th class="p-3">Product Item</th>
+                <th class="p-3 text-right">Total Self Inward</th>
+                <th class="p-3 text-right">Total Self Dispatched</th>
+                <th class="p-3 text-right">Active Chamber Balance</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/60">
+              ${keys.map(k => {
+                const bal = summary[k].inward - summary[k].outward;
+                return `
+                  <tr class="hover:bg-slate-900/50">
+                    <td class="p-3 font-bold text-white">${escapeHtml(k)}</td>
+                    <td class="p-3 text-right font-mono text-emerald-400">${summary[k].inward} Nugs</td>
+                    <td class="p-3 text-right font-mono text-amber-400">${summary[k].outward} Nugs</td>
+                    <td class="p-3 text-right font-mono font-bold text-cyan-400">${bal} Nugs</td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    // =========================================================
     // 6. PAYMENTS & STAFF
     // =========================================================
     function openPaymentModal() {
@@ -2516,6 +2916,7 @@
 
     function renderPaymentsTable() {
       const tbody = document.getElementById('payment-table-body');
+      if (!tbody) return;
       tbody.innerHTML = '';
       if (appData.payments.length === 0) {
         tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-500">No payment receipts recorded yet.</td></tr>`;
@@ -2616,6 +3017,7 @@
 
     function renderStaffTable() {
       const tbody = document.getElementById('staff-table-body');
+      if (!tbody) return;
       tbody.innerHTML = '';
       appData.staffAccounts.forEach(s => {
         const tr = document.createElement('tr');
@@ -2783,7 +3185,6 @@
         });
       });
 
-      // Safe monthly recurrence loop with max 60 cycles
       const batches = buildPartyBatches(party.id);
       const outwards = appData.outwardSlips.filter(s => isRecordForParty(s, party));
 
@@ -2876,6 +3277,7 @@
     function renderPartyLedgerView() {
       const sel = document.getElementById('ledger-party-select');
       const target = document.getElementById('ledger-render-target');
+      if (!target) return;
       if (!sel || !sel.value) {
         target.innerHTML = `<div class="p-8 bg-slate-950 border border-slate-800 rounded-xl text-center text-slate-500">Please select a party to view ledger statement.</div>`;
         return;
@@ -3009,7 +3411,7 @@
               ${(s.items || []).map(it => `
                 <tr>
                   <td style="border:1px solid #000; padding:5px;">${escapeHtml(it.product)}</td>
-                  <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold;">${it.qty} ${escapeHtml(it.packaging)}</td>
+                  <td style="border:1px solid #000; padding:5px; text-align:right; font-weight:bold;">${it.qty}${escapeHtml(it.packaging)}</td>
                   <td style="border:1px solid #000; padding:5px;">${escapeHtml(it.chamber)}</td>
                 </tr>
               `).join('')}
