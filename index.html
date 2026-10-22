@@ -117,6 +117,9 @@
         <button onclick="switchTab('outward')" id="tab-outward" class="tab-btn px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap">
           <i class="fa-solid fa-arrow-up-from-bracket text-amber-400"></i> Outward Gate Pass
         </button>
+        <button onclick="switchTab('mapping')" id="tab-mapping" class="tab-btn px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap">
+          <i class="fa-solid fa-map-location-dot text-cyan-300"></i> Floor Stock Mapping
+        </button>
         <button onclick="switchTab('self-inward')" id="tab-self-inward" class="tab-btn px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap">
           <i class="fa-solid fa-warehouse text-indigo-400"></i> Self Inward
         </button>
@@ -266,6 +269,30 @@
             </table>
           </div>
         </div>
+      </section>
+
+      <!-- PANE 3.1: FLOOR STOCK MAPPING -->
+      <section id="pane-mapping" class="tab-pane hidden space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800">
+          <div>
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-map-location-dot text-cyan-300"></i> Floor & Section Stock Mapping (Ground & First Floor Layout)
+            </h2>
+            <p class="text-xs text-slate-400">Select floor sections, assign inward gate pass / lot numbers, and locate stock instantly</p>
+          </div>
+          <button onclick="openMappingModal()" class="px-3.5 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-cyan-500/10">
+            <i class="fa-solid fa-plus"></i> Map Stock to Section
+          </button>
+        </div>
+
+        <!-- Floor Filter Toggle -->
+        <div class="flex gap-2">
+          <button onclick="setMappingFloor('Ground Floor')" id="map-filter-ground" class="px-4 py-2 rounded-xl text-xs font-bold transition bg-cyan-500 text-slate-950">Ground Floor Layout</button>
+          <button onclick="setMappingFloor('First Floor')" id="map-filter-first" class="px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-800 text-slate-300">First Floor Layout</button>
+        </div>
+
+        <!-- Visual Floor Grid & Sections -->
+        <div id="mapping-render-container" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
       </section>
 
       <!-- PANE 3.5: SELF INWARD -->
@@ -567,6 +594,57 @@
         <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
           <button type="button" onclick="closeModal('modal-party')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg">Cancel</button>
           <button type="submit" class="px-5 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-lg">Save Party</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: MAPPING STOCK TO FLOOR SECTION -->
+  <div id="modal-mapping" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-950 border border-slate-800 rounded-2xl w-full max-w-lg p-5 sm:p-6 my-8 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h3 class="font-bold text-base text-white flex items-center gap-2">
+          <i class="fa-solid fa-map-pin text-cyan-400"></i> Map Inward Gate Pass to Floor Section
+        </h3>
+        <button onclick="closeModal('modal-mapping')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <form onsubmit="handleSaveMapping(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Select Floor Level *</label>
+          <select id="map-modal-floor" onchange="populateMappingSectionDropdown(); populateMappingSlipDropdown();" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white font-bold">
+            <option value="Ground Floor">Ground Floor (Gate, Pillars & Stairs Layout)</option>
+            <option value="First Floor">First Floor (Cooling Unit & Stairs Layout)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Select Floor Section / Zone *</label>
+          <select id="map-modal-section" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Select Inward Gate Pass / Slip # *</label>
+          <select id="map-modal-inward" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white font-mono">
+            <!-- Populated dynamically from inward slips -->
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Quantity in this Section (Nugs/Boxes) *</label>
+          <input id="map-modal-qty" type="number" min="1" required placeholder="e.g. 100" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white font-bold text-cyan-400" />
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Specific Location Notes / Stack Row</label>
+          <input id="map-modal-notes" type="text" placeholder="e.g. Near Pillar 3, Stack Row B" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white" />
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
+          <button type="button" onclick="closeModal('modal-mapping')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-lg">Save Mapping</button>
         </div>
       </form>
     </div>
@@ -1089,10 +1167,11 @@
 
   <!-- ==================== CORE LOGIC ENGINE ==================== -->
   <script>
-    const CACHE_KEY = 'BAZZ_STORAGE_PROD_V9_SELF_STOCK';
-    const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyo_dGbzwRiNpINuJZvL6K0D-UBtYnQIL8oHq40voHlMDMoJnFc7zN38Kq7cOClXkHMXQ/exec";
+    const CACHE_KEY = 'BAZZ_STORAGE_PROD_V11_SYNC';
+    const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyH9bk3nmnjlVD0A24iWs-G8mN_EAtWj-UMTNLBNdObC7gcDRx98ZvHCreEHFcbzTTfNQ/exec";
 
     let currentUser = null;
+    let currentMappingFloor = 'Ground Floor';
     let appData = {
       parties: [],
       inwardSlips: [],
@@ -1101,6 +1180,7 @@
       selfOutwardSlips: [],
       payments: [],
       staffAccounts: [],
+      floorMappings: [],
       masterProducts: ['Kinnow Grade A', 'Kinnow Grade B', 'Seed Potato', 'Apple', 'Pomegranate', 'Garlic', 'Kaaju', 'Anjeer', 'Kishmish', 'Chuara'],
       config: { googleScriptUrl: DEFAULT_SCRIPT_URL }
     };
@@ -1108,6 +1188,7 @@
     window.addEventListener('DOMContentLoaded', () => {
       loadLocalState();
       checkSavedSession();
+      pullFromGoogle(); // Automatically syncs with Google Sheets on page load across all devices
     });
 
     function loadLocalState() {
@@ -1123,6 +1204,7 @@
       if (!appData.masterProducts || appData.masterProducts.length === 0) {
         appData.masterProducts = ['Kinnow Grade A', 'Kinnow Grade B', 'Seed Potato', 'Apple', 'Pomegranate', 'Garlic', 'Kaaju', 'Anjeer', 'Kishmish', 'Chuara'];
       }
+      if (!appData.floorMappings) appData.floorMappings = [];
       if (!appData.config.googleScriptUrl) {
         appData.config.googleScriptUrl = DEFAULT_SCRIPT_URL;
       }
@@ -1166,7 +1248,7 @@
           return;
         }
         const data = JSON.parse(text);
-        if (data && typeof data === 'object' && data.parties) {
+        if (data && typeof data === 'object' && (data.parties || data.inwardSlips)) {
           appData.parties = data.parties || [];
           appData.inwardSlips = data.inwardSlips || [];
           appData.outwardSlips = data.outwardSlips || [];
@@ -1174,6 +1256,7 @@
           appData.selfOutwardSlips = data.selfOutwardSlips || [];
           appData.payments = data.payments || [];
           appData.staffAccounts = data.staffAccounts || [];
+          appData.floorMappings = data.floorMappings || [];
           appData.masterProducts = data.masterProducts || appData.masterProducts;
           saveLocalState();
           refreshCurrentView();
@@ -1199,6 +1282,7 @@
         selfOutwardSlips: appData.selfOutwardSlips,
         payments: appData.payments,
         staffAccounts: appData.staffAccounts,
+        floorMappings: appData.floorMappings,
         masterProducts: appData.masterProducts,
         timestamp: new Date().toISOString()
       };
@@ -1366,6 +1450,7 @@
         renderProductsTable();
         renderInwardTable();
         renderOutwardTable();
+        renderFloorMappingView();
         renderSelfInwardTable();
         renderSelfOutwardTable();
         renderSelfSummaryView();
@@ -1699,6 +1784,185 @@
         pushToGoogle();
         refreshCurrentView();
       }
+    }
+
+    // =========================================================
+    // 2.5 FLOOR & SECTION STOCK MAPPING (GROUND & FIRST FLOOR)
+    // =========================================================
+    const GROUND_SECTIONS = [
+      "Front Near Gate",
+      "Pillar Bay Zone A (Left Front)",
+      "Pillar Bay Zone B (Right Front)",
+      "Center-Left Aisle",
+      "Center-Right Aisle",
+      "Near Stairs Block",
+      "Rear Section (Deep Storage)"
+    ];
+
+    const FIRST_SECTIONS = [
+      "Near Indoor Cooling Unit (Front)",
+      "Left Wall Side",
+      "Right Wall Side",
+      "Center Floor Zone",
+      "Near First Floor Stairs"
+    ];
+
+    function setMappingFloor(floorName) {
+      currentMappingFloor = floorName;
+      const btnG = document.getElementById('map-filter-ground');
+      const btnF = document.getElementById('map-filter-first');
+      if (floorName === 'Ground Floor') {
+        btnG.className = "px-4 py-2 rounded-xl text-xs font-bold transition bg-cyan-500 text-slate-950";
+        btnF.className = "px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-800 text-slate-300";
+      } else {
+        btnF.className = "px-4 py-2 rounded-xl text-xs font-bold transition bg-cyan-500 text-slate-950";
+        btnG.className = "px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-800 text-slate-300";
+      }
+      renderFloorMappingView();
+    }
+
+    function openMappingModal() {
+      document.getElementById('map-modal-floor').value = currentMappingFloor;
+      populateMappingSectionDropdown();
+      populateMappingSlipDropdown();
+      document.getElementById('map-modal-qty').value = '';
+      document.getElementById('map-modal-notes').value = '';
+      openModal('modal-mapping');
+    }
+
+    function populateMappingSectionDropdown() {
+      const floor = document.getElementById('map-modal-floor').value;
+      const secSel = document.getElementById('map-modal-section');
+      const sections = floor === 'Ground Floor' ? GROUND_SECTIONS : FIRST_SECTIONS;
+      secSel.innerHTML = sections.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
+    }
+
+    function populateMappingSlipDropdown() {
+      const slipSel = document.getElementById('map-modal-inward');
+      if (!appData.inwardSlips || appData.inwardSlips.length === 0) {
+        slipSel.innerHTML = '<option value="">No inward slips available</option>';
+        return;
+      }
+      slipSel.innerHTML = appData.inwardSlips.map(s => {
+        const itemsSummary = s.items ? s.items.map(i => `${i.qty} ${i.product}`).join(', ') : `${s.qty} ${s.product}`;
+        return `<option value="${s.id}">Slip #${s.id} (GP: ${s.gatePassNo}) - ${escapeHtml(s.partyName)} [${escapeHtml(itemsSummary)}]</option>`;
+      }).join('');
+    }
+
+    function handleSaveMapping(e) {
+      e.preventDefault();
+      const floor = document.getElementById('map-modal-floor').value;
+      const section = document.getElementById('map-modal-section').value;
+      const inwardSlipId = document.getElementById('map-modal-inward').value;
+      const qty = parseInt(document.getElementById('map-modal-qty').value, 10) || 0;
+      const notes = document.getElementById('map-modal-notes').value.trim();
+
+      if (!appData.floorMappings) appData.floorMappings = [];
+
+      // Check if mapping for this section and slip already exists, then update or add
+      const existingIdx = appData.floorMappings.findIndex(m => m.floor === floor && m.section === section && m.inwardSlipId === inwardSlipId);
+      if (existingIdx !== -1) {
+        appData.floorMappings[existingIdx].qty = qty;
+        appData.floorMappings[existingIdx].notes = notes;
+      } else {
+        appData.floorMappings.push({
+          id: 'MAP-' + Date.now(),
+          floor,
+          section,
+          inwardSlipId,
+          qty,
+          notes,
+          createdAt: new Date().toISOString()
+        });
+      }
+
+      pushToGoogle();
+      closeModal('modal-mapping');
+      renderFloorMappingView();
+    }
+
+    function deleteMappingRecord(mapId) {
+      if (confirm("Remove this stock mapping from section?")) {
+        appData.floorMappings = appData.floorMappings.filter(m => m.id !== mapId);
+        pushToGoogle();
+        renderFloorMappingView();
+      }
+    }
+
+    function renderFloorMappingView() {
+      const container = document.getElementById('mapping-render-container');
+      if (!container) return;
+
+      const sections = currentMappingFloor === 'Ground Floor' ? GROUND_SECTIONS : FIRST_SECTIONS;
+      const mappings = appData.floorMappings || [];
+
+      let html = '';
+      sections.forEach(sec => {
+        const secMappings = mappings.filter(m => m.floor === currentMappingFloor && m.section === sec);
+        let totalQtyInSec = 0;
+        secMappings.forEach(m => totalQtyInSec += (parseInt(m.qty, 10) || 0));
+
+        html += `
+          <div class="bg-slate-950 rounded-xl border ${secMappings.length > 0 ? 'border-cyan-500/40 shadow-lg shadow-cyan-500/5' : 'border-slate-800'} p-4 space-y-3 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between">
+                <h3 class="font-bold text-white text-sm flex items-center gap-1.5">
+                  <i class="fa-solid fa-square-parking text-cyan-400"></i> ${escapeHtml(sec)}
+                </h3>
+                <span class="px-2 py-0.5 rounded text-[10px] font-black ${totalQtyInSec > 0 ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40' : 'bg-slate-900 text-slate-500'}">
+                  ${totalQtyInSec} Nugs Stored
+                </span>
+              </div>
+              <p class="text-[11px] text-slate-400 mt-1">${currentMappingFloor} Zone</p>
+            </div>
+
+            <div class="space-y-2 pt-2 border-t border-slate-900">
+        `;
+
+        if (secMappings.length === 0) {
+          html += `<div class="text-[11px] text-slate-500 italic py-2">No stock mapped to this section yet.</div>`;
+        } else {
+          secMappings.forEach(m => {
+            const slip = appData.inwardSlips.find(s => String(s.id) === String(m.inwardSlipId));
+            const partyName = slip ? slip.partyName : 'Unknown Party';
+            const gpNo = slip ? slip.gatePassNo : '-';
+
+            html += `
+              <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-800 text-xs space-y-1 relative group">
+                <div class="flex justify-between items-start">
+                  <span class="font-bold text-white">Slip #${m.inwardSlipId} <span class="text-[10px] text-emerald-400 font-mono">(GP: ${gpNo})</span></span>
+                  <button onclick="deleteMappingRecord('${m.id}')" title="Remove" class="text-rose-400 hover:text-rose-300"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="text-slate-300 font-semibold">${escapeHtml(partyName)}</div>
+                <div class="flex justify-between items-center text-[11px]">
+                  <span class="text-cyan-400 font-bold">${m.qty} Nugs</span>
+                  <span class="text-slate-400 italic">${escapeHtml(m.notes || '')}</span>
+                </div>
+              </div>
+            `;
+          });
+        }
+
+        html += `
+            </div>
+            <button onclick="openMappingModalForSection('${escapeHtml(currentMappingFloor)}', '${escapeHtml(sec)}')" class="w-full py-1.5 bg-slate-900 hover:bg-cyan-950/40 text-cyan-400 border border-slate-800 rounded-lg text-xs font-semibold transition mt-2">
+              + Map Stock Here
+            </button>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function openMappingModalForSection(floor, section) {
+      document.getElementById('map-modal-floor').value = floor;
+      populateMappingSectionDropdown();
+      document.getElementById('map-modal-section').value = section;
+      populateMappingSlipDropdown();
+      document.getElementById('map-modal-qty').value = '';
+      document.getElementById('map-modal-notes').value = '';
+      openModal('modal-mapping');
     }
 
     // =========================================================
@@ -3051,8 +3315,6 @@
     // =========================================================
     // 6. TRUE FIFO & FINANCIAL CALCULATION ENGINES
     // =========================================================
-
-    // Helper: checks if a record belongs to the requested party across all identity variations
     function isRecordForParty(record, party) {
       if (!record || !party) return false;
       const recPartyId = record.partyId ? String(record.partyId).trim() : '';
