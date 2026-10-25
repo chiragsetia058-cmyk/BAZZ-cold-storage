@@ -1167,7 +1167,7 @@
 
   <!-- ==================== CORE LOGIC ENGINE ==================== -->
   <script>
-    const CACHE_KEY = 'BAZZ_STORAGE_PROD_V12_SYNC';
+    const CACHE_KEY = 'BAZZ_STORAGE_PROD_V11_SYNC';
     const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyH9bk3nmnjlVD0A24iWs-G8mN_EAtWj-UMTNLBNdObC7gcDRx98ZvHCreEHFcbzTTfNQ/exec";
 
     let currentUser = null;
@@ -1290,7 +1290,7 @@
       fetch(url, {
         method: "POST",
         mode: "no-cors",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       }).then(() => {
         updateCloudStatus("Cloud Synced ☁️", "text-emerald-400 border-emerald-500/40 bg-emerald-950/60");
@@ -1859,6 +1859,7 @@
 
       if (!appData.floorMappings) appData.floorMappings = [];
 
+      // Check if mapping for this section and slip already exists, then update or add
       const existingIdx = appData.floorMappings.findIndex(m => m.floor === floor && m.section === section && m.inwardSlipId === inwardSlipId);
       if (existingIdx !== -1) {
         appData.floorMappings[existingIdx].qty = qty;
@@ -4193,8 +4194,7 @@
       if (!s) return;
 
       const itemsList = s.items ? s.items : [{ product: s.product, qty: s.qty, packaging: s.packaging, chamber: s.chamber }];
-      let itemsTxt = itemsList.map(it => `• *${it.qty} ${it.packaging}* of ${it.product} (${it.chamber})`).join('
-');
+      let itemsTxt = itemsList.map(it => `• *${it.qty} ${it.packaging}* of ${it.product} (${it.chamber})`).join('\n');
 
       const text = 
 `*❄️ BAZZ COLD STORAGE & PRE-COOLING PLANT*
@@ -4226,8 +4226,7 @@ _Official cold storage inventory receipt._`;
       const s = appData.outwardSlips.find(x => String(x.id) === String(passId));
       if (!s) return;
 
-      let itemsTxt = s.items.map(it => `• *${it.dispatchedQty}* ${it.product} (Prev: ${it.previousStock} | Balance Left: *${it.balanceLeft}*)`).join('
-');
+      let itemsTxt = s.items.map(it => `• *${it.dispatchedQty}* ${it.product} (Prev: ${it.previousStock} | Balance Left: *${it.balanceLeft}*)`).join('\n');
 
       const text = 
 `*❄ BAZZ COLD STORAGE & PRE-COOLING PLANT*
@@ -4269,8 +4268,7 @@ Date: ${p.date}
 *Received From:* ${p.partyName}
 *Amount Paid:* ₹${p.amount.toLocaleString('en-IN')}
 *Payment Mode:* ${p.mode} ${p.bankName ? `(${p.bankName})` : ''}
-${p.remarks ? `*Reference:* ${p.remarks}
-` : ''}
+${p.remarks ? `*Reference:* ${p.remarks}\n` : ''}
 *Remaining Balance Due:* ₹${fin.netDue.toLocaleString('en-IN')}
 ---------------------------------------
 _Thank you for your payment!_`;
